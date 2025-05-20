@@ -39,7 +39,8 @@ function Router() {
       <Route path="/explore" component={Explore} />
       <Route path="/profile" component={() => <ProtectedRoute component={Profile} />} />
       <Route path="/snippets" component={() => <ProtectedRoute component={Snippets} />} />
-      <Route path="/ai-assistant" component={() => <ProtectedRoute component={AIAssistant} />} />
+      <Route path="/ai-assistant" component={AIAssistant} />
+      <Route path="/bookmarks" component={() => <ProtectedRoute component={Profile} />} />
       <Route path="/login" component={Login} />
       <Route component={NotFound} />
     </Switch>
