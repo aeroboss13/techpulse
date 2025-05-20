@@ -556,6 +556,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch suggested users" });
     }
   });
+  
+  // AI post analysis endpoint
+  app.post('/api/ai/analyze-post', async (req, res) => {
+    try {
+      const { content } = req.body;
+      
+      if (!content) {
+        return res.status(400).json({ message: "Post content is required" });
+      }
+      
+      // Import the new function we added to ai.ts
+      const { analyzePost } = require("./ai");
+      
+      const analysis = await analyzePost(content);
+      res.json(analysis);
+    } catch (error) {
+      console.error("Error analyzing post with AI:", error);
+      res.status(500).json({ 
+        message: "Failed to analyze post",
+        suggestions: [
+          "Add code examples to illustrate your point",
+          "Include relevant hashtags for better discoverability",
+          "Ask a question to encourage engagement"
+        ],
+        topics: [{ name: "Development", relevance: 0.9 }],
+        sentiment: "neutral",
+        readability: "medium"
+      });
+    }
+  });
+  
+  // AI content ideas generation endpoint
+  app.post('/api/ai/content-ideas', async (req, res) => {
+    try {
+      const { topics, count } = req.body;
+      
+      if (!topics || !Array.isArray(topics) || topics.length === 0) {
+        return res.status(400).json({ message: "At least one topic is required" });
+      }
+      
+      // Import the new function we added to ai.ts
+      const { generateContentIdeas } = require("./ai");
+      
+      const ideas = await generateContentIdeas(topics, count || 5);
+      res.json({ ideas });
+    } catch (error) {
+      console.error("Error generating content ideas with AI:", error);
+      res.status(500).json({ 
+        message: "Failed to generate content ideas",
+        ideas: [
+          "Share your experience with a challenging debugging session and what you learned from it.",
+          "Compare different approaches to state management in frontend applications.",
+          "Discuss the pros and cons of your favorite programming language for different use cases."
+        ]
+      });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
