@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function Explore() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTab, setSelectedTab] = useState("trending");
+  const { t, language } = useLanguage();
   
   useEffect(() => {
     document.title = "DevStream - Explore";
@@ -107,10 +109,10 @@ export default function Explore() {
       
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
         <TabsList className="w-full">
-          <TabsTrigger value="trending" className="flex-1">Trending</TabsTrigger>
-          <TabsTrigger value="latest" className="flex-1">Latest</TabsTrigger>
+          <TabsTrigger value="trending" className="flex-1">{t('general.trending')}</TabsTrigger>
+          <TabsTrigger value="latest" className="flex-1">{t('general.latest')}</TabsTrigger>
           {searchTerm && (
-            <TabsTrigger value="search" className="flex-1">Search Results</TabsTrigger>
+            <TabsTrigger value="search" className="flex-1">{language === 'ru' ? 'Результаты поиска' : 'Search Results'}</TabsTrigger>
           )}
         </TabsList>
         
@@ -123,9 +125,9 @@ export default function Explore() {
             </>
           ) : trendingPosts?.length === 0 ? (
             <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center">
-              <h3 className="text-xl font-medium mb-2">No trending posts</h3>
+              <h3 className="text-xl font-medium mb-2">{language === 'ru' ? 'Нет популярных постов' : 'No trending posts'}</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                Check back later for trending content
+                {language === 'ru' ? 'Загляните позже, чтобы увидеть популярный контент' : 'Check back later for trending content'}
               </p>
             </div>
           ) : (
@@ -144,9 +146,9 @@ export default function Explore() {
             </>
           ) : latestPosts?.length === 0 ? (
             <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center">
-              <h3 className="text-xl font-medium mb-2">No posts yet</h3>
+              <h3 className="text-xl font-medium mb-2">{language === 'ru' ? 'Пока нет постов' : 'No posts yet'}</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                Be the first to share something with the community!
+                {language === 'ru' ? 'Будьте первым, кто поделится чем-то с сообществом!' : 'Be the first to share something with the community!'}
               </p>
             </div>
           ) : (
