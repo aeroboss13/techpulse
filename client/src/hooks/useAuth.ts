@@ -53,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { data: userData, isLoading } = useQuery({
     queryKey: ['/api/auth/me'],
     retry: false,
+    staleTime: 60000, // 1 minute
   });
 
   // Set user data when it's loaded

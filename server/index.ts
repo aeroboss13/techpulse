@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
+import { initializeDefaultUser } from "./auth";
 
 const app = express();
 app.use(express.json());
@@ -25,6 +26,9 @@ app.use(session({
     secure: process.env.NODE_ENV === 'production'
   }
 }));
+
+// Инициализация тестового пользователя
+initializeDefaultUser();
 
 app.use((req, res, next) => {
   const start = Date.now();

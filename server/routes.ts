@@ -4,17 +4,10 @@ import { storage } from "./storage";
 import { v4 as uuidv4 } from "uuid";
 import { insertPostSchema, insertCodeSnippetSchema } from "@shared/schema";
 import { generateAiSuggestion, getAiRecommendations } from "./ai";
-
-// Middleware для проверки авторизации
-const isAuthenticated = (req: any, res: Response, next: NextFunction) => {
-  if (!req.session || !req.session.userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-  next();
-};
+import { isAuthenticated, hashPassword, comparePassword } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth routes
+  // Получение данных текущего пользователя
   app.get('/api/auth/me', async (req: any, res) => {
     try {
       if (!req.session || !req.session.userId) {
@@ -32,8 +25,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id: user.id,
         email: user.email,
         username: user.username || user.email?.split('@')[0] || 'user',
+        firstName: user.firstName,
+        lastName: user.lastName,
         displayName: user.firstName || user.email?.split('@')[0] || 'User',
-        profileImageUrl: user.profileImageUrl
+        profileImageUrl: user.profileImageUrl,
+        language: user.language || 'en'
       });
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -41,7 +37,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Register new user
+  // Регистрация нового пользователя
   app.post('/api/auth/register', async (req, res) => {
     try {
       const { name, email, username, password } = req.body;
@@ -50,33 +46,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "All fields are required" });
       }
       
-      // Check if email already exists
+      // Проверка существующего email
       const existingUserByEmail = await storage.getUserByEmail(email);
       if (existingUserByEmail) {
         return res.status(400).json({ message: "Email already in use" });
       }
       
-      // Check if username already exists
+      // Проверка существующего username
       const existingUserByUsername = await storage.getUserByUsername(username);
       if (existingUserByUsername) {
         return res.status(400).json({ message: "Username already taken" });
       }
       
-      // Create new user
+      // Создание нового пользователя
       const userId = uuidv4();
-      const newUser = await storage.upsertUser({
+      await storage.upsertUser({
         id: userId,
         email,
         username,
         firstName: name.split(' ')[0],
         lastName: name.split(' ').slice(1).join(' '),
         profileImageUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
-        passwordHash: await storage.hashPassword(password),
+        passwordHash: await hashPassword(password),
+        language: 'en'
       });
+      
+      // Автоматический вход после регистрации
+      req.session.userId = userId;
+      
+      const user = await storage.getUser(userId);
       
       res.status(201).json({
         success: true,
-        message: "User registered successfully"
+        message: "User registered successfully",
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          displayName: user.firstName || user.email?.split('@')[0],
+          profileImageUrl: user.profileImageUrl,
+          language: user.language
+        }
       });
       
     } catch (error) {
@@ -85,7 +97,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Login user
+  // Вход пользователя
   app.post('/api/auth/login', async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -94,19 +106,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Email and password are required" });
       }
       
-      // Get user by email
+      // Поиск пользователя по email
       const user = await storage.getUserByEmail(email);
       if (!user) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
       
-      // Check password
-      const isPasswordValid = await storage.verifyPassword(password, user.passwordHash || '');
+      // Проверка пароля
+      const isPasswordValid = await comparePassword(password, user.passwordHash || '');
       if (!isPasswordValid) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
       
-      // Create session
+      // Создание сессии
       req.session.userId = user.id;
       
       res.json({
@@ -115,9 +127,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         user: {
           id: user.id,
           email: user.email,
-          username: user.username || user.email?.split('@')[0] || 'user',
-          displayName: user.firstName || user.email?.split('@')[0] || 'User',
-          profileImageUrl: user.profileImageUrl
+          username: user.username,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          displayName: user.firstName || user.email?.split('@')[0],
+          profileImageUrl: user.profileImageUrl,
+          language: user.language
         }
       });
       
@@ -127,7 +142,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Logout user
+  // Выход пользователя
   app.post('/api/auth/logout', (req, res) => {
     if (req.session) {
       req.session.destroy(err => {
@@ -142,15 +157,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, message: "Already logged out" });
     }
   });
+  
+  // Обновление языка пользователя
+  app.post('/api/auth/language', isAuthenticated, async (req: any, res) => {
+    try {
+      const { language } = req.body;
+      const userId = req.session.userId;
+      
+      if (!language) {
+        return res.status(400).json({ message: "Language is required" });
+      }
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      await storage.upsertUser({
+        ...user,
+        language
+      });
+      
+      res.json({ success: true, message: "Language updated successfully" });
+    } catch (error) {
+      console.error("Error updating language:", error);
+      res.status(500).json({ message: "Failed to update language" });
+    }
+  });
 
   // Posts
-  app.get('/api/posts', async (req, res) => {
+  app.get('/api/posts', async (req: any, res) => {
     try {
       const posts = await storage.getAllPosts();
       const enhancedPosts = await Promise.all(posts.map(async (post) => {
         const user = await storage.getUser(post.userId);
-        const isLiked = req.user ? await storage.isPostLikedByUser(post.id, req.user.claims.sub) : false;
-        const isBookmarked = req.user ? await storage.isPostBookmarkedByUser(post.id, req.user.claims.sub) : false;
+        const isLiked = req.session && req.session.userId 
+          ? await storage.isPostLikedByUser(post.id, req.session.userId) 
+          : false;
+        const isBookmarked = req.session && req.session.userId 
+          ? await storage.isPostBookmarkedByUser(post.id, req.session.userId) 
+          : false;
         
         return {
           ...post,
@@ -172,13 +218,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/posts/trending', async (req, res) => {
+  app.get('/api/posts/trending', async (req: any, res) => {
     try {
       const posts = await storage.getTrendingPosts();
       const enhancedPosts = await Promise.all(posts.map(async (post) => {
         const user = await storage.getUser(post.userId);
-        const isLiked = req.user ? await storage.isPostLikedByUser(post.id, req.user.claims.sub) : false;
-        const isBookmarked = req.user ? await storage.isPostBookmarkedByUser(post.id, req.user.claims.sub) : false;
+        const isLiked = req.session && req.session.userId 
+          ? await storage.isPostLikedByUser(post.id, req.session.userId) 
+          : false;
+        const isBookmarked = req.session && req.session.userId 
+          ? await storage.isPostBookmarkedByUser(post.id, req.session.userId) 
+          : false;
         
         return {
           ...post,
@@ -200,13 +250,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/posts/latest', async (req, res) => {
+  app.get('/api/posts/latest', async (req: any, res) => {
     try {
       const posts = await storage.getLatestPosts();
       const enhancedPosts = await Promise.all(posts.map(async (post) => {
         const user = await storage.getUser(post.userId);
-        const isLiked = req.user ? await storage.isPostLikedByUser(post.id, req.user.claims.sub) : false;
-        const isBookmarked = req.user ? await storage.isPostBookmarkedByUser(post.id, req.user.claims.sub) : false;
+        const isLiked = req.session && req.session.userId 
+          ? await storage.isPostLikedByUser(post.id, req.session.userId) 
+          : false;
+        const isBookmarked = req.session && req.session.userId 
+          ? await storage.isPostBookmarkedByUser(post.id, req.session.userId) 
+          : false;
         
         return {
           ...post,
@@ -228,7 +282,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/posts/search', async (req, res) => {
+  app.get('/api/posts/search', async (req: any, res) => {
     try {
       const searchTerm = req.query.q as string;
       if (!searchTerm) {
@@ -238,8 +292,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const posts = await storage.searchPosts(searchTerm);
       const enhancedPosts = await Promise.all(posts.map(async (post) => {
         const user = await storage.getUser(post.userId);
-        const isLiked = req.user ? await storage.isPostLikedByUser(post.id, req.user.claims.sub) : false;
-        const isBookmarked = req.user ? await storage.isPostBookmarkedByUser(post.id, req.user.claims.sub) : false;
+        const isLiked = req.session && req.session.userId 
+          ? await storage.isPostLikedByUser(post.id, req.session.userId) 
+          : false;
+        const isBookmarked = req.session && req.session.userId 
+          ? await storage.isPostBookmarkedByUser(post.id, req.session.userId) 
+          : false;
         
         return {
           ...post,
