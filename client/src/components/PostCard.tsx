@@ -155,7 +155,24 @@ export default function PostCard({ post }: PostCardProps) {
               </span>
             </div>
             
-            <p className="mt-1 text-gray-700 dark:text-gray-300">{post.content}</p>
+            <div className="mt-1 text-gray-700 dark:text-gray-300">
+              {post.content.split(/```([\w-]+)?\n([\s\S]*?)```/).map((part, i, arr) => {
+                if (i % 3 === 0) {
+                  return <p key={i}>{part}</p>;
+                } else if (i % 3 === 1) {
+                  // This is a language identifier
+                  return null;
+                } else {
+                  // This is code content
+                  const language = arr[i-1] || 'javascript';
+                  return (
+                    <div className="mt-3" key={i}>
+                      <CodeSnippet code={part} language={language} />
+                    </div>
+                  );
+                }
+              })}
+            </div>
             
             {post.codeSnippet && (
               <div className="mt-3">
