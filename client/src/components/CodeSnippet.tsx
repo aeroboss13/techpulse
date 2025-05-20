@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Check, Copy, Terminal, Code as CodeIcon, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/useLanguage";
+import hljs from "highlight.js";
+import "highlight.js/styles/atom-one-dark.css";
 
 interface CodeSnippetProps {
   code: string;
@@ -122,7 +124,26 @@ export default function CodeSnippet({
     }
   };
 
-  // Format code for display
+  // Ref для доступа к DOM-элементу с кодом
+  const codeRef = useRef<HTMLElement>(null);
+  
+  // Применение подсветки синтаксиса при монтировании или изменении кода
+  useEffect(() => {
+    if (codeRef.current) {
+      // Регистрация языка, если это необходимо
+      try {
+        // Очищаем содержимое перед обновлением
+        codeRef.current.textContent = code;
+        
+        // Подсветка синтаксиса
+        hljs.highlightElement(codeRef.current);
+      } catch (e) {
+        console.error("Ошибка подсветки кода:", e);
+      }
+    }
+  }, [code, language]);
+
+  // Форматирование кода для отображения с номерами строк
   const formatLines = () => {
     if (!code) return [];
     return code.split('\n');
@@ -168,16 +189,20 @@ export default function CodeSnippet({
                 ))}
               </div>
               <pre className="flex-1 m-0 overflow-visible">
-                <code className="text-gray-200 font-mono text-sm whitespace-pre">
-                  {codeLines.map((line, i) => (
-                    <div key={i}>{line || " "}</div>
-                  ))}
+                <code 
+                  ref={codeRef}
+                  className={`language-${language?.toLowerCase() || 'plaintext'} text-gray-200 font-mono text-sm whitespace-pre`}
+                >
+                  {code}
                 </code>
               </pre>
             </div>
           ) : (
             <pre className="m-0 overflow-visible">
-              <code className="text-gray-200 font-mono text-sm whitespace-pre">
+              <code 
+                ref={codeRef}
+                className={`language-${language?.toLowerCase() || 'plaintext'} text-gray-200 font-mono text-sm whitespace-pre`}
+              >
                 {code}
               </code>
             </pre>

@@ -169,7 +169,12 @@ export default function PostCard({ post }: PostCardProps) {
                       const code = codeMatch[2] || '';
                       return (
                         <div className="mt-3 mb-3" key={i}>
-                          <CodeSnippet code={code} language={language} />
+                          <CodeSnippet 
+                            code={code} 
+                            language={language} 
+                            showLineNumbers={true}
+                            maxHeight="300px"
+                          />
                         </div>
                       );
                     }
@@ -186,7 +191,12 @@ export default function PostCard({ post }: PostCardProps) {
             
             {post.codeSnippet && (
               <div className="mt-3">
-                <CodeSnippet code={post.codeSnippet} language={post.language || 'javascript'} />
+                <CodeSnippet 
+                  code={post.codeSnippet} 
+                  language={post.language || 'javascript'} 
+                  showLineNumbers={true}
+                  maxHeight="300px"
+                />
               </div>
             )}
             
