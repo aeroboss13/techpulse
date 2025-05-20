@@ -263,7 +263,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/posts', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const postData = insertPostSchema.parse(req.body);
 
       const newPost = await storage.createPost({
