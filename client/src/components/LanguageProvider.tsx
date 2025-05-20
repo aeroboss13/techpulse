@@ -20,6 +20,7 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.settings': 'Settings',
     'nav.logout': 'Logout',
     'nav.login': 'Login',
+    'nav.aiAssistant': 'AI Assistant',
     
     // Auth
     'auth.email': 'Email',
@@ -41,17 +42,37 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.chooseUsername': 'Choose a username',
     'auth.createPassword': 'Create a password',
     'auth.confirmYourPassword': 'Confirm your password',
+    'auth.logIn': 'Log In',
     
     // Posts
     'post.write': 'What\'s on your mind?',
     'post.addCode': 'Add Code',
     'post.post': 'Post',
     'post.like': 'Like',
+    'post.comment': 'Comment',
+    'post.bookmark': 'Bookmark',
+    'post.share': 'Share',
     
     // AI Assistant
     'ai.send': 'Send',
     'ai.message': 'Type your message',
     'ai.analyze': 'Analyze',
+    'ai.analyzePost': 'Analyze Post',
+    'ai.improveCode': 'Improve Code',
+    'ai.suggestTopics': 'Suggest Topics',
+    'ai.sendMessage': 'Send Message',
+    'ai.placeholder': 'Ask me anything about coding or get help with your posts...',
+    
+    // Code snippets
+    'code.save': 'Save',
+    'code.copy': 'Copy',
+    'code.delete': 'Delete',
+    'code.edit': 'Edit',
+    'code.language': 'Language',
+    'code.title': 'Title',
+    'code.description': 'Description',
+    'code.public': 'Public',
+    'code.private': 'Private',
     
     // Profile
     'profile.edit': 'Edit Profile',
@@ -94,6 +115,16 @@ const translations: Record<Language, Record<string, string>> = {
     'general.follow': 'Follow',
     'general.showMore': 'Show more',
     'general.whoToFollow': 'Who to Follow',
+    'general.newPost': 'New Post',
+    'general.submit': 'Submit',
+    'general.trending': 'Trending',
+    'general.suggested': 'Suggested for you',
+    'general.seeMore': 'See more',
+    'general.settings': 'Settings',
+    'general.logout': 'Log out',
+    'general.language': 'Language',
+    'general.theme': 'Theme',
+    'general.lightMode': 'Light mode',
   },
   ru: {
     // Navigation
@@ -106,6 +137,7 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.settings': 'Настройки',
     'nav.logout': 'Выйти',
     'nav.login': 'Войти',
+    'nav.aiAssistant': 'ИИ-Ассистент',
     
     // Auth
     'auth.email': 'Эл. почта',
@@ -127,17 +159,37 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.chooseUsername': 'Выберите имя пользователя',
     'auth.createPassword': 'Создайте пароль',
     'auth.confirmYourPassword': 'Подтвердите ваш пароль',
+    'auth.logIn': 'Войти',
     
     // Posts
     'post.write': 'О чем вы думаете?',
     'post.addCode': 'Добавить код',
     'post.post': 'Опубликовать',
     'post.like': 'Нравится',
+    'post.comment': 'Комментарий',
+    'post.bookmark': 'Закладка',
+    'post.share': 'Поделиться',
     
     // AI Assistant
     'ai.send': 'Отправить',
     'ai.message': 'Введите сообщение',
     'ai.analyze': 'Анализировать',
+    'ai.analyzePost': 'Анализировать пост',
+    'ai.improveCode': 'Улучшить код',
+    'ai.suggestTopics': 'Предложить темы',
+    'ai.sendMessage': 'Отправить сообщение',
+    'ai.placeholder': 'Спросите что-нибудь о программировании или получите помощь с вашими постами...',
+    
+    // Code snippets
+    'code.save': 'Сохранить',
+    'code.copy': 'Копировать',
+    'code.delete': 'Удалить',
+    'code.edit': 'Изменить',
+    'code.language': 'Язык',
+    'code.title': 'Название',
+    'code.description': 'Описание',
+    'code.public': 'Публичный',
+    'code.private': 'Приватный',
     
     // Profile
     'profile.edit': 'Редактировать профиль',
@@ -180,6 +232,16 @@ const translations: Record<Language, Record<string, string>> = {
     'general.follow': 'Подписаться',
     'general.showMore': 'Показать больше',
     'general.whoToFollow': 'Кого читать',
+    'general.newPost': 'Новый пост',
+    'general.submit': 'Отправить',
+    'general.trending': 'Популярное',
+    'general.suggested': 'Рекомендовано для вас',
+    'general.seeMore': 'Показать больше',
+    'general.settings': 'Настройки',
+    'general.logout': 'Выйти',
+    'general.language': 'Язык',
+    'general.theme': 'Тема',
+    'general.lightMode': 'Светлая тема',
   }
 };
 
