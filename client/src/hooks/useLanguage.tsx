@@ -8,7 +8,12 @@ type LanguageContextType = {
   t: (key: string) => string;
 };
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+// Create the context with default values
+const LanguageContext = createContext<LanguageContextType>({
+  language: 'en',
+  setLanguage: () => {},
+  t: (key) => key
+});
 
 const translations: Record<Language, Record<string, string>> = {
   en: {
@@ -157,9 +162,7 @@ const translations: Record<Language, Record<string, string>> = {
   }
 };
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
-
-export function LanguageProvider({ children }: { children: ReactNode }) {
+export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     // Try to get the language from localStorage
     if (typeof window !== 'undefined') {
@@ -184,10 +187,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return translations[language][key] || key;
   };
 
-  return React.createElement(
-    LanguageContext.Provider,
-    { value: { language, setLanguage, t } },
-    children
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
   );
 }
 
