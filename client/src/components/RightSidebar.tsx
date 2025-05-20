@@ -87,7 +87,7 @@ export default function RightSidebar() {
         {/* Who to Follow */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle>Who to follow</CardTitle>
+            <CardTitle>{t('general.whoToFollow')}</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <ul className="space-y-4">
