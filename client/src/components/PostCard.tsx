@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import CodeSnippet from "./CodeSnippet";
+import { useLanguage } from "./LanguageProvider";
 
 interface PostCardProps {
   post: {
@@ -42,6 +43,7 @@ export default function PostCard({ post }: PostCardProps) {
   const [bookmarked, setBookmarked] = useState(post.isBookmarked);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { t, language } = useLanguage();
   
   const likePostMutation = useMutation({
     mutationFn: () => {
@@ -151,7 +153,21 @@ export default function PostCard({ post }: PostCardProps) {
               <span className="text-gray-500 dark:text-gray-400">@{post.user.username}</span>
               <span className="text-gray-500 dark:text-gray-400">·</span>
               <span className="text-gray-500 dark:text-gray-400">
-                {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+                {(() => {
+                  const distance = formatDistanceToNow(new Date(post.createdAt));
+                  // Format: "less than a minute", "1 minute", "2 minutes", "about 1 hour", "1 day", etc.
+                  if (language === 'ru') {
+                    if (distance.includes('less than a minute')) return 'меньше минуты назад';
+                    if (distance.includes('minute ago')) return distance.replace('minute ago', t('general.minuteAgo'));
+                    if (distance.includes('minutes')) return distance.replace('minutes', t('general.minutesAgo'));
+                    if (distance.includes('about 1 hour')) return 'около 1 часа назад';
+                    if (distance.includes('hours')) return distance.replace('hours', t('general.hoursAgo'));
+                    if (distance.includes('day ago')) return distance.replace('day ago', t('general.dayAgo'));
+                    if (distance.includes('days')) return distance.replace('days', t('general.daysAgo'));
+                    return distance + ' ' + t('general.timeAgo');
+                  }
+                  return distance + ' ' + t('general.timeAgo');
+                })()}
               </span>
             </div>
             
