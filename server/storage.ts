@@ -422,21 +422,33 @@ export class MemStorage implements IStorage {
   // Trending topics
   async getTrendingTopics(): Promise<TrendingTopic[]> {
     // Анализируем все посты и собираем статистику по хэштегам
-    const hashtagStats = new Map<string, { count: number, category: string }>();
+    const hashtagStats = new Map<string, { 
+      count: number, 
+      category: string, 
+      isRecent: boolean,
+      lastPosted: Date
+    }>();
     
     // Получаем все посты
     const posts = await this.getAllPosts();
     
+    // Определяем текущую дату для фильтрации по свежести
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 дней назад
+    
     // Анализируем посты для поиска хэштегов
     posts.forEach(post => {
+      const postDate = new Date(post.createdAt || now);
+      const isRecent = postDate > oneWeekAgo; // Пост создан за последнюю неделю
+      
       // Шаг 1: Извлекаем хэштеги из массива тегов (если они есть)
       const tagsFromArray: string[] = post.tags || [];
       
       // Шаг 2: Извлекаем хэштеги из текста поста с помощью регулярного выражения
       const tagsFromContent: string[] = [];
       if (post.content) {
-        // Ищем все хэштеги в формате #слово
-        const hashtagRegex = /#(\w+)/g;
+        // Ищем все хэштеги в формате #слово (поддерживаем кириллицу и латиницу)
+        const hashtagRegex = /#([а-яА-Яa-zA-Z0-9_]+)/g;
         let match;
         while ((match = hashtagRegex.exec(post.content)) !== null) {
           // match[1] содержит слово без символа #
@@ -462,33 +474,51 @@ export class MemStorage implements IStorage {
           if (tagLower.includes('js') || tagLower.includes('script') || 
               tagLower.includes('html') || tagLower.includes('css') || 
               tagLower.includes('web') || tagLower.includes('react') ||
-              tagLower.includes('type') || tagLower.includes('node')) {
+              tagLower.includes('type') || tagLower.includes('node') ||
+              tagLower.includes('фронтенд')) {
             category = "Web Dev";
           } else if (tagLower.includes('ai') || tagLower.includes('ml') || 
                      tagLower.includes('gpt') || tagLower.includes('learning') ||
-                     tagLower.includes('нейро')) {
+                     tagLower.includes('нейро') || tagLower.includes('искусственный')) {
             category = "AI";
           } else if (tagLower.includes('cloud') || tagLower.includes('aws') || 
                      tagLower.includes('azure') || tagLower.includes('kubernetes') ||
-                     tagLower.includes('docker')) {
+                     tagLower.includes('docker') || tagLower.includes('облако')) {
             category = "Cloud";
           } else if (tagLower.includes('security') || tagLower.includes('crypto') || 
                      tagLower.includes('hack') || tagLower.includes('privacy') ||
-                     tagLower.includes('безопасность')) {
+                     tagLower.includes('безопасность') || tagLower.includes('защита')) {
             category = "Security";
           } else if (tagLower.includes('mobile') || tagLower.includes('android') || 
                      tagLower.includes('ios') || tagLower.includes('app') ||
-                     tagLower.includes('мобильн')) {
+                     tagLower.includes('мобильн') || tagLower.includes('приложение')) {
             category = "Mobile";
           } else if (tagLower.includes('data') || tagLower.includes('sql') || 
                      tagLower.includes('database') || tagLower.includes('бд') ||
-                     tagLower.includes('данные')) {
+                     tagLower.includes('данные') || tagLower.includes('база')) {
             category = "Data";
           }
           
           // Обновляем статистику
-          const stats = hashtagStats.get(hashtag) || { count: 0, category };
+          const stats = hashtagStats.get(hashtag) || { 
+            count: 0, 
+            category, 
+            isRecent: false,
+            lastPosted: new Date(0) // Инициализируем самой старой датой
+          };
+          
           stats.count++;
+          
+          // Обновляем флаг свежести и дату последнего поста с этим тегом
+          if (isRecent) {
+            stats.isRecent = true;
+          }
+          
+          // Обновляем дату последнего поста, если текущий пост новее
+          if (postDate > stats.lastPosted) {
+            stats.lastPosted = postDate;
+          }
+          
           hashtagStats.set(hashtag, stats);
         });
       }
@@ -502,17 +532,37 @@ export class MemStorage implements IStorage {
     
     // Преобразуем статистику в массив трендовых тем
     const trendingTopics: TrendingTopic[] = Array.from(hashtagStats.entries())
-      .map(([name, { count, category }], index) => ({
+      .map(([name, { count, category, isRecent, lastPosted }], index) => ({
         id: `tag-${index}`,
         name,
         category,
         postCount: count,
-        createdAt: new Date(),
+        createdAt: isRecent ? lastPosted : null,
         updatedAt: new Date()
       }));
     
-    // Сортируем по количеству постов (по убыванию)
-    return trendingTopics.sort((a, b) => b.postCount - a.postCount).slice(0, 10); // Берем только топ-10
+    // Приоритезируем недавние хэштеги и затем сортируем по популярности
+    // 1. Сначала берем недавние хэштеги (за последнюю неделю)
+    const recentTopics = trendingTopics
+      .filter(topic => topic.createdAt !== null)
+      .sort((a, b) => {
+        // Сначала сортируем по количеству постов
+        const countDiff = b.postCount - a.postCount;
+        if (countDiff !== 0) return countDiff;
+        
+        // При равном количестве - по дате (более новые выше)
+        return (b.createdAt || new Date(0)).getTime() - (a.createdAt || new Date(0)).getTime();
+      })
+      .slice(0, 5); // Берем топ-5 недавних хэштегов
+    
+    // 2. Затем берем остальные популярные хэштеги всех времен
+    const allTimeTopics = trendingTopics
+      .filter(topic => !recentTopics.some(rt => rt.id === topic.id)) // Исключаем те, что уже в recentTopics
+      .sort((a, b) => b.postCount - a.postCount)
+      .slice(0, 5); // Берем топ-5 всевременных хэштегов
+    
+    // Объединяем две категории
+    return [...recentTopics, ...allTimeTopics];
   }
 }
 
