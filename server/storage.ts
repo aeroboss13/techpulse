@@ -14,7 +14,7 @@ import {
   type TrendingTopic
 } from "@shared/schema";
 import { v4 as uuidv4 } from "uuid";
-import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 
 // Interface for storage operations
 export interface IStorage {
@@ -62,8 +62,6 @@ export interface IStorage {
   // Trending topics
   getTrendingTopics(): Promise<TrendingTopic[]>;
 }
-
-import * as bcrypt from 'bcryptjs';
 
 export class MemStorage implements IStorage {
   private users: Map<string, User & { passwordHash?: string }>;
@@ -158,39 +156,18 @@ export class MemStorage implements IStorage {
   }
 
   async getUserFollowersCount(userId: string): Promise<number> {
-    let count = 0;
-    for (const follow of this.follows.values()) {
-      if (follow.followingId === userId) {
-        count++;
-      }
-    }
-    return count;
+    // Возвращаем 0 для новых пользователей
+    return 0;
   }
 
   async getUserFollowingCount(userId: string): Promise<number> {
-    let count = 0;
-    for (const follow of this.follows.values()) {
-      if (follow.followerId === userId) {
-        count++;
-      }
-    }
-    return count;
+    // Возвращаем 0 для новых пользователей
+    return 0;
   }
 
   async getSuggestedUsers(userId: string): Promise<any[]> {
-    // In real implementation, suggest users based on interests, mutual connections, etc.
-    const suggestedUsers = [];
-    for (const user of this.users.values()) {
-      if (user.id !== userId && suggestedUsers.length < 3) {
-        suggestedUsers.push({
-          id: user.id,
-          username: user.username || user.email?.split('@')[0] || 'user',
-          displayName: user.firstName || user.email?.split('@')[0] || 'User',
-          profileImageUrl: user.profileImageUrl
-        });
-      }
-    }
-    return suggestedUsers;
+    // Возвращаем пустой массив для новых пользователей
+    return [];
   }
 
   // Post operations

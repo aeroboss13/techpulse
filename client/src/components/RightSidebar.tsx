@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Bot } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useLanguage } from "../hooks/useLanguage";
 
 interface TrendingTopic {
   id: string;
@@ -21,6 +22,7 @@ interface SuggestedUser {
 }
 
 export default function RightSidebar() {
+  const { t } = useLanguage();
   const { data: trendingTopics } = useQuery<TrendingTopic[]>({
     queryKey: ["/api/trending-topics"],
     queryFn: async () => {
