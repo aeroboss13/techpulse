@@ -1,17 +1,21 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 import { v4 as uuidv4 } from "uuid";
 import { insertPostSchema, insertCodeSnippetSchema } from "@shared/schema";
 import { generateAiSuggestion, getAiRecommendations } from "./ai";
 
-export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+// Middleware для проверки авторизации
+const isAuthenticated = (req: any, res: Response, next: NextFunction) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  next();
+};
 
+export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
-  app.get('/api/auth/user', async (req: any, res) => {
+  app.get('/api/auth/me', async (req: any, res) => {
     try {
       if (!req.session || !req.session.userId) {
         return res.status(401).json({ message: "Unauthorized" });
