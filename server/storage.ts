@@ -541,28 +541,41 @@ export class MemStorage implements IStorage {
         updatedAt: new Date()
       }));
     
-    // Приоритезируем недавние хэштеги и затем сортируем по популярности
-    // 1. Сначала берем недавние хэштеги (за последнюю неделю)
-    const recentTopics = trendingTopics
-      .filter(topic => topic.createdAt !== null)
+    // Сортируем все хэштеги по популярности (количеству постов)
+    // Недавние хэштеги получают небольшой бонус к рейтингу для приоритезации
+    return trendingTopics
       .sort((a, b) => {
-        // Сначала сортируем по количеству постов
-        const countDiff = b.postCount - a.postCount;
-        if (countDiff !== 0) return countDiff;
+        // Рассчитываем "эффективный" рейтинг:
+        // - Недавние хэштеги получают бонус 30% к счетчику
+        const aEffectiveCount = a.createdAt !== null 
+          ? a.postCount * 1.3  // бонус 30% для недавних хэштегов
+          : a.postCount;
+          
+        const bEffectiveCount = b.createdAt !== null 
+          ? b.postCount * 1.3  // бонус 30% для недавних хэштегов
+          : b.postCount;
+          
+        // Сортируем по эффективному рейтингу
+        const countDiff = bEffectiveCount - aEffectiveCount;
         
-        // При равном количестве - по дате (более новые выше)
-        return (b.createdAt || new Date(0)).getTime() - (a.createdAt || new Date(0)).getTime();
+        // При примерно равных рейтингах (разница менее 1), используем другие факторы
+        if (Math.abs(countDiff) < 1) {
+          // Если один из них недавний, а другой нет - приоритет недавнему
+          if (a.createdAt !== null && b.createdAt === null) return -1;
+          if (a.createdAt === null && b.createdAt !== null) return 1;
+          
+          // Если оба недавние или оба старые - сортируем по дате (для недавних)
+          // или по имени (для старых)
+          if (a.createdAt !== null && b.createdAt !== null) {
+            return (b.createdAt || new Date(0)).getTime() - (a.createdAt || new Date(0)).getTime();
+          } else {
+            return a.name.localeCompare(b.name);
+          }
+        }
+        
+        return countDiff;
       })
-      .slice(0, 5); // Берем топ-5 недавних хэштегов
-    
-    // 2. Затем берем остальные популярные хэштеги всех времен
-    const allTimeTopics = trendingTopics
-      .filter(topic => !recentTopics.some(rt => rt.id === topic.id)) // Исключаем те, что уже в recentTopics
-      .sort((a, b) => b.postCount - a.postCount)
-      .slice(0, 5); // Берем топ-5 всевременных хэштегов
-    
-    // Объединяем две категории
-    return [...recentTopics, ...allTimeTopics];
+      .slice(0, 7); // Берем только топ-7 хэштегов
   }
 }
 
