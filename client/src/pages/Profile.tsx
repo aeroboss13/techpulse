@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MainLayout from "@/components/MainLayout";
 import PostCard from "@/components/PostCard";
+import EditProfileDialog from "@/components/EditProfileDialog";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/components/LanguageProvider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -11,11 +13,14 @@ import { Calendar, MapPin, Link2, Edit2, GitPullRequest, Twitter } from "lucide-
 
 export default function Profile() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("posts");
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const queryClient = useQueryClient();
   
   useEffect(() => {
-    document.title = `DevStream - ${user?.firstName || "Profile"}`;
-  }, [user]);
+    document.title = `DevStream - ${user?.firstName || t('nav.profile')}`;
+  }, [user, t]);
   
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ["/api/profile"],
@@ -43,6 +48,12 @@ export default function Profile() {
       return res.json();
     },
   });
+  
+  const handleProfileUpdate = () => {
+    // Инвалидируем кэш для обновления данных
+    queryClient.invalidateQueries({ queryKey: ["/api/profile"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+  };
   
   const renderProfileSkeleton = () => (
     <div className="space-y-4">
@@ -89,14 +100,19 @@ export default function Profile() {
                   </p>
                 </div>
                 
-                <Button variant="outline" size="sm" className="mt-4 sm:mt-0">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-4 sm:mt-0"
+                  onClick={() => setIsEditProfileOpen(true)}
+                >
                   <Edit2 className="mr-2 h-4 w-4" />
-                  Edit Profile
+                  {t('profile.edit')}
                 </Button>
               </div>
               
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                {profile?.bio || "Full-stack developer passionate about creating intuitive user experiences and scalable backends."}
+                {profile?.bio || t('profile.defaultBio')}
               </p>
               
               <div className="flex flex-wrap gap-y-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
@@ -118,22 +134,25 @@ export default function Profile() {
                 
                 <div className="flex items-center mr-4">
                   <Calendar className="h-4 w-4 mr-1" />
-                  <span>Joined {new Date(profile?.joinedAt || "2023-01-01").toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                  <span>{t('profile.joined')} {new Date(profile?.joinedAt || "2023-01-01").toLocaleDateString(
+                    user?.language === 'ru' ? 'ru-RU' : 'en-US', 
+                    { month: 'long', year: 'numeric' }
+                  )}</span>
                 </div>
               </div>
               
               <div className="flex space-x-6 mb-4">
                 <div>
-                  <span className="font-bold">{profile?.followingCount || 231}</span>{" "}
-                  <span className="text-gray-500 dark:text-gray-400">Following</span>
+                  <span className="font-bold">{profile?.followingCount || 0}</span>{" "}
+                  <span className="text-gray-500 dark:text-gray-400">{t('profile.following')}</span>
                 </div>
                 <div>
-                  <span className="font-bold">{profile?.followersCount || 128}</span>{" "}
-                  <span className="text-gray-500 dark:text-gray-400">Followers</span>
+                  <span className="font-bold">{profile?.followersCount || 0}</span>{" "}
+                  <span className="text-gray-500 dark:text-gray-400">{t('profile.followers')}</span>
                 </div>
                 <div>
                   <span className="font-bold">{profile?.postsCount || userPosts?.length || 0}</span>{" "}
-                  <span className="text-gray-500 dark:text-gray-400">Posts</span>
+                  <span className="text-gray-500 dark:text-gray-400">{t('profile.posts')}</span>
                 </div>
               </div>
               
@@ -167,9 +186,9 @@ export default function Profile() {
       
       <Tabs defaultValue="posts" onValueChange={setActiveTab}>
         <TabsList className="w-full">
-          <TabsTrigger value="posts" className="flex-1">Posts</TabsTrigger>
-          <TabsTrigger value="snippets" className="flex-1">Code Snippets</TabsTrigger>
-          <TabsTrigger value="likes" className="flex-1">Likes</TabsTrigger>
+          <TabsTrigger value="posts" className="flex-1">{t('profile.posts')}</TabsTrigger>
+          <TabsTrigger value="snippets" className="flex-1">{t('nav.snippets')}</TabsTrigger>
+          <TabsTrigger value="likes" className="flex-1">{t('post.like')}</TabsTrigger>
         </TabsList>
         
         <TabsContent value="posts" className="space-y-6 mt-6">
@@ -180,9 +199,9 @@ export default function Profile() {
             </>
           ) : userPosts?.length === 0 ? (
             <div className="bg-gray-50 dark:bg-slate-800 rounded-xl p-8 text-center">
-              <h3 className="text-xl font-medium mb-2">No posts yet</h3>
+              <h3 className="text-xl font-medium mb-2">{t('profile.noPosts')}</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                Share your first post with the community!
+                {t('profile.noPostsMessage')}
               </p>
             </div>
           ) : (
@@ -200,9 +219,9 @@ export default function Profile() {
             </>
           ) : userPosts?.filter((post: any) => post.codeSnippet)?.length === 0 ? (
             <div className="bg-gray-50 dark:bg-slate-800 rounded-xl p-8 text-center">
-              <h3 className="text-xl font-medium mb-2">No code snippets yet</h3>
+              <h3 className="text-xl font-medium mb-2">{t('profile.noSnippets')}</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                Share your first code snippet with the community!
+                {t('profile.noSnippetsMessage')}
               </p>
             </div>
           ) : (
@@ -222,9 +241,9 @@ export default function Profile() {
             </>
           ) : likedPosts?.length === 0 ? (
             <div className="bg-gray-50 dark:bg-slate-800 rounded-xl p-8 text-center">
-              <h3 className="text-xl font-medium mb-2">No liked posts yet</h3>
+              <h3 className="text-xl font-medium mb-2">{t('profile.noLikes')}</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                Like posts to see them here!
+                {t('profile.noLikesMessage')}
               </p>
             </div>
           ) : (
@@ -234,6 +253,14 @@ export default function Profile() {
           )}
         </TabsContent>
       </Tabs>
+      
+      {/* Диалог редактирования профиля */}
+      <EditProfileDialog
+        open={isEditProfileOpen}
+        onOpenChange={setIsEditProfileOpen}
+        profileData={profile}
+        onProfileUpdate={handleProfileUpdate}
+      />
     </MainLayout>
   );
 }

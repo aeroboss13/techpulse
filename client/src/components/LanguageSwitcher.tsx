@@ -1,7 +1,9 @@
 import React from 'react';
-import { useLanguage } from '@/hooks/useLanguage';
+import { useLanguage } from '@/components/LanguageProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Globe } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,9 +13,29 @@ import {
 
 export function LanguageSwitcher() {
   const { language, setLanguage, t } = useLanguage();
+  const { user, isAuthenticated, updateUserLanguage } = useAuth();
+  const { toast } = useToast();
 
-  const handleLanguageChange = (newLanguage: 'en' | 'ru') => {
+  const handleLanguageChange = async (newLanguage: 'en' | 'ru') => {
     setLanguage(newLanguage);
+    
+    // Если пользователь авторизован, сохраняем выбор языка в профиле
+    if (isAuthenticated && user) {
+      try {
+        await updateUserLanguage(newLanguage);
+        toast({
+          title: newLanguage === 'en' ? 'Language updated' : 'Язык обновлен',
+          description: newLanguage === 'en' ? 'Your language preference has been saved' : 'Ваши настройки языка были сохранены',
+        });
+      } catch (error) {
+        console.error('Failed to update language preference:', error);
+        toast({
+          title: newLanguage === 'en' ? 'Error' : 'Ошибка',
+          description: newLanguage === 'en' ? 'Failed to save language preference' : 'Не удалось сохранить настройки языка',
+          variant: 'destructive'
+        });
+      }
+    }
   };
 
   return (
