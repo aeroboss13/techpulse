@@ -261,6 +261,58 @@ export default function AIAssistant() {
   const handleSelectPost = (post: PostAnalysis) => {
     setSelectedPost(post);
   };
+  
+  const analyzeCustomPost = async (content: string) => {
+    if (!content.trim()) return;
+    
+    setIsLoading(true);
+    
+    try {
+      // Запрос к API для анализа контента
+      const response = await fetch('/api/ai/analyze-post', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to analyze post');
+      }
+      
+      const data = await response.json();
+      
+      // Обновляем выбранный пост с результатами анализа
+      setSelectedPost(prev => {
+        if (prev?.id === 'custom') {
+          return {
+            ...prev,
+            suggestions: data.suggestions || [],
+            topics: data.topics || [],
+            sentiment: data.sentiment || 'neutral',
+            readability: data.readability || 'medium',
+          };
+        }
+        return prev;
+      });
+      
+      toast({
+        title: language === 'en' ? 'Analysis Complete' : 'Анализ выполнен',
+        description: language === 'en' ? 'Content has been analyzed successfully' : 'Контент был успешно проанализирован',
+      });
+      
+    } catch (error) {
+      console.error('Error analyzing post:', error);
+      toast({
+        title: language === 'en' ? 'Analysis Failed' : 'Анализ не удался',
+        description: language === 'en' ? 'Failed to analyze content. Please try again.' : 'Не удалось проанализировать контент. Пожалуйста, попробуйте снова.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getSentimentColor = (sentiment: 'positive' | 'neutral' | 'negative') => {
     switch (sentiment) {
