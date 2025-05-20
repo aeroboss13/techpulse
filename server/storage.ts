@@ -427,31 +427,63 @@ export class MemStorage implements IStorage {
     // Получаем все посты
     const posts = await this.getAllPosts();
     
-    // Анализируем теги в каждом посте
+    // Анализируем посты для поиска хэштегов
     posts.forEach(post => {
-      if (post.tags && post.tags.length > 0) {
-        post.tags.forEach(tag => {
+      // Шаг 1: Извлекаем хэштеги из массива тегов (если они есть)
+      const tagsFromArray: string[] = post.tags || [];
+      
+      // Шаг 2: Извлекаем хэштеги из текста поста с помощью регулярного выражения
+      const tagsFromContent: string[] = [];
+      if (post.content) {
+        // Ищем все хэштеги в формате #слово
+        const hashtagRegex = /#(\w+)/g;
+        let match;
+        while ((match = hashtagRegex.exec(post.content)) !== null) {
+          // match[1] содержит слово без символа #
+          tagsFromContent.push(match[1]);
+        }
+      }
+      
+      // Объединяем теги из обоих источников
+      const allTags = [...tagsFromArray, ...tagsFromContent];
+      
+      // Обрабатываем все найденные теги
+      if (allTags.length > 0) {
+        allTags.forEach(tag => {
+          if (!tag) return; // Пропускаем пустые теги
+          
           // Форматируем хэштег
           const hashtag = tag.startsWith('#') ? tag : `#${tag}`;
           
           // Определяем категорию на основе тега
           let category = "General";
-          if (tag.toLowerCase().includes('js') || tag.toLowerCase().includes('script') || 
-              tag.toLowerCase().includes('html') || tag.toLowerCase().includes('css') || 
-              tag.toLowerCase().includes('web')) {
+          const tagLower = tag.toLowerCase();
+          
+          if (tagLower.includes('js') || tagLower.includes('script') || 
+              tagLower.includes('html') || tagLower.includes('css') || 
+              tagLower.includes('web') || tagLower.includes('react') ||
+              tagLower.includes('type') || tagLower.includes('node')) {
             category = "Web Dev";
-          } else if (tag.toLowerCase().includes('ai') || tag.toLowerCase().includes('ml') || 
-                     tag.toLowerCase().includes('gpt') || tag.toLowerCase().includes('learning')) {
+          } else if (tagLower.includes('ai') || tagLower.includes('ml') || 
+                     tagLower.includes('gpt') || tagLower.includes('learning') ||
+                     tagLower.includes('нейро')) {
             category = "AI";
-          } else if (tag.toLowerCase().includes('cloud') || tag.toLowerCase().includes('aws') || 
-                     tag.toLowerCase().includes('azure') || tag.toLowerCase().includes('kubernetes')) {
+          } else if (tagLower.includes('cloud') || tagLower.includes('aws') || 
+                     tagLower.includes('azure') || tagLower.includes('kubernetes') ||
+                     tagLower.includes('docker')) {
             category = "Cloud";
-          } else if (tag.toLowerCase().includes('security') || tag.toLowerCase().includes('crypto') || 
-                     tag.toLowerCase().includes('hack') || tag.toLowerCase().includes('privacy')) {
+          } else if (tagLower.includes('security') || tagLower.includes('crypto') || 
+                     tagLower.includes('hack') || tagLower.includes('privacy') ||
+                     tagLower.includes('безопасность')) {
             category = "Security";
-          } else if (tag.toLowerCase().includes('mobile') || tag.toLowerCase().includes('android') || 
-                     tag.toLowerCase().includes('ios') || tag.toLowerCase().includes('app')) {
+          } else if (tagLower.includes('mobile') || tagLower.includes('android') || 
+                     tagLower.includes('ios') || tagLower.includes('app') ||
+                     tagLower.includes('мобильн')) {
             category = "Mobile";
+          } else if (tagLower.includes('data') || tagLower.includes('sql') || 
+                     tagLower.includes('database') || tagLower.includes('бд') ||
+                     tagLower.includes('данные')) {
+            category = "Data";
           }
           
           // Обновляем статистику
@@ -474,11 +506,13 @@ export class MemStorage implements IStorage {
         id: `tag-${index}`,
         name,
         category,
-        postCount: count
+        postCount: count,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }));
     
     // Сортируем по количеству постов (по убыванию)
-    return trendingTopics.sort((a, b) => b.postCount - a.postCount);
+    return trendingTopics.sort((a, b) => b.postCount - a.postCount).slice(0, 10); // Берем только топ-10
   }
 }
 
