@@ -1,13 +1,85 @@
-import { useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from 'wouter';
-import { Loader2, Code, ArrowRight } from 'lucide-react';
+import { Loader2, Code, ArrowRight, User, Lock, Mail, UserPlus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useMutation } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 export default function Login() {
   const { isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('login');
+  
+  // Login form state
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginSubmitting, setLoginSubmitting] = useState(false);
+  
+  // Register form state
+  const [registerName, setRegisterName] = useState('');
+  const [registerEmail, setRegisterEmail] = useState('');
+  const [registerUsername, setRegisterUsername] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
+  const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
+  const [registerSubmitting, setRegisterSubmitting] = useState(false);
+
+  const loginMutation = useMutation({
+    mutationFn: (data: { email: string; password: string }) => {
+      return apiRequest("POST", "/api/auth/login", data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Login successful",
+        description: "Welcome back to DevStream!",
+      });
+      setTimeout(() => {
+        window.location.href = '/'; // Redirect to home page
+      }, 1000);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Login failed",
+        description: error.message || "Invalid email or password. Please try again.",
+        variant: "destructive",
+      });
+      setLoginSubmitting(false);
+    }
+  });
+  
+  const registerMutation = useMutation({
+    mutationFn: (data: { name: string; email: string; username: string; password: string }) => {
+      return apiRequest("POST", "/api/auth/register", data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Registration successful",
+        description: "Your account has been created. You can now log in.",
+      });
+      setActiveTab('login');
+      setRegisterSubmitting(false);
+      // Clear form
+      setRegisterName('');
+      setRegisterEmail('');
+      setRegisterUsername('');
+      setRegisterPassword('');
+      setRegisterConfirmPassword('');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Registration failed",
+        description: error.message || "Could not create account. Please try again.",
+        variant: "destructive",
+      });
+      setRegisterSubmitting(false);
+    }
+  });
 
   useEffect(() => {
     document.title = "DevStream - Login";
@@ -16,6 +88,47 @@ export default function Login() {
       setLocation('/');
     }
   }, [isAuthenticated, setLocation]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loginEmail || !loginPassword) {
+      toast({
+        title: "Please fill all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setLoginSubmitting(true);
+    loginMutation.mutate({ email: loginEmail, password: loginPassword });
+  };
+  
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!registerName || !registerEmail || !registerUsername || !registerPassword || !registerConfirmPassword) {
+      toast({
+        title: "Please fill all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (registerPassword !== registerConfirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setRegisterSubmitting(true);
+    registerMutation.mutate({ 
+      name: registerName, 
+      email: registerEmail, 
+      username: registerUsername, 
+      password: registerPassword
+    });
+  };
 
   if (isLoading) {
     return (
@@ -27,7 +140,7 @@ export default function Login() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-slate-900">
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
         <Card className="w-full max-w-md mx-auto">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
@@ -41,32 +154,150 @@ export default function Login() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                <h3 className="font-medium flex items-center text-blue-700 dark:text-blue-300">
-                  <Code className="mr-2 h-5 w-5" />
-                  For Developers, By Developers
-                </h3>
-                <p className="mt-2 text-sm text-blue-600 dark:text-blue-400">
-                  Share your code snippets, get feedback, and discover solutions to common programming challenges.
-                </p>
-              </div>
+            <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid grid-cols-2 w-full mb-6">
+                <TabsTrigger value="login">Log In</TabsTrigger>
+                <TabsTrigger value="register">Sign Up</TabsTrigger>
+              </TabsList>
               
-              <Button 
-                asChild 
-                className="w-full"
-                size="lg"
-              >
-                <a href="/api/login" className="flex items-center justify-center">
-                  <span>Sign in to continue</span>
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </a>
-              </Button>
+              <TabsContent value="login">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input 
+                        id="email" 
+                        type="email" 
+                        placeholder="Enter your email"
+                        className="pl-10"
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password">Password</Label>
+                      <a href="#" className="text-xs text-primary hover:underline">
+                        Forgot password?
+                      </a>
+                    </div>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input 
+                        id="password" 
+                        type="password" 
+                        placeholder="••••••••"
+                        className="pl-10"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    size="lg"
+                    disabled={loginSubmitting}
+                  >
+                    {loginSubmitting ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <User className="mr-2 h-4 w-4" />
+                    )}
+                    {loginSubmitting ? "Logging in..." : "Log In"}
+                  </Button>
+                </form>
+              </TabsContent>
               
-              <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
-                By signing in, you agree to our Terms of Service and Privacy Policy.
+              <TabsContent value="register">
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input 
+                      id="name" 
+                      placeholder="Enter your name"
+                      value={registerName}
+                      onChange={(e) => setRegisterName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="register-email">Email</Label>
+                    <Input 
+                      id="register-email" 
+                      type="email" 
+                      placeholder="Enter your email"
+                      value={registerEmail}
+                      onChange={(e) => setRegisterEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Username</Label>
+                    <Input 
+                      id="username" 
+                      placeholder="Choose a username"
+                      value={registerUsername}
+                      onChange={(e) => setRegisterUsername(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="register-password">Password</Label>
+                    <Input 
+                      id="register-password" 
+                      type="password" 
+                      placeholder="Create a password"
+                      value={registerPassword}
+                      onChange={(e) => setRegisterPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirm Password</Label>
+                    <Input 
+                      id="confirm-password" 
+                      type="password" 
+                      placeholder="Confirm your password"
+                      value={registerConfirmPassword}
+                      onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    size="lg"
+                    disabled={registerSubmitting}
+                  >
+                    {registerSubmitting ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <UserPlus className="mr-2 h-4 w-4" />
+                    )}
+                    {registerSubmitting ? "Creating Account..." : "Create Account"}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+            
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mt-6">
+              <h3 className="font-medium flex items-center text-blue-700 dark:text-blue-300">
+                <Code className="mr-2 h-5 w-5" />
+                For Developers, By Developers
+              </h3>
+              <p className="mt-2 text-sm text-blue-600 dark:text-blue-400">
+                Share your code snippets, get feedback, and discover solutions to common programming challenges.
               </p>
             </div>
+            
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
+              By signing in, you agree to our Terms of Service and Privacy Policy.
+            </p>
           </CardContent>
         </Card>
       </div>

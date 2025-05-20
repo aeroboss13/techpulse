@@ -11,14 +11,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      if (!req.session || !req.session.userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
-      res.json(user);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json({
+        id: user.id,
+        email: user.email,
+        username: user.username || user.email?.split('@')[0] || 'user',
+        displayName: user.firstName || user.email?.split('@')[0] || 'User',
+        profileImageUrl: user.profileImageUrl
+      });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+  
+  // Register new user
+  app.post('/api/auth/register', async (req, res) => {
+    try {
+      const { name, email, username, password } = req.body;
+      
+      if (!name || !email || !username || !password) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+      
+      // Check if email already exists
+      const existingUserByEmail = await storage.getUserByEmail(email);
+      if (existingUserByEmail) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+      
+      // Check if username already exists
+      const existingUserByUsername = await storage.getUserByUsername(username);
+      if (existingUserByUsername) {
+        return res.status(400).json({ message: "Username already taken" });
+      }
+      
+      // Create new user
+      const userId = uuidv4();
+      const newUser = await storage.upsertUser({
+        id: userId,
+        email,
+        username,
+        firstName: name.split(' ')[0],
+        lastName: name.split(' ').slice(1).join(' '),
+        profileImageUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
+        passwordHash: await storage.hashPassword(password),
+      });
+      
+      res.status(201).json({
+        success: true,
+        message: "User registered successfully"
+      });
+      
+    } catch (error) {
+      console.error("Error registering user:", error);
+      res.status(500).json({ message: "Failed to register user" });
+    }
+  });
+  
+  // Login user
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+      
+      // Get user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+      
+      // Check password
+      const isPasswordValid = await storage.verifyPassword(password, user.passwordHash || '');
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+      
+      // Create session
+      req.session.userId = user.id;
+      
+      res.json({
+        success: true,
+        message: "Login successful",
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username || user.email?.split('@')[0] || 'user',
+          displayName: user.firstName || user.email?.split('@')[0] || 'User',
+          profileImageUrl: user.profileImageUrl
+        }
+      });
+      
+    } catch (error) {
+      console.error("Error logging in:", error);
+      res.status(500).json({ message: "Failed to login" });
+    }
+  });
+  
+  // Logout user
+  app.post('/api/auth/logout', (req, res) => {
+    if (req.session) {
+      req.session.destroy(err => {
+        if (err) {
+          return res.status(500).json({ message: "Failed to logout" });
+        }
+        
+        res.clearCookie('connect.sid');
+        res.json({ success: true, message: "Logged out successfully" });
+      });
+    } else {
+      res.json({ success: true, message: "Already logged out" });
     }
   });
 
