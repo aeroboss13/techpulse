@@ -258,15 +258,7 @@ export default function CreatePostCard() {
                   />
                 </Button>
                 
-                <Button 
-                  type="button" 
-                  variant="ghost" 
-                  size="icon" 
-                  className="rounded-full text-primary"
-                  title="Add poll"
-                >
-                  <BarChart className="h-5 w-5" />
-                </Button>
+                {/* Удалена кнопка для опросов, так как она не нужна */}
                 
                 <Dialog open={isAiDialogOpen} onOpenChange={setIsAiDialogOpen}>
                   <DialogTrigger asChild>

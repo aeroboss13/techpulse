@@ -156,22 +156,32 @@ export default function PostCard({ post }: PostCardProps) {
             </div>
             
             <div className="mt-1 text-gray-700 dark:text-gray-300">
-              {post.content.split(/```([\w-]+)?\n([\s\S]*?)```/).map((part, i, arr) => {
-                if (i % 3 === 0) {
-                  return <p key={i}>{part}</p>;
-                } else if (i % 3 === 1) {
-                  // This is a language identifier
-                  return null;
-                } else {
-                  // This is code content
-                  const language = arr[i-1] || 'javascript';
-                  return (
-                    <div className="mt-3" key={i}>
-                      <CodeSnippet code={part} language={language} />
-                    </div>
-                  );
-                }
-              })}
+              {post.content.includes('```') ? (
+                post.content.split(/(```(\w*)\n[\s\S]*?\n```)/g).map((part, i) => {
+                  if (i % 3 === 0) {
+                    // Regular text
+                    return part ? <p key={i}>{part}</p> : null;
+                  } else if (i % 3 === 1) {
+                    // This is the entire code block with backticks
+                    const codeMatch = part.match(/```(\w*)\n([\s\S]*?)\n```/);
+                    if (codeMatch) {
+                      const language = codeMatch[1] || 'javascript';
+                      const code = codeMatch[2] || '';
+                      return (
+                        <div className="mt-3 mb-3" key={i}>
+                          <CodeSnippet code={code} language={language} />
+                        </div>
+                      );
+                    }
+                    return null;
+                  } else {
+                    // Language identifier (already processed)
+                    return null;
+                  }
+                })
+              ) : (
+                <p>{post.content}</p>
+              )}
             </div>
             
             {post.codeSnippet && (

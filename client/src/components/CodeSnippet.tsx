@@ -53,8 +53,16 @@ export default function CodeSnippet({
   const codeRef = useRef<HTMLElement>(null);
   
   useEffect(() => {
-    if (codeRef.current) {
-      Prism.highlightElement(codeRef.current);
+    if (codeRef.current && code) {
+      try {
+        // Добавляем небольшую задержку, чтобы DOM успел обновиться
+        const timer = setTimeout(() => {
+          Prism.highlightElement(codeRef.current);
+        }, 0);
+        return () => clearTimeout(timer);
+      } catch (err) {
+        console.error("Failed to highlight code:", err);
+      }
     }
   }, [code, language]);
   
@@ -127,7 +135,7 @@ export default function CodeSnippet({
     md: "markdown",
   };
   
-  const prismLanguage = languageMap[language.toLowerCase()] || language;
+  const prismLanguage = languageMap[language?.toLowerCase()] || language || "plaintext";
   
   const getLanguageIcon = (lang: string) => {
     switch (lang.toLowerCase()) {
