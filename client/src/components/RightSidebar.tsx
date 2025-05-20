@@ -51,21 +51,9 @@ export default function RightSidebar() {
     },
   });
 
-  const defaultTrendingTopics: TrendingTopic[] = [
-    { id: "1", category: "Web Dev", name: "#TypeScript5.0", postCount: 4218 },
-    { id: "2", category: "AI", name: "#GPT4", postCount: 3112 },
-    { id: "3", category: "Cloud", name: "#Kubernetes", postCount: 2854 },
-    { id: "4", category: "Security", name: "#ZeroTrust", postCount: 1932 }
-  ];
-
-  const defaultSuggestedUsers: SuggestedUser[] = [
-    { id: "1", username: "johndoe", displayName: "John Doe", profileImageUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=50&h=50" },
-    { id: "2", username: "lisacodes", displayName: "Lisa Wang", profileImageUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=50&h=50" },
-    { id: "3", username: "mikejs", displayName: "Mike Johnson", profileImageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=50&h=50" }
-  ];
-
-  const displayTopics = trendingTopics || defaultTrendingTopics;
-  const displayUsers = suggestedUsers || defaultSuggestedUsers;
+  // Не используем демо-данные по умолчанию для новых пользователей
+  const displayTopics = trendingTopics || [];
+  const displayUsers = suggestedUsers || [];
 
   return (
     <aside className="hidden lg:block w-80 pl-8">
@@ -73,7 +61,7 @@ export default function RightSidebar() {
         {/* Trending Topics */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle>Trending in Tech</CardTitle>
+            <CardTitle>{t('general.trendingTech')}</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <ul className="space-y-3">
@@ -82,11 +70,11 @@ export default function RightSidebar() {
                   <Link href={`/explore?topic=${encodeURIComponent(topic.name)}`}>
                     <a className="block hover:bg-gray-50 dark:hover:bg-gray-800 -mx-2 px-2 py-2 rounded-lg">
                       <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Trending in {topic.category}
+                        {t('general.trendingIn')} {topic.category}
                       </div>
                       <div className="font-medium">{topic.name}</div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Intl.NumberFormat('en-US').format(topic.postCount)} posts
+                        {new Intl.NumberFormat('en-US').format(topic.postCount)} {t('general.posts')}
                       </div>
                     </a>
                   </Link>
@@ -118,13 +106,13 @@ export default function RightSidebar() {
                     </div>
                   </div>
                   <Button variant="outline" className="text-primary hover:bg-blue-50 dark:hover:bg-blue-900/30 px-3 py-1 h-auto" size="sm">
-                    Follow
+                    {t('general.follow')}
                   </Button>
                 </li>
               ))}
             </ul>
             <Button variant="link" className="mt-4 p-0 h-auto" asChild>
-              <Link href="/explore">Show more</Link>
+              <Link href="/explore">{t('general.showMore')}</Link>
             </Button>
           </CardContent>
         </Card>
