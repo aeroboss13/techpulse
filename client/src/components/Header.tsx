@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTheme } from "./ThemeProvider";
 import { useAuth } from "@/hooks/useAuth";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useLanguage } from "@/components/LanguageProvider";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import {

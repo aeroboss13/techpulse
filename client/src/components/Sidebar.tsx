@@ -2,19 +2,21 @@ import { Home, Compass, Bookmark, Code, Bot, User, Plus } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/components/LanguageProvider";
 import { cn } from "@/lib/utils";
 
 export default function Sidebar() {
   const [location] = useLocation();
   const { isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   
   const navItems = [
-    { path: "/", label: "Home", icon: Home },
-    { path: "/explore", label: "Explore", icon: Compass },
-    { path: "/bookmarks", label: "Bookmarks", icon: Bookmark, requiresAuth: true },
-    { path: "/snippets", label: "My Snippets", icon: Code, requiresAuth: true },
-    { path: "/ai-assistant", label: "AI Assistant", icon: Bot },
-    { path: "/profile", label: "Profile", icon: User, requiresAuth: true },
+    { path: "/", label: t('nav.home'), icon: Home },
+    { path: "/explore", label: t('nav.explore'), icon: Compass },
+    { path: "/bookmarks", label: t('nav.bookmarks'), icon: Bookmark, requiresAuth: true },
+    { path: "/snippets", label: t('nav.snippets'), icon: Code, requiresAuth: true },
+    { path: "/ai-assistant", label: t('nav.ai'), icon: Bot },
+    { path: "/profile", label: t('nav.profile'), icon: User, requiresAuth: true },
   ];
   
   return (
@@ -43,7 +45,7 @@ export default function Sidebar() {
         <div className="mt-8">
           <Button className="w-full" size="lg">
             <Plus className="mr-2 h-4 w-4" />
-            New Post
+            {t('post.post')}
           </Button>
         </div>
         
@@ -53,12 +55,12 @@ export default function Sidebar() {
               <Bot className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h4 className="font-medium">AI Assistant</h4>
+              <h4 className="font-medium">{t('nav.ai')}</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Ask me anything about coding, tech or get help with debugging!
+                {t('ai.placeholder')}
               </p>
               <Button variant="link" className="mt-1 h-auto p-0" asChild>
-                <span onClick={() => window.location.href = "/ai-assistant"}>Start Chat</span>
+                <span onClick={() => window.location.href = "/ai-assistant"}>{t('ai.send')}</span>
               </Button>
             </div>
           </div>
