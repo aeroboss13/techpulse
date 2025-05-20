@@ -16,6 +16,7 @@ export default function Login() {
   const { isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('login');
   
   // Login form state
@@ -157,20 +158,20 @@ export default function Login() {
           <CardContent>
             <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid grid-cols-2 w-full mb-6">
-                <TabsTrigger value="login">Log In</TabsTrigger>
-                <TabsTrigger value="register">Sign Up</TabsTrigger>
+                <TabsTrigger value="login">{t('auth.signIn')}</TabsTrigger>
+                <TabsTrigger value="register">{t('auth.signUp')}</TabsTrigger>
               </TabsList>
               
               <TabsContent value="login">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('auth.email')}</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input 
                         id="email" 
                         type="email" 
-                        placeholder="Enter your email"
+                        placeholder={t('auth.enterEmail')}
                         className="pl-10"
                         value={loginEmail}
                         onChange={(e) => setLoginEmail(e.target.value)}
@@ -180,9 +181,9 @@ export default function Login() {
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="password">Password</Label>
+                      <Label htmlFor="password">{t('auth.password')}</Label>
                       <a href="#" className="text-xs text-primary hover:underline">
-                        Forgot password?
+                        {t('auth.forgotPassword')}
                       </a>
                     </div>
                     <div className="relative">
@@ -190,7 +191,7 @@ export default function Login() {
                       <Input 
                         id="password" 
                         type="password" 
-                        placeholder="••••••••"
+                        placeholder={t('auth.enterPassword')}
                         className="pl-10"
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
@@ -209,7 +210,7 @@ export default function Login() {
                     ) : (
                       <User className="mr-2 h-4 w-4" />
                     )}
-                    {loginSubmitting ? "Logging in..." : "Log In"}
+                    {loginSubmitting ? t('auth.loggingIn') : t('auth.signIn')}
                   </Button>
                 </form>
               </TabsContent>
@@ -217,53 +218,53 @@ export default function Login() {
               <TabsContent value="register">
                 <form onSubmit={handleRegister} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
+                    <Label htmlFor="name">{t('auth.fullName')}</Label>
                     <Input 
                       id="name" 
-                      placeholder="Enter your name"
+                      placeholder={t('auth.enterName')}
                       value={registerName}
                       onChange={(e) => setRegisterName(e.target.value)}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="register-email">Email</Label>
+                    <Label htmlFor="register-email">{t('auth.email')}</Label>
                     <Input 
                       id="register-email" 
                       type="email" 
-                      placeholder="Enter your email"
+                      placeholder={t('auth.enterEmail')}
                       value={registerEmail}
                       onChange={(e) => setRegisterEmail(e.target.value)}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
+                    <Label htmlFor="username">{t('auth.username')}</Label>
                     <Input 
                       id="username" 
-                      placeholder="Choose a username"
+                      placeholder={t('auth.chooseUsername')}
                       value={registerUsername}
                       onChange={(e) => setRegisterUsername(e.target.value)}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="register-password">Password</Label>
+                    <Label htmlFor="register-password">{t('auth.password')}</Label>
                     <Input 
                       id="register-password" 
                       type="password" 
-                      placeholder="Create a password"
+                      placeholder={t('auth.createPassword')}
                       value={registerPassword}
                       onChange={(e) => setRegisterPassword(e.target.value)}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirm Password</Label>
+                    <Label htmlFor="confirm-password">{t('auth.confirmPassword')}</Label>
                     <Input 
                       id="confirm-password" 
                       type="password" 
-                      placeholder="Confirm your password"
+                      placeholder={t('auth.confirmYourPassword')}
                       value={registerConfirmPassword}
                       onChange={(e) => setRegisterConfirmPassword(e.target.value)}
                       required
@@ -280,7 +281,7 @@ export default function Login() {
                     ) : (
                       <UserPlus className="mr-2 h-4 w-4" />
                     )}
-                    {registerSubmitting ? "Creating Account..." : "Create Account"}
+                    {registerSubmitting ? t('auth.creatingAccount') : t('auth.createAccount')}
                   </Button>
                 </form>
               </TabsContent>
