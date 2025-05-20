@@ -117,7 +117,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Проверка пароля
-      const isPasswordValid = await comparePassword(password, user.passwordHash || '');
+      console.log('Login attempt:', { email, passwordLength: password.length });
+      console.log('User found:', { id: user.id, hasPasswordHash: !!user.passwordHash });
+      
+      if (!user.passwordHash) {
+        console.log('No password hash stored for user');
+        return res.status(401).json({ message: "Invalid email or password (no hash)" });
+      }
+      
+      const isPasswordValid = await comparePassword(password, user.passwordHash);
+      console.log('Password validation result:', isPasswordValid);
+      
       if (!isPasswordValid) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
