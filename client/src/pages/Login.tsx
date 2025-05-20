@@ -42,8 +42,8 @@ export default function Login() {
         description: "Welcome back to DevStream!",
       });
       setTimeout(() => {
-        window.location.href = '/'; // Redirect to home page
-      }, 1000);
+        setLocation('/'); // Redirect to home page using wouter
+      }, 500);
     },
     onError: (error: any) => {
       toast({

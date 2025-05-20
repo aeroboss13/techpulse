@@ -76,6 +76,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const user = await storage.getUser(userId);
       
+      if (!user) {
+        return res.status(500).json({ message: "User created but could not be retrieved" });
+      }
+      
       res.status(201).json({
         success: true,
         message: "User registered successfully",
@@ -85,7 +89,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           username: user.username,
           firstName: user.firstName,
           lastName: user.lastName,
-          displayName: user.firstName || user.email?.split('@')[0],
+          displayName: user.firstName || (user.email ? user.email.split('@')[0] : 'User'),
           profileImageUrl: user.profileImageUrl,
           language: user.language
         }
