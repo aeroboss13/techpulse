@@ -17,6 +17,15 @@ import { LanguageProvider } from "@/components/LanguageProvider";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, isLoading } = useAuth();
+  const [, setLocation] = React.useState('/login');
+  
+  React.useEffect(() => {
+    // При изменении состояния аутентификации, перенаправляем
+    if (!isLoading && !isAuthenticated) {
+      console.log('Redirecting to login page (protected route)');
+      window.location.href = '/login';
+    }
+  }, [isAuthenticated, isLoading]);
   
   if (isLoading) {
     return (
@@ -27,8 +36,11 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   }
   
   if (!isAuthenticated) {
-    window.location.href = "/login";
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-center">Необходимо войти в систему для доступа к этой странице</p>
+      </div>
+    );
   }
   
   return <Component />;
