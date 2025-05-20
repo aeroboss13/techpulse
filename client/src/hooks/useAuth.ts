@@ -53,18 +53,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { data: userData, isLoading } = useQuery({
     queryKey: ['/api/auth/me'],
     retry: false,
-    staleTime: 60000, // 1 minute
+    staleTime: 10000, // 10 seconds
     queryFn: async () => {
-      const response = await fetch('/api/auth/me', {
-        credentials: 'include'
-      });
-      if (!response.ok) {
-        if (response.status === 401) {
+      try {
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          if (response.status === 401) {
+            console.log('User not authenticated');
+            return null;
+          }
+          console.log('Failed to fetch user data:', response.status);
           return null;
         }
-        throw new Error('Failed to fetch user data');
+        
+        const data = await response.json();
+        console.log('User data fetched:', data);
+        return data;
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        return null;
       }
-      return await response.json();
     }
   });
 

@@ -33,17 +33,27 @@ export default function Login() {
   const [registerSubmitting, setRegisterSubmitting] = useState(false);
 
   const loginMutation = useMutation({
-    mutationFn: (data: { email: string; password: string }) => {
-      return apiRequest("POST", "/api/auth/login", data);
+    mutationFn: async (data: { email: string; password: string }) => {
+      const response = await apiRequest("POST", "/api/auth/login", data);
+      // Важно вызвать json() здесь, чтобы получить ответ
+      return await response.json();
     },
     onSuccess: () => {
       toast({
         title: "Login successful",
         description: "Welcome back to DevStream!",
       });
-      setTimeout(() => {
-        setLocation('/'); // Redirect to home page using wouter
-      }, 500);
+      
+      // Запрашиваем обновление данных пользователя
+      fetch('/api/auth/me', { credentials: 'include' })
+        .then(response => {
+          if (response.ok) {
+            console.log('Auth successful, redirecting...');
+            setTimeout(() => {
+              setLocation('/'); // Redirect to home page using wouter
+            }, 500);
+          }
+        });
     },
     onError: (error: any) => {
       toast({
