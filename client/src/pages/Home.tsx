@@ -67,13 +67,13 @@ export default function Home() {
           </>
         ) : error ? (
           <div className="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-4 rounded-lg">
-            {t('general.loadError')}
+            {language === 'ru' ? 'Не удалось загрузить посты. Пожалуйста, повторите попытку позже.' : 'Failed to load posts. Please try again later.'}
           </div>
         ) : posts?.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center">
-            <h3 className="text-xl font-medium mb-2">{t('general.noPosts')}</h3>
+            <h3 className="text-xl font-medium mb-2">{language === 'ru' ? 'Пока нет постов' : 'No posts yet'}</h3>
             <p className="text-gray-500 dark:text-gray-400">
-              {t('general.noPostsMessage')}
+              {language === 'ru' ? 'Будьте первым, кто поделится чем-то с сообществом!' : 'Be the first to share something with the community!'}
             </p>
           </div>
         ) : (
