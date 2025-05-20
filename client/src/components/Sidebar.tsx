@@ -42,13 +42,6 @@ export default function Sidebar() {
           })}
         </ul>
         
-        <div className="mt-8">
-          <Button className="w-full" size="lg">
-            <Plus className="mr-2 h-4 w-4" />
-            {t('post.post')}
-          </Button>
-        </div>
-        
         <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <div className="flex items-start space-x-3">
             <div className="flex-shrink-0">
