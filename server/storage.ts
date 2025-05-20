@@ -19,10 +19,16 @@ import { v4 as uuidv4 } from "uuid";
 export interface IStorage {
   // User operations
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   getUserFollowersCount(userId: string): Promise<number>;
   getUserFollowingCount(userId: string): Promise<number>;
   getSuggestedUsers(userId: string): Promise<any[]>;
+  
+  // Authentication operations
+  hashPassword(password: string): Promise<string>;
+  verifyPassword(password: string, hash: string): Promise<boolean>;
   
   // Post operations
   getAllPosts(): Promise<Post[]>;
@@ -56,8 +62,10 @@ export interface IStorage {
   getTrendingTopics(): Promise<TrendingTopic[]>;
 }
 
+import * as bcrypt from 'bcryptjs';
+
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private users: Map<string, User & { passwordHash?: string }>;
   private posts: Map<string, Post>;
   private likes: Map<string, any>;
   private comments: Map<string, any>;
@@ -96,6 +104,33 @@ export class MemStorage implements IStorage {
   // User operations
   async getUser(id: string): Promise<User | undefined> {
     return this.users.get(id);
+  }
+  
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    for (const user of this.users.values()) {
+      if (user.email === email) {
+        return user;
+      }
+    }
+    return undefined;
+  }
+  
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    for (const user of this.users.values()) {
+      if (user.username === username) {
+        return user;
+      }
+    }
+    return undefined;
+  }
+  
+  async hashPassword(password: string): Promise<string> {
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(password, salt);
+  }
+  
+  async verifyPassword(password: string, hash: string): Promise<boolean> {
+    return bcrypt.compare(password, hash);
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
