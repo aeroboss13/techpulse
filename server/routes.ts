@@ -60,6 +60,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Создание нового пользователя
       const userId = uuidv4();
+      const hashedPassword = await hashPassword(password);
+      console.log('Registration data:', { 
+        email, 
+        username, 
+        passwordLength: password.length,
+        hashedPasswordLength: hashedPassword.length
+      });
+      
       await storage.upsertUser({
         id: userId,
         email,
@@ -67,7 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         firstName: name.split(' ')[0],
         lastName: name.split(' ').slice(1).join(' '),
         profileImageUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
-        passwordHash: await hashPassword(password),
+        passwordHash: hashedPassword,
         language: 'en'
       });
       
