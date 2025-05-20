@@ -351,7 +351,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/posts/:id/like', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const postId = req.params.id;
       const { liked } = req.body;
 
@@ -370,7 +370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/posts/:id/bookmark', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const postId = req.params.id;
       const { bookmarked } = req.body;
 
@@ -390,7 +390,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User Posts
   app.get('/api/user/posts', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const posts = await storage.getUserPosts(userId);
       
       const enhancedPosts = await Promise.all(posts.map(async (post) => {
@@ -420,7 +420,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/user/liked-posts', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const posts = await storage.getUserLikedPosts(userId);
       
       const enhancedPosts = await Promise.all(posts.map(async (post) => {
@@ -449,7 +449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Profile
   app.get('/api/profile', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -464,6 +464,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id: user.id,
         email: user.email,
         username: user.username || user.email?.split('@')[0] || 'user',
+        firstName: user.firstName,
+        lastName: user.lastName,
         displayName: user.firstName || user.email?.split('@')[0] || 'User',
         profileImageUrl: user.profileImageUrl,
         bio: user.bio || null,
@@ -471,6 +473,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         website: user.website || null,
         github: user.github || null,
         twitter: user.twitter || null,
+        language: user.language || 'en',
         joinedAt: user.createdAt,
         postsCount,
         followersCount,
@@ -485,7 +488,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Code Snippets
   app.get('/api/snippets/my', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const snippets = await storage.getUserCodeSnippets(userId);
       res.json(snippets);
     } catch (error) {
@@ -506,7 +509,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/snippets', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const snippetData = insertCodeSnippetSchema.parse(req.body);
 
       const newSnippet = await storage.createCodeSnippet({
@@ -524,7 +527,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/snippets/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const snippetId = req.params.id;
       const snippetData = insertCodeSnippetSchema.parse(req.body);
 
@@ -544,7 +547,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/snippets/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const snippetId = req.params.id;
 
       // Check if the snippet belongs to the user
