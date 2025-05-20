@@ -19,7 +19,7 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   
   const toggleTheme = () => {
@@ -110,7 +110,7 @@ export default function Header() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="rounded-full flex items-center space-x-2 focus:outline-none">
                   <Avatar className="w-8 h-8 border-2 border-primary">
-                    <AvatarImage src={user?.profileImageUrl} alt={user?.firstName || "User"} />
+                    <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} />
                     <AvatarFallback>{user?.firstName?.[0] || user?.email?.[0] || "U"}</AvatarFallback>
                   </Avatar>
                   <span className="hidden md:inline-block font-medium">{user?.firstName || user?.email?.split('@')[0] || "User"}</span>
@@ -135,17 +135,21 @@ export default function Header() {
                     <span>Settings</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <a href="/api/logout" className="flex items-center w-full">
+                <DropdownMenuItem onClick={() => {
+                  logout().then(() => {
+                    window.location.href = "/login";
+                  });
+                }}>
+                  <div className="flex items-center w-full">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
-                  </a>
+                  </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <Button asChild>
-              <a href="/api/login">Log in</a>
+              <Link href="/login">Log in</Link>
             </Button>
           )}
         </div>

@@ -27,7 +27,7 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   }
   
   if (!isAuthenticated) {
-    window.location.href = "/api/login";
+    window.location.href = "/login";
     return null;
   }
   
