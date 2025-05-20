@@ -83,6 +83,12 @@ const translations: Record<Language, Record<string, string>> = {
     'general.cancel': 'Cancel',
     'general.delete': 'Delete',
     'general.edit': 'Edit',
+    'general.trendingTech': 'Trending in Tech',
+    'general.trendingIn': 'Trending in',
+    'general.posts': 'posts',
+    'general.follow': 'Follow',
+    'general.showMore': 'Show more',
+    'general.whoToFollow': 'Who to Follow',
   },
   ru: {
     // Navigation
@@ -158,6 +164,12 @@ const translations: Record<Language, Record<string, string>> = {
     'general.cancel': 'Отмена',
     'general.delete': 'Удалить',
     'general.edit': 'Редактировать',
+    'general.trendingTech': 'Популярно в IT',
+    'general.trendingIn': 'Популярно в',
+    'general.posts': 'постов',
+    'general.follow': 'Подписаться',
+    'general.showMore': 'Показать больше',
+    'general.whoToFollow': 'Кого читать',
   }
 };
 
