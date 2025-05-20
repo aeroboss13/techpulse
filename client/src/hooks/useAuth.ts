@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 
-type User = {
+export type User = {
   id: string;
   email: string | null;
   username: string | null;
@@ -22,7 +22,15 @@ type AuthContextType = {
   updateUserLanguage: (language: string) => Promise<void>;
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  isLoading: false,
+  isAuthenticated: false,
+  login: async () => { throw new Error('AuthContext not initialized'); },
+  register: async () => { throw new Error('AuthContext not initialized'); },
+  logout: async () => { throw new Error('AuthContext not initialized'); },
+  updateUserLanguage: async () => { throw new Error('AuthContext not initialized'); }
+});
 
 type LoginData = {
   email: string;
@@ -37,8 +45,6 @@ type RegisterData = {
   lastName?: string;
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(null);
@@ -52,21 +58,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Set user data when it's loaded
   useEffect(() => {
     if (userData) {
-      setUser(userData);
+      setUser(userData as User);
     }
   }, [userData]);
 
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: async (data: LoginData) => {
-      const response = await apiRequest('/api/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
           'Content-Type': 'application/json',
         },
       });
-      return response;
+      
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+      
+      return await response.json() as User;
     },
     onSuccess: (data) => {
       setUser(data);
@@ -77,14 +88,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Register mutation
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterData) => {
-      const response = await apiRequest('/api/auth/register', {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
           'Content-Type': 'application/json',
         },
       });
-      return response;
+      
+      if (!response.ok) {
+        throw new Error('Registration failed');
+      }
+      
+      return await response.json() as User;
     },
     onSuccess: (data) => {
       setUser(data);
@@ -95,9 +111,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Logout mutation
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest('/api/auth/logout', {
+      const response = await fetch('/api/auth/logout', {
         method: 'POST',
       });
+      
+      if (!response.ok) {
+        throw new Error('Logout failed');
+      }
     },
     onSuccess: () => {
       setUser(null);
@@ -108,13 +128,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Update user language mutation
   const updateLanguageMutation = useMutation({
     mutationFn: async (language: string) => {
-      await apiRequest('/api/auth/language', {
+      const response = await fetch('/api/auth/language', {
         method: 'POST',
         body: JSON.stringify({ language }),
         headers: {
           'Content-Type': 'application/json',
         },
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update language');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
