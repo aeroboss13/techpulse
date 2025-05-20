@@ -5,9 +5,11 @@ import CreatePostCard from "@/components/CreatePostCard";
 import PostCard from "@/components/PostCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
+  const { t, language } = useLanguage();
   
   const { data: posts, isLoading, error } = useQuery({
     queryKey: ["/api/posts"],
@@ -65,13 +67,13 @@ export default function Home() {
           </>
         ) : error ? (
           <div className="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-4 rounded-lg">
-            Failed to load posts. Please try again later.
+            {t('general.loadError')}
           </div>
         ) : posts?.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center">
-            <h3 className="text-xl font-medium mb-2">No posts yet</h3>
+            <h3 className="text-xl font-medium mb-2">{t('general.noPosts')}</h3>
             <p className="text-gray-500 dark:text-gray-400">
-              Be the first to share something with the community!
+              {t('general.noPostsMessage')}
             </p>
           </div>
         ) : (
