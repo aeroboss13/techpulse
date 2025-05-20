@@ -112,7 +112,7 @@ export default function Profile() {
               </div>
               
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                {profile?.bio || t('profile.defaultBio')}
+                {profile?.bio || ''}
               </p>
               
               <div className="flex flex-wrap gap-y-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
@@ -143,11 +143,11 @@ export default function Profile() {
               
               <div className="flex space-x-6 mb-4">
                 <div>
-                  <span className="font-bold">{profile?.followingCount || 0}</span>{" "}
+                  <span className="font-bold">{profile?.followingCount}</span>{" "}
                   <span className="text-gray-500 dark:text-gray-400">{t('profile.following')}</span>
                 </div>
                 <div>
-                  <span className="font-bold">{profile?.followersCount || 0}</span>{" "}
+                  <span className="font-bold">{profile?.followersCount}</span>{" "}
                   <span className="text-gray-500 dark:text-gray-400">{t('profile.followers')}</span>
                 </div>
                 <div>
