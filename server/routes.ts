@@ -467,6 +467,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch liked posts" });
     }
   });
+  
+  // Маршрут для получения закладок пользователя
+  app.get('/api/user/bookmarks', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      
+      // Получаем все посты
+      const allPosts = await storage.getAllPosts();
+      
+      // Для каждого поста проверяем, добавлен ли он в закладки текущим пользователем
+      const bookmarkedPosts = [];
+      for (const post of allPosts) {
+        const isBookmarked = await storage.isPostBookmarkedByUser(post.id, userId);
+        if (isBookmarked) {
+          const user = await storage.getUser(post.userId);
+          
+          bookmarkedPosts.push({
+            ...post,
+            isLiked: await storage.isPostLikedByUser(post.id, userId),
+            isBookmarked: true,
+            user: {
+              id: user?.id,
+              username: user?.username || user?.email?.split('@')[0] || 'user',
+              displayName: user?.firstName || user?.email?.split('@')[0] || 'User',
+              profileImageUrl: user?.profileImageUrl
+            }
+          });
+        }
+      }
+      
+      res.json(bookmarkedPosts);
+    } catch (error) {
+      console.error("Error fetching bookmarked posts:", error);
+      res.status(500).json({ message: "Failed to fetch bookmarked posts" });
+    }
+  });
 
   // Profile
   app.get('/api/profile', isAuthenticated, async (req: any, res) => {

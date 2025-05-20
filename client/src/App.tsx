@@ -11,6 +11,7 @@ import Explore from "@/pages/Explore";
 import Snippets from "@/pages/Snippets";
 import AIAssistant from "@/pages/AIAssistant";
 import Login from "@/pages/Login";
+import Bookmarks from "@/pages/Bookmarks";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { useAuth, AuthProvider } from "@/hooks/useAuth";
 import { LanguageProvider } from "@/components/LanguageProvider";
@@ -54,7 +55,7 @@ function Router() {
       <Route path="/profile" component={() => <ProtectedRoute component={Profile} />} />
       <Route path="/snippets" component={() => <ProtectedRoute component={Snippets} />} />
       <Route path="/ai-assistant" component={AIAssistant} />
-      <Route path="/bookmarks" component={() => <ProtectedRoute component={Profile} />} />
+      <Route path="/bookmarks" component={() => <ProtectedRoute component={Bookmarks} />} />
       <Route path="/login" component={Login} />
       <Route component={NotFound} />
     </Switch>
