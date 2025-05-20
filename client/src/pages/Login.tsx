@@ -34,26 +34,29 @@ export default function Login() {
 
   const loginMutation = useMutation({
     mutationFn: async (data: { email: string; password: string }) => {
-      const response = await apiRequest("POST", "/api/auth/login", data);
-      // Важно вызвать json() здесь, чтобы получить ответ
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Неверный email или пароль');
+      }
+      
       return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Успешный вход, данные:', data);
       toast({
         title: "Login successful",
         description: "Welcome back to DevStream!",
       });
       
-      // Запрашиваем обновление данных пользователя
-      fetch('/api/auth/me', { credentials: 'include' })
-        .then(response => {
-          if (response.ok) {
-            console.log('Auth successful, redirecting...');
-            setTimeout(() => {
-              setLocation('/'); // Redirect to home page using wouter
-            }, 500);
-          }
-        });
+      // Перенаправляем на главную страницу
+      window.location.href = '/';
     },
     onError: (error: any) => {
       toast({
@@ -66,22 +69,42 @@ export default function Login() {
   });
   
   const registerMutation = useMutation({
-    mutationFn: (data: { name: string; email: string; username: string; password: string }) => {
-      return apiRequest("POST", "/api/auth/register", data);
+    mutationFn: async (data: { name: string; email: string; username: string; password: string }) => {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Ошибка при регистрации');
+      }
+      
+      return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Успешная регистрация, данные:', data);
       toast({
         title: "Registration successful",
-        description: "Your account has been created. You can now log in.",
+        description: "Your account has been created. You are now logged in!",
       });
-      setActiveTab('login');
-      setRegisterSubmitting(false);
-      // Clear form
-      setRegisterName('');
-      setRegisterEmail('');
-      setRegisterUsername('');
-      setRegisterPassword('');
-      setRegisterConfirmPassword('');
+      
+      // Если сервер вернул успех и автологин сработал, перенаправляем на главную
+      if (data.success && data.user) {
+        window.location.href = '/';
+      } else {
+        // Иначе переключаемся на вкладку входа
+        setActiveTab('login');
+        setRegisterSubmitting(false);
+        // Очищаем форму
+        setRegisterName('');
+        setRegisterEmail('');
+        setRegisterUsername('');
+        setRegisterPassword('');
+        setRegisterConfirmPassword('');
+      }
     },
     onError: (error: any) => {
       toast({
