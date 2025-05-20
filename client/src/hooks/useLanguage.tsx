@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export type Language = 'en' | 'ru';
 
@@ -7,6 +7,8 @@ type LanguageContextType = {
   setLanguage: (language: Language) => void;
   t: (key: string) => string;
 };
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 const translations: Record<Language, Record<string, string>> = {
   en: {
@@ -160,14 +162,17 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
     // Try to get the language from localStorage
-    const savedLanguage = localStorage.getItem('language') as Language;
-    return savedLanguage === 'ru' ? 'ru' : 'en';
+    if (typeof window !== 'undefined') {
+      const savedLanguage = localStorage.getItem('language') as Language;
+      return savedLanguage === 'ru' ? 'ru' : 'en';
+    }
+    return 'en';
   });
 
   useEffect(() => {
     // Persist the language preference
     localStorage.setItem('language', language);
-    // You might also set the html lang attribute here
+    // Set the html lang attribute
     document.documentElement.lang = language;
   }, [language]);
 
@@ -179,10 +184,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return translations[language][key] || key;
   };
 
-  return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {children}
-    </LanguageContext.Provider>
+  return React.createElement(
+    LanguageContext.Provider,
+    { value: { language, setLanguage, t } },
+    children
   );
 }
 

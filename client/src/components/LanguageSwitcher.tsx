@@ -1,30 +1,40 @@
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import {
+import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Globe } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useLanguage, Language } from '@/hooks/useLanguage';
 
 export function LanguageSwitcher() {
   const { language, setLanguage, t } = useLanguage();
 
+  const handleLanguageChange = (newLanguage: Language) => {
+    setLanguage(newLanguage);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-9 w-9">
-          <Globe className="h-4 w-4" />
-          <span className="sr-only">{t("general.language")}</span>
+        <Button variant="ghost" size="icon" className="rounded-full">
+          <Globe className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setLanguage("en")}>
-          <span className={language === "en" ? "font-bold" : ""}>English</span>
+        <DropdownMenuItem 
+          onClick={() => handleLanguageChange('en')}
+          className={language === 'en' ? 'bg-primary/10' : ''}
+        >
+          English
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setLanguage("ru")}>
-          <span className={language === "ru" ? "font-bold" : ""}>Русский</span>
+        <DropdownMenuItem 
+          onClick={() => handleLanguageChange('ru')}
+          className={language === 'ru' ? 'bg-primary/10' : ''}
+        >
+          Русский
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

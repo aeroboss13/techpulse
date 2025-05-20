@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -21,6 +21,8 @@ type AuthContextType = {
   logout: () => Promise<void>;
   updateUserLanguage: (language: string) => Promise<void>;
 };
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 type LoginData = {
   email: string;
@@ -139,9 +141,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return updateLanguageMutation.mutateAsync(language);
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
+  return React.createElement(
+    AuthContext.Provider,
+    {
+      value: {
         user,
         isLoading,
         isAuthenticated: !!user,
@@ -149,10 +152,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         updateUserLanguage,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+      }
+    },
+    children
   );
 }
 

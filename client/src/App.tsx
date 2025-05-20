@@ -51,16 +51,16 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <LanguageProvider>
-          <ThemeProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Router />
-            </TooltipProvider>
-          </ThemeProvider>
-        </LanguageProvider>
-      </AuthProvider>
+      {React.createElement(AuthProvider, {}, 
+        React.createElement(LanguageProvider, {}, 
+          React.createElement(ThemeProvider, {}, 
+            React.createElement(TooltipProvider, {}, 
+              React.createElement(Toaster, {}),
+              React.createElement(Router, {})
+            )
+          )
+        )
+      )}
     </QueryClientProvider>
   );
 }
