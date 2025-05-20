@@ -358,8 +358,64 @@ export class MemStorage implements IStorage {
 
   // Trending topics
   async getTrendingTopics(): Promise<TrendingTopic[]> {
-    return Array.from(this.trendingTopics.values())
-      .sort((a, b) => b.postCount - a.postCount);
+    // Анализируем все посты и собираем статистику по хэштегам
+    const hashtagStats = new Map<string, { count: number, category: string }>();
+    
+    // Получаем все посты
+    const posts = await this.getAllPosts();
+    
+    // Анализируем теги в каждом посте
+    posts.forEach(post => {
+      if (post.tags && post.tags.length > 0) {
+        post.tags.forEach(tag => {
+          // Форматируем хэштег
+          const hashtag = tag.startsWith('#') ? tag : `#${tag}`;
+          
+          // Определяем категорию на основе тега
+          let category = "General";
+          if (tag.toLowerCase().includes('js') || tag.toLowerCase().includes('script') || 
+              tag.toLowerCase().includes('html') || tag.toLowerCase().includes('css') || 
+              tag.toLowerCase().includes('web')) {
+            category = "Web Dev";
+          } else if (tag.toLowerCase().includes('ai') || tag.toLowerCase().includes('ml') || 
+                     tag.toLowerCase().includes('gpt') || tag.toLowerCase().includes('learning')) {
+            category = "AI";
+          } else if (tag.toLowerCase().includes('cloud') || tag.toLowerCase().includes('aws') || 
+                     tag.toLowerCase().includes('azure') || tag.toLowerCase().includes('kubernetes')) {
+            category = "Cloud";
+          } else if (tag.toLowerCase().includes('security') || tag.toLowerCase().includes('crypto') || 
+                     tag.toLowerCase().includes('hack') || tag.toLowerCase().includes('privacy')) {
+            category = "Security";
+          } else if (tag.toLowerCase().includes('mobile') || tag.toLowerCase().includes('android') || 
+                     tag.toLowerCase().includes('ios') || tag.toLowerCase().includes('app')) {
+            category = "Mobile";
+          }
+          
+          // Обновляем статистику
+          const stats = hashtagStats.get(hashtag) || { count: 0, category };
+          stats.count++;
+          hashtagStats.set(hashtag, stats);
+        });
+      }
+    });
+    
+    // Если нет постов с тегами, используем пример хэштегов
+    if (hashtagStats.size === 0) {
+      return Array.from(this.trendingTopics.values())
+        .sort((a, b) => b.postCount - a.postCount);
+    }
+    
+    // Преобразуем статистику в массив трендовых тем
+    const trendingTopics: TrendingTopic[] = Array.from(hashtagStats.entries())
+      .map(([name, { count, category }], index) => ({
+        id: `tag-${index}`,
+        name,
+        category,
+        postCount: count
+      }));
+    
+    // Сортируем по количеству постов (по убыванию)
+    return trendingTopics.sort((a, b) => b.postCount - a.postCount);
   }
 }
 
