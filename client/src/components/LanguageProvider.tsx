@@ -48,6 +48,11 @@ const translations: Record<Language, Record<string, string>> = {
     'post.post': 'Post',
     'post.like': 'Like',
     
+    // AI Assistant
+    'ai.send': 'Send',
+    'ai.message': 'Type your message',
+    'ai.analyze': 'Analyze',
+    
     // Profile
     'profile.edit': 'Edit Profile',
     'profile.editDescription': 'Update your profile information',
@@ -128,6 +133,11 @@ const translations: Record<Language, Record<string, string>> = {
     'post.addCode': 'Добавить код',
     'post.post': 'Опубликовать',
     'post.like': 'Нравится',
+    
+    // AI Assistant
+    'ai.send': 'Отправить',
+    'ai.message': 'Введите сообщение',
+    'ai.analyze': 'Анализировать',
     
     // Profile
     'profile.edit': 'Редактировать профиль',
