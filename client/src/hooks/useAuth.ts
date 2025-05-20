@@ -54,6 +54,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ['/api/auth/me'],
     retry: false,
     staleTime: 60000, // 1 minute
+    queryFn: async () => {
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          return null;
+        }
+        throw new Error('Failed to fetch user data');
+      }
+      return await response.json();
+    }
   });
 
   // Set user data when it's loaded
@@ -72,13 +84,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include'
       });
       
       if (!response.ok) {
         throw new Error('Login failed');
       }
       
-      return await response.json() as User;
+      const responseData = await response.json();
+      return responseData.user as User;
     },
     onSuccess: (data) => {
       setUser(data);
@@ -95,13 +109,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include'
       });
       
       if (!response.ok) {
         throw new Error('Registration failed');
       }
       
-      return await response.json() as User;
+      const responseData = await response.json();
+      return responseData.user as User;
     },
     onSuccess: (data) => {
       setUser(data);
@@ -114,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutationFn: async () => {
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
+        credentials: 'include'
       });
       
       if (!response.ok) {
@@ -135,6 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include'
       });
       
       if (!response.ok) {
