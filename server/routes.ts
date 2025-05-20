@@ -565,7 +565,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Integration
-  app.post('/api/ai/suggest', isAuthenticated, async (req: any, res) => {
+  app.post('/api/ai/suggest', async (req: any, res) => {
     try {
       const { prompt } = req.body;
       if (!prompt) {
@@ -585,7 +585,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/ai/recommendations', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
       
       // Get user's posts and liked posts to determine interests
@@ -613,7 +613,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/suggested-users', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const suggestedUsers = await storage.getSuggestedUsers(userId);
       res.json(suggestedUsers);
     } catch (error) {
