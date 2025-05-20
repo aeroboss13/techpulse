@@ -61,7 +61,7 @@ export default function RightSidebar() {
         {/* Trending Topics */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle>{language === 'ru' ? 'Популярно в IT' : 'Trending in Tech'}</CardTitle>
+            <CardTitle>{t('general.trendingTech')}</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <ul className="space-y-3">
@@ -87,7 +87,7 @@ export default function RightSidebar() {
         {/* Who to Follow */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle>{language === 'ru' ? 'Кого читать' : 'Who to Follow'}</CardTitle>
+            <CardTitle>{t('general.whoToFollow')}</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <ul className="space-y-4">
