@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTheme } from "./ThemeProvider";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,8 +13,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
-  Home, Search, Bell, Moon, Sun, User, LogOut, Settings, Code
+  Home, Search, Bell, Moon, Sun, User, LogOut, Settings, Code, Globe
 } from "lucide-react";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();

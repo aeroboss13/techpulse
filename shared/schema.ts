@@ -22,11 +22,13 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  passwordHash: varchar("password_hash"),
   bio: text("bio"),
   location: varchar("location"),
   website: varchar("website"),
   github: varchar("github"),
   twitter: varchar("twitter"),
+  language: varchar("language").default("en"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
