@@ -86,8 +86,71 @@ export class MemStorage implements IStorage {
     this.initializeSampleData();
   }
 
-  // Initialize with sample trending topics
+  // Initialize with sample trending topics and posts with tags
   private initializeSampleData() {
+    // Сначала создадим демо-посты с хэштегами
+    const adminUserId = "1";
+    
+    // Образец постов с реальными хэштегами
+    const samplePosts = [
+      {
+        id: "demo-post-1",
+        userId: adminUserId,
+        content: "Изучаю новые возможности TypeScript 5.0. Типизация становится всё более мощной! #TypeScript #WebDev #JavaScript",
+        tags: ["TypeScript", "WebDev", "JavaScript"],
+        likes: 24,
+        comments: 5,
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 дня назад
+        updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2)
+      },
+      {
+        id: "demo-post-2",
+        userId: adminUserId,
+        content: "GPT-4 открывает новые возможности для разработчиков. Попробовал генерацию кода - результаты впечатляют! #AI #GPT4 #MachineLearning",
+        tags: ["AI", "GPT4", "MachineLearning"],
+        likes: 36,
+        comments: 8,
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3), // 3 дня назад
+        updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3)
+      },
+      {
+        id: "demo-post-3",
+        userId: adminUserId,
+        content: "Масштабирование микросервисов с Kubernetes становится проще. Вот мой опыт настройки кластера для высоконагруженного проекта. #Kubernetes #Cloud #DevOps",
+        tags: ["Kubernetes", "Cloud", "DevOps"],
+        likes: 19,
+        comments: 4,
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4), // 4 дня назад
+        updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4)
+      },
+      {
+        id: "demo-post-4",
+        userId: adminUserId,
+        content: "Реализация Zero Trust архитектуры в корпоративной среде. Безопасность должна быть приоритетом! #ZeroTrust #Security #Cybersecurity",
+        tags: ["ZeroTrust", "Security", "Cybersecurity"],
+        likes: 29,
+        comments: 6,
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5), // 5 дней назад
+        updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5)
+      },
+      {
+        id: "demo-post-5",
+        userId: adminUserId,
+        content: "React 18 и новая архитектура рендеринга. Concurrent Mode меняет правила игры! #React #JavaScript #WebDev",
+        tags: ["React", "JavaScript", "WebDev"],
+        likes: 42,
+        comments: 11,
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1), // 1 день назад
+        updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1)
+      }
+    ];
+    
+    // Добавляем посты в хранилище
+    samplePosts.forEach(post => {
+      this.posts.set(post.id, post as Post);
+    });
+    
+    // Оставляем также статические темы для случая, если анализ постов не даст результатов
     const sampleTopics = [
       { id: "1", category: "Web Dev", name: "#TypeScript5.0", postCount: 4218 },
       { id: "2", category: "AI", name: "#GPT4", postCount: 3112 },
