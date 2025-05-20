@@ -20,6 +20,7 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 export default function Header() {
   const { theme, setTheme } = useTheme();
   const { user, isAuthenticated, logout } = useAuth();
+  const { language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
   
   const toggleTheme = () => {
@@ -52,7 +53,7 @@ export default function Header() {
               <Input
                 type="text"
                 className="pl-10 pr-4 py-2 rounded-full border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary w-full"
-                placeholder="Search DevStream"
+                placeholder={language === 'ru' ? "Поиск в DevStream" : "Search DevStream"}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -85,8 +86,8 @@ export default function Header() {
                       <User className="h-4 w-4" />
                     </span>
                     <div>
-                      <p className="text-sm">Sarah Johnson mentioned you</p>
-                      <p className="text-xs text-gray-500">2 hours ago</p>
+                      <p className="text-sm">{language === 'ru' ? "Сара Джонсон упомянула вас" : "Sarah Johnson mentioned you"}</p>
+                      <p className="text-xs text-gray-500">{language === 'ru' ? "2 часа назад" : "2 hours ago"}</p>
                     </div>
                   </div>
                 </DropdownMenuItem>
@@ -96,8 +97,8 @@ export default function Header() {
                       <Code className="h-4 w-4" />
                     </span>
                     <div>
-                      <p className="text-sm">David Miller commented on your post</p>
-                      <p className="text-xs text-gray-500">1 day ago</p>
+                      <p className="text-sm">{language === 'ru' ? "Дэвид Миллер прокомментировал ваш пост" : "David Miller commented on your post"}</p>
+                      <p className="text-xs text-gray-500">{language === 'ru' ? "1 день назад" : "1 day ago"}</p>
                     </div>
                   </div>
                 </DropdownMenuItem>
@@ -120,19 +121,19 @@ export default function Header() {
                 <DropdownMenuItem>
                   <Link href="/profile" className="flex items-center w-full">
                     <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
+                    <span>{language === 'ru' ? "Профиль" : "Profile"}</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Link href="/snippets" className="flex items-center w-full">
                     <Code className="mr-2 h-4 w-4" />
-                    <span>My Snippets</span>
+                    <span>{language === 'ru' ? "Мои сниппеты" : "My Snippets"}</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Link href="/settings" className="flex items-center w-full">
                     <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
+                    <span>{language === 'ru' ? "Настройки" : "Settings"}</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => {
@@ -142,14 +143,14 @@ export default function Header() {
                 }}>
                   <div className="flex items-center w-full">
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>{language === 'ru' ? "Выйти" : "Log out"}</span>
                   </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <Button asChild>
-              <Link href="/login">Log in</Link>
+              <Link href="/login">{language === 'ru' ? "Войти" : "Log in"}</Link>
             </Button>
           )}
         </div>
