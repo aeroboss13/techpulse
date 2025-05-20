@@ -190,7 +190,7 @@ export default function AIAssistant() {
     setIsLoading(true);
 
     try {
-      // In a real implementation, we would call the OpenAI API here
+      // Вызов OpenAI API для получения ответа
       const response = await fetch('/api/ai/suggest', {
         method: 'POST',
         headers: {
@@ -205,12 +205,12 @@ export default function AIAssistant() {
 
       const data = await response.json();
 
-      // Check if there's code in the response
+      // Проверка наличия кода в ответе
       let messageContent = data.suggestion;
       let codeSnippet = '';
       let language = 'javascript';
 
-      // Extract code blocks from markdown style response (```code```)
+      // Извлечение блоков кода из ответа в стиле markdown (```code```)
       const codeBlockRegex = /```(\w+)?\s*(.+?)```/s;
       const match = messageContent.match(codeBlockRegex);
 
@@ -232,6 +232,70 @@ export default function AIAssistant() {
       };
 
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Если сообщение содержит просьбу проанализировать пост или контент
+      if (userMessage.content.toLowerCase().includes('analyze') || 
+          userMessage.content.toLowerCase().includes('анализ') ||
+          userMessage.content.toLowerCase().includes('проанализир')) {
+        // Пробуем найти контент для анализа
+        const contentMatch = userMessage.content.match(/analyze\s+this[:\s]+(.*)/i) || 
+                             userMessage.content.match(/анализ[а-я]*\s+[а-я]*[:\s]+(.*)/i);
+        
+        if (contentMatch && contentMatch[1]) {
+          const contentToAnalyze = contentMatch[1].trim();
+          
+          // Анализируем контент через AI
+          try {
+            const analysisResponse = await fetch('/api/ai/analyze-post', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ content: contentToAnalyze }),
+            });
+            
+            if (analysisResponse.ok) {
+              const analysis = await analysisResponse.json();
+              
+              // Формируем дополнительное сообщение с анализом
+              let analysisContent = language === 'en' 
+                ? "Here's my analysis of the content:\n\n" 
+                : "Вот мой анализ контента:\n\n";
+              
+              analysisContent += language === 'en' 
+                ? `**Sentiment**: ${analysis.sentiment}\n` 
+                : `**Тональность**: ${analysis.sentiment === 'positive' ? 'позитивная' : analysis.sentiment === 'negative' ? 'негативная' : 'нейтральная'}\n`;
+              
+              analysisContent += language === 'en' 
+                ? `**Readability**: ${analysis.readability}\n\n` 
+                : `**Читаемость**: ${analysis.readability === 'easy' ? 'простая' : analysis.readability === 'complex' ? 'сложная' : 'средняя'}\n\n`;
+              
+              analysisContent += language === 'en' ? "**Suggestions**:\n" : "**Рекомендации**:\n";
+              analysis.suggestions.forEach((suggestion: string) => {
+                analysisContent += `- ${suggestion}\n`;
+              });
+              
+              analysisContent += '\n';
+              
+              analysisContent += language === 'en' ? "**Topics**:\n" : "**Темы**:\n";
+              analysis.topics.forEach((topic: {name: string, relevance: number}) => {
+                analysisContent += `- ${topic.name} (${Math.round(topic.relevance * 100)}%)\n`;
+              });
+              
+              const analysisMessage: Message = {
+                id: Date.now().toString() + '-analysis',
+                type: 'ai',
+                content: analysisContent,
+                timestamp: new Date(),
+              };
+              
+              setMessages(prev => [...prev, analysisMessage]);
+            }
+          } catch (error) {
+            console.error('Error analyzing content:', error);
+          }
+        }
+      }
     } catch (error) {
       console.error('Error getting AI response:', error);
       toast({
@@ -240,11 +304,13 @@ export default function AIAssistant() {
         variant: 'destructive',
       });
       
-      // Add fallback response
+      // Добавляем запасной ответ
       const aiMessage: Message = {
         id: Date.now().toString(),
         type: 'ai',
-        content: "I'm sorry, I encountered an error processing your request. Please try again later.",
+        content: language === 'en' 
+          ? "I'm sorry, I encountered an error processing your request. Please try again later." 
+          : "Извините, я столкнулся с ошибкой при обработке вашего запроса. Пожалуйста, попробуйте позже.",
         timestamp: new Date(),
       };
       
