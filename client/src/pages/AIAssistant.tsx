@@ -7,7 +7,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Send, Bot, Cpu, Code, Sparkles, FileCode, BookOpen } from 'lucide-react';
+import { useLanguage } from '@/hooks/useLanguage';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Loader2, Send, Bot, Cpu, Code, Sparkles, FileCode, BookOpen, 
+  LineChart, TrendingUp, BarChart, PieChart, Target, Lightbulb, 
+  MessageSquare, User, Hash
+} from 'lucide-react';
 import CodeSnippet from '@/components/CodeSnippet';
 
 interface Message {
@@ -17,6 +23,16 @@ interface Message {
   codeSnippet?: string;
   language?: string;
   timestamp: Date;
+}
+
+interface PostAnalysis {
+  id: string;
+  content: string;
+  engagement: number;
+  suggestions: string[];
+  topics: Array<{name: string, relevance: number}>;
+  sentiment: 'positive' | 'neutral' | 'negative';
+  readability: 'easy' | 'medium' | 'complex';
 }
 
 const EXAMPLE_PROMPTS = [
@@ -46,6 +62,89 @@ const EXAMPLE_PROMPTS = [
   },
 ];
 
+const POST_ANALYSIS_PROMPTS = [
+  {
+    title: 'Analyze Engagement',
+    description: 'Get insights on improving post engagement',
+    icon: <LineChart className="h-5 w-5" />,
+    prompt: "Analyze why my recent posts aren't getting much engagement and suggest improvements",
+  },
+  {
+    title: 'Content Strategy',
+    description: 'Build a better content strategy',
+    icon: <Target className="h-5 w-5" />,
+    prompt: "Help me create a content strategy for growing my developer audience",
+  },
+  {
+    title: 'Trending Topics',
+    description: 'Discover popular tech topics',
+    icon: <TrendingUp className="h-5 w-5" />,
+    prompt: "What are the current trending topics in web development I should write about?",
+  },
+  {
+    title: 'Post Ideas',
+    description: 'Generate fresh content ideas',
+    icon: <Lightbulb className="h-5 w-5" />,
+    prompt: "Generate 5 post ideas about React that would interest other developers",
+  },
+];
+
+// Mock data for post analysis
+const MOCK_POSTS_FOR_ANALYSIS: PostAnalysis[] = [
+  {
+    id: '1',
+    content: 'Just learned about React Hooks - they make functional components so much more powerful! #React #JavaScript #WebDev',
+    engagement: 78,
+    suggestions: [
+      'Add a code example showing a practical use case',
+      'Compare with class components to highlight advantages',
+      'Link to the official React documentation'
+    ],
+    topics: [
+      {name: 'React', relevance: 0.95},
+      {name: 'JavaScript', relevance: 0.82},
+      {name: 'WebDev', relevance: 0.75}
+    ],
+    sentiment: 'positive',
+    readability: 'easy'
+  },
+  {
+    id: '2',
+    content: 'Having issues with TypeScript generics in my latest project. The compiler keeps complaining about type narrowing when using Array.filter(). Any suggestions? #TypeScript #JavaScript #Debugging',
+    engagement: 45,
+    suggestions: [
+      'Include a minimal code example showing the error',
+      'Specify TypeScript version you\'re using',
+      'Ask a clear question for better responses',
+      'Add types for your filter function'
+    ],
+    topics: [
+      {name: 'TypeScript', relevance: 0.97},
+      {name: 'JavaScript', relevance: 0.75},
+      {name: 'Debugging', relevance: 0.82}
+    ],
+    sentiment: 'neutral',
+    readability: 'medium'
+  },
+  {
+    id: '3',
+    content: 'Performance optimization tip: Use React.memo() to prevent unnecessary re-renders in your functional components. I just reduced render time by 45% in our production app! #React #Performance #WebDev #JavaScript',
+    engagement: 92,
+    suggestions: [
+      'Share before/after metrics or a performance profile',
+      'Explain when NOT to use React.memo()',
+      'Mention other performance optimization techniques'
+    ],
+    topics: [
+      {name: 'React', relevance: 0.90},
+      {name: 'Performance', relevance: 0.95},
+      {name: 'JavaScript', relevance: 0.65}
+    ],
+    sentiment: 'positive',
+    readability: 'medium'
+  }
+];
+
 export default function AIAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -57,9 +156,11 @@ export default function AIAssistant() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<PostAnalysis | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     document.title = "DevStream - AI Assistant";
@@ -157,6 +258,27 @@ export default function AIAssistant() {
     setInput(prompt);
   };
 
+  const handleSelectPost = (post: PostAnalysis) => {
+    setSelectedPost(post);
+  };
+
+  const getSentimentColor = (sentiment: 'positive' | 'neutral' | 'negative') => {
+    switch (sentiment) {
+      case 'positive': return 'text-green-500';
+      case 'negative': return 'text-red-500';
+      default: return 'text-gray-500';
+    }
+  };
+
+  const getReadabilityLabel = (readability: 'easy' | 'medium' | 'complex') => {
+    switch (readability) {
+      case 'easy': return { label: language === 'en' ? 'Easy to read' : 'Легко читается', color: 'text-green-500' };
+      case 'medium': return { label: language === 'en' ? 'Moderately complex' : 'Средней сложности', color: 'text-yellow-500' };
+      case 'complex': return { label: language === 'en' ? 'Complex' : 'Сложный', color: 'text-red-500' };
+      default: return { label: language === 'en' ? 'Unknown' : 'Неизвестно', color: 'text-gray-500' };
+    }
+  };
+
   return (
     <MainLayout>
       <div className="flex flex-col space-y-4">
@@ -164,125 +286,358 @@ export default function AIAssistant() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Bot className="mr-2 h-6 w-6 text-primary" />
-              AI Code Assistant
+              AI Assistant
             </CardTitle>
             <CardDescription>
-              Ask me anything about coding, debugging, or technical concepts
+              {language === 'en' 
+                ? 'Your AI assistant for coding help and content analysis'
+                : 'Ваш ИИ-ассистент для помощи с кодом и анализа контента'}
             </CardDescription>
           </CardHeader>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          {EXAMPLE_PROMPTS.map((prompt, index) => (
-            <Card key={index} className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" onClick={() => handleExampleClick(prompt.prompt)}>
-              <CardHeader className="p-4">
-                <CardTitle className="text-base flex items-center">
-                  {prompt.icon}
-                  <span className="ml-2">{prompt.title}</span>
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  {prompt.description}
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
+        <Tabs defaultValue="code" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="code" className="flex items-center">
+              <Code className="h-4 w-4 mr-2" />
+              {language === 'en' ? 'Code Assistant' : 'Помощник по коду'}
+            </TabsTrigger>
+            <TabsTrigger value="content" className="flex items-center">
+              <LineChart className="h-4 w-4 mr-2" />
+              {language === 'en' ? 'Content Analysis' : 'Анализ контента'}
+            </TabsTrigger>
+          </TabsList>
 
-        <Card className="flex-1">
-          <CardContent className="p-4 max-h-[60vh] overflow-y-auto">
-            <div className="space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`flex max-w-[80%] ${
-                      message.type === 'user'
-                        ? 'flex-row-reverse'
-                        : 'flex-row'
-                    }`}
-                  >
-                    {message.type === 'ai' ? (
-                      <Avatar className="mt-1 mr-2 h-8 w-8 bg-primary text-white">
-                        <AvatarFallback>AI</AvatarFallback>
-                        <Cpu className="h-4 w-4" />
-                      </Avatar>
-                    ) : (
-                      <Avatar className="mt-1 ml-2 h-8 w-8">
-                        <AvatarImage src={user?.profileImageUrl} alt={user?.firstName || "User"} />
-                        <AvatarFallback>{user?.firstName?.[0] || user?.email?.[0] || "U"}</AvatarFallback>
-                      </Avatar>
-                    )}
+          <TabsContent value="code" className="space-y-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              {EXAMPLE_PROMPTS.map((prompt, index) => (
+                <Card key={index} className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" onClick={() => handleExampleClick(prompt.prompt)}>
+                  <CardHeader className="p-4">
+                    <CardTitle className="text-base flex items-center">
+                      {prompt.icon}
+                      <span className="ml-2">{language === 'en' ? prompt.title : 
+                        prompt.title === 'Debug My Code' ? 'Отладка кода' :
+                        prompt.title === 'Explain a Concept' ? 'Объяснение концепций' :
+                        prompt.title === 'Generate Code' ? 'Генерация кода' :
+                        'Оптимизация решений'}</span>
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      {language === 'en' ? prompt.description :
+                        prompt.description === 'Help me find issues in my code' ? 'Помощь в поиске проблем в коде' :
+                        prompt.description === 'Get explanations for technical topics' ? 'Получите объяснения технических тем' :
+                        prompt.description === 'Get code for a specific task' ? 'Получите код для конкретной задачи' :
+                        'Сделайте ваш код более эффективным'}
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+
+            <Card className="flex-1">
+              <CardContent className="p-4 max-h-[60vh] overflow-y-auto">
+                <div className="space-y-4">
+                  {messages.map((message) => (
                     <div
-                      className={`rounded-lg p-3 ${
-                        message.type === 'user'
-                          ? 'bg-primary text-white'
-                          : 'bg-gray-100 dark:bg-gray-800'
-                      }`}
+                      key={message.id}
+                      className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
-                      <p className="whitespace-pre-wrap">{message.content}</p>
-                      {message.codeSnippet && (
-                        <div className="mt-2">
-                          <CodeSnippet code={message.codeSnippet} language={message.language || 'javascript'} />
-                        </div>
-                      )}
                       <div
-                        className={`text-xs mt-1 ${
+                        className={`flex max-w-[80%] ${
                           message.type === 'user'
-                            ? 'text-blue-100'
-                            : 'text-gray-500 dark:text-gray-400'
+                            ? 'flex-row-reverse'
+                            : 'flex-row'
                         }`}
                       >
-                        {message.timestamp.toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
+                        {message.type === 'ai' ? (
+                          <Avatar className="mt-1 mr-2 h-8 w-8 bg-primary text-white">
+                            <AvatarFallback>AI</AvatarFallback>
+                            <Cpu className="h-4 w-4" />
+                          </Avatar>
+                        ) : (
+                          <Avatar className="mt-1 ml-2 h-8 w-8">
+                            <AvatarImage src={user?.profileImageUrl} alt={user?.firstName || "User"} />
+                            <AvatarFallback>{user?.firstName?.[0] || user?.email?.[0] || "U"}</AvatarFallback>
+                          </Avatar>
+                        )}
+                        <div
+                          className={`rounded-lg p-3 ${
+                            message.type === 'user'
+                              ? 'bg-primary text-white'
+                              : 'bg-gray-100 dark:bg-gray-800'
+                          }`}
+                        >
+                          <p className="whitespace-pre-wrap">{message.content}</p>
+                          {message.codeSnippet && (
+                            <div className="mt-2">
+                              <CodeSnippet code={message.codeSnippet} language={message.language || 'javascript'} />
+                            </div>
+                          )}
+                          <div
+                            className={`text-xs mt-1 ${
+                              message.type === 'user'
+                                ? 'text-blue-100'
+                                : 'text-gray-500 dark:text-gray-400'
+                            }`}
+                          >
+                            {message.timestamp.toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
+                  {isLoading && (
+                    <div className="flex justify-start">
+                      <div className="flex max-w-[80%]">
+                        <Avatar className="mt-1 mr-2 h-8 w-8 bg-primary text-white">
+                          <AvatarFallback>AI</AvatarFallback>
+                          <Cpu className="h-4 w-4" />
+                        </Avatar>
+                        <div className="rounded-lg p-4 bg-gray-100 dark:bg-gray-800">
+                          <div className="flex items-center">
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            <span>{language === 'en' ? 'Thinking...' : 'Обработка...'}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
                 </div>
+              </CardContent>
+              <CardFooter className="p-4 border-t">
+                <form onSubmit={handleSubmit} className="flex w-full space-x-2">
+                  <Textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={language === 'en' ? "Ask a question or paste code..." : "Задайте вопрос или вставьте код..."}
+                    className="flex-1 resize-none"
+                    rows={1}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSubmit(e);
+                      }
+                    }}
+                  />
+                  <Button type="submit" size="icon" disabled={isLoading}>
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </form>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="content" className="space-y-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              {POST_ANALYSIS_PROMPTS.map((prompt, index) => (
+                <Card key={index} className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" onClick={() => handleExampleClick(prompt.prompt)}>
+                  <CardHeader className="p-4">
+                    <CardTitle className="text-base flex items-center">
+                      {prompt.icon}
+                      <span className="ml-2">{language === 'en' ? prompt.title : 
+                        prompt.title === 'Analyze Engagement' ? 'Анализ вовлеченности' :
+                        prompt.title === 'Content Strategy' ? 'Стратегия контента' :
+                        prompt.title === 'Trending Topics' ? 'Популярные темы' :
+                        'Идеи для постов'}</span>
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      {language === 'en' ? prompt.description :
+                        prompt.description === 'Get insights on improving post engagement' ? 'Получите советы по увеличению вовлеченности' :
+                        prompt.description === 'Build a better content strategy' ? 'Создайте лучшую стратегию контента' :
+                        prompt.description === 'Discover popular tech topics' ? 'Узнайте о популярных технических темах' :
+                        'Генерируйте свежие идеи для контента'}
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
               ))}
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="flex max-w-[80%]">
-                    <Avatar className="mt-1 mr-2 h-8 w-8 bg-primary text-white">
-                      <AvatarFallback>AI</AvatarFallback>
-                      <Cpu className="h-4 w-4" />
-                    </Avatar>
-                    <div className="rounded-lg p-4 bg-gray-100 dark:bg-gray-800">
-                      <div className="flex items-center">
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        <span>Thinking...</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
             </div>
-          </CardContent>
-          <CardFooter className="p-4 border-t">
-            <form onSubmit={handleSubmit} className="flex w-full space-x-2">
-              <Textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask a question or paste code..."
-                className="flex-1 resize-none"
-                rows={1}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(e);
-                  }
-                }}
-              />
-              <Button type="submit" size="icon" disabled={isLoading}>
-                <Send className="h-4 w-4" />
-              </Button>
-            </form>
-          </CardFooter>
-        </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div className="lg:col-span-1">
+                <Card className="h-full">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center">
+                      <MessageSquare className="h-5 w-5 mr-2" />
+                      {language === 'en' ? 'Your Posts' : 'Ваши посты'}
+                    </CardTitle>
+                    <CardDescription>
+                      {language === 'en' ? 'Select a post to analyze' : 'Выберите пост для анализа'}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4 max-h-[50vh] overflow-y-auto">
+                    <div className="space-y-3">
+                      {MOCK_POSTS_FOR_ANALYSIS.map((post) => (
+                        <div 
+                          key={post.id} 
+                          className={`p-3 rounded-lg border cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${selectedPost?.id === post.id ? 'border-primary' : 'border-gray-200 dark:border-gray-700'}`}
+                          onClick={() => handleSelectPost(post)}
+                        >
+                          <p className="text-sm line-clamp-2">{post.content}</p>
+                          <div className="flex items-center mt-2 text-xs text-gray-500">
+                            <div className="flex items-center mr-3">
+                              <MessageSquare className="h-3 w-3 mr-1" />
+                              <span>ID: {post.id}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <BarChart className="h-3 w-3 mr-1" />
+                              <span>{language === 'en' ? 'Engagement' : 'Вовлеченность'}: {post.engagement}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="lg:col-span-2">
+                {selectedPost ? (
+                  <Card className="h-full">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center justify-between">
+                        <div className="flex items-center">
+                          <PieChart className="h-5 w-5 mr-2" />
+                          {language === 'en' ? 'Post Analysis' : 'Анализ поста'}
+                        </div>
+                        <div className="flex items-center text-base font-normal">
+                          <span className={getSentimentColor(selectedPost.sentiment)}>
+                            {language === 'en' 
+                              ? selectedPost.sentiment.charAt(0).toUpperCase() + selectedPost.sentiment.slice(1) 
+                              : selectedPost.sentiment === 'positive' ? 'Позитивный' 
+                                : selectedPost.sentiment === 'negative' ? 'Негативный' 
+                                : 'Нейтральный'}
+                          </span>
+                          <span className="mx-2">•</span>
+                          <span className={getReadabilityLabel(selectedPost.readability).color}>
+                            {getReadabilityLabel(selectedPost.readability).label}
+                          </span>
+                        </div>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-sm font-medium mb-2">
+                            {language === 'en' ? 'Post Content' : 'Содержание поста'}
+                          </h3>
+                          <p className="text-sm p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
+                            {selectedPost.content}
+                          </p>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-medium mb-2 flex items-center">
+                            <Lightbulb className="h-4 w-4 mr-1 text-yellow-500" />
+                            {language === 'en' ? 'Improvement Suggestions' : 'Предложения по улучшению'}
+                          </h3>
+                          <ul className="space-y-1">
+                            {selectedPost.suggestions.map((suggestion, idx) => (
+                              <li key={idx} className="text-sm flex items-start">
+                                <span className="text-primary mr-2">•</span>
+                                <span>{suggestion}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-medium mb-2 flex items-center">
+                            <Hash className="h-4 w-4 mr-1 text-blue-500" />
+                            {language === 'en' ? 'Key Topics' : 'Ключевые темы'}
+                          </h3>
+                          <div className="flex flex-wrap gap-2">
+                            {selectedPost.topics.map((topic, idx) => (
+                              <div 
+                                key={idx} 
+                                className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs flex items-center"
+                                style={{ opacity: 0.4 + topic.relevance * 0.6 }}
+                              >
+                                <span>{topic.name}</span>
+                                <span className="ml-1 text-gray-500">
+                                  {Math.round(topic.relevance * 100)}%
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="pt-3">
+                          <h3 className="text-sm font-medium mb-2">
+                            {language === 'en' ? 'Ask AI for advice' : 'Спросить совета у ИИ'}
+                          </h3>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-xs"
+                              onClick={() => {
+                                setInput(`How can I improve this post to increase engagement? "${selectedPost.content.substring(0, 100)}..."`);
+                                document.querySelector('[data-value="code"]')?.dispatchEvent(new Event('click', { bubbles: true }));
+                              }}
+                            >
+                              {language === 'en' ? 'Improve Engagement' : 'Улучшить вовлеченность'}
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-xs"
+                              onClick={() => {
+                                setInput(`Suggest some code examples I could add to this post: "${selectedPost.content.substring(0, 100)}..."`);
+                                document.querySelector('[data-value="code"]')?.dispatchEvent(new Event('click', { bubbles: true }));
+                              }}
+                            >
+                              {language === 'en' ? 'Add Code Examples' : 'Добавить примеры кода'}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card className="h-full flex items-center justify-center">
+                    <CardContent className="p-8 text-center">
+                      <PieChart className="h-12 w-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                      <h3 className="text-lg font-medium mb-2">
+                        {language === 'en' ? 'No Post Selected' : 'Пост не выбран'}
+                      </h3>
+                      <p className="text-gray-500 max-w-md">
+                        {language === 'en' 
+                          ? 'Select a post from the list to see AI analysis and improvement suggestions.' 
+                          : 'Выберите пост из списка, чтобы увидеть ИИ-анализ и предложения по улучшению.'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </div>
+            
+            <Card className="flex-1">
+              <CardFooter className="p-4 border-t">
+                <form onSubmit={handleSubmit} className="flex w-full space-x-2">
+                  <Textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={language === 'en' ? "Ask for content strategy advice..." : "Спросите совета по стратегии контента..."}
+                    className="flex-1 resize-none"
+                    rows={1}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSubmit(e);
+                      }
+                    }}
+                  />
+                  <Button type="submit" size="icon" disabled={isLoading}>
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </form>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </MainLayout>
   );

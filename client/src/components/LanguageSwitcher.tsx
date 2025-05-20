@@ -1,43 +1,46 @@
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { useLanguage } from '@/hooks/useLanguage';
+import { Button } from '@/components/ui/button';
+import { Globe } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Globe } from "lucide-react";
-import { useLanguage, Language } from '@/components/LanguageProvider';
+} from '@/components/ui/dropdown-menu';
 
 export function LanguageSwitcher() {
   const { language, setLanguage, t } = useLanguage();
 
-  const handleLanguageChange = (newLanguage: Language) => {
+  const handleLanguageChange = (newLanguage: 'en' | 'ru') => {
     setLanguage(newLanguage);
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="rounded-full flex items-center">
           <Globe className="h-5 w-5" />
-          <span className="sr-only">Language</span>
-          <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-            {language.toUpperCase()}
-          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem 
+          className={`flex items-center ${language === 'en' ? 'bg-primary/10' : ''}`}
           onClick={() => handleLanguageChange('en')}
-          className={language === 'en' ? 'bg-muted' : ''}
         >
-          English
+          <div className="mr-2 w-5 h-5 rounded-full overflow-hidden flex items-center justify-center">
+            🇺🇸
+          </div>
+          <span>English</span>
         </DropdownMenuItem>
         <DropdownMenuItem 
+          className={`flex items-center ${language === 'ru' ? 'bg-primary/10' : ''}`}
           onClick={() => handleLanguageChange('ru')}
-          className={language === 'ru' ? 'bg-muted' : ''}
         >
-          Русский
+          <div className="mr-2 w-5 h-5 rounded-full overflow-hidden flex items-center justify-center">
+            🇷🇺
+          </div>
+          <span>Русский</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
