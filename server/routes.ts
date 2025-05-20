@@ -506,6 +506,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch profile" });
     }
   });
+  
+  // Обновление профиля пользователя
+  app.post('/api/profile/update', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const {
+        displayName,
+        username,
+        bio,
+        location,
+        website,
+        github,
+        twitter
+      } = req.body;
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Проверка, если username изменился, что он не занят
+      if (username && username !== user.username) {
+        const existingUser = await storage.getUserByUsername(username);
+        if (existingUser && existingUser.id !== userId) {
+          return res.status(400).json({ message: "Username already taken" });
+        }
+      }
+      
+      // Обновляем данные пользователя
+      await storage.upsertUser({
+        ...user,
+        username: username || user.username,
+        firstName: displayName ? displayName.split(' ')[0] : user.firstName,
+        lastName: displayName ? displayName.split(' ').slice(1).join(' ') : user.lastName,
+        bio: bio !== undefined ? bio : user.bio,
+        location: location !== undefined ? location : user.location,
+        website: website !== undefined ? website : user.website,
+        github: github !== undefined ? github : user.github,
+        twitter: twitter !== undefined ? twitter : user.twitter,
+        updatedAt: new Date()
+      });
+      
+      res.json({ success: true, message: "Profile updated successfully" });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
 
   // Code Snippets
   app.get('/api/snippets/my', isAuthenticated, async (req: any, res) => {
