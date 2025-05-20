@@ -14,6 +14,7 @@ import {
   type TrendingTopic
 } from "@shared/schema";
 import { v4 as uuidv4 } from "uuid";
+import bcrypt from 'bcryptjs';
 
 // Interface for storage operations
 export interface IStorage {
