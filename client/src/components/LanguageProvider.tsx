@@ -137,6 +137,7 @@ const translations: Record<Language, Record<string, string>> = {
     'general.noPosts': 'No posts yet',
     'general.noPostsMessage': 'Be the first to share something with the community!',
     'general.loadError': 'Failed to load posts. Please try again later.',
+    'general.tryNow': 'Try It Now',
   },
   ru: {
     // Navigation
@@ -266,6 +267,7 @@ const translations: Record<Language, Record<string, string>> = {
     'general.noPosts': 'Пока нет постов',
     'general.noPostsMessage': 'Будьте первым, кто поделится чем-то с сообществом!',
     'general.loadError': 'Не удалось загрузить посты. Пожалуйста, повторите попытку позже.',
+    'general.tryNow': 'Попробовать сейчас',
   }
 };
 
