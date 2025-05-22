@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 
 export type Language = 'en' | 'ru';
 
@@ -8,6 +8,7 @@ interface LanguageContextType {
   t: (key: string) => string;
 }
 
+// Создаем словарь переводов в виде единого объекта для более быстрого доступа
 const translations: Record<Language, Record<string, string>> = {
   en: {
     // Navigation
@@ -279,8 +280,8 @@ const LanguageContext = createContext<LanguageContextType>({
 });
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // Инициализируем состояние языка из localStorage
   const [language, setLanguageState] = useState<Language>(() => {
-    // Try to get the language from localStorage
     if (typeof window !== 'undefined') {
       const savedLanguage = localStorage.getItem('language') as Language;
       return savedLanguage === 'ru' ? 'ru' : 'en';
@@ -288,29 +289,57 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     return 'en';
   });
 
+  // Эффект для сохранения выбранного языка
   useEffect(() => {
-    // Persist the language preference
+    // Сохраняем в localStorage
     localStorage.setItem('language', language);
-    // Set the html lang attribute
+    // Устанавливаем атрибут lang для HTML документа
     document.documentElement.lang = language;
+    
+    // Устанавливаем data-атрибут для возможности стилизации через CSS
+    document.documentElement.setAttribute('data-language', language);
+    
+    // Принудительно вызываем обновление интерфейса
+    window.dispatchEvent(new Event('language-changed'));
+    
+    console.log(`Language changed to: ${language}`);
   }, [language]);
 
-  const setLanguage = (newLanguage: Language) => {
+  // Используем useCallback для предотвращения создания новой функции при каждом рендере
+  const setLanguage = useCallback((newLanguage: Language) => {
+    console.log(`Setting language to: ${newLanguage}`);
     setLanguageState(newLanguage);
-  };
+  }, []);
 
-  const t = (key: string): string => {
-    return translations[language][key] || key;
-  };
+  // Мемоизируем функцию перевода для оптимизации
+  const t = useCallback((key: string): string => {
+    const translation = translations[language][key];
+    if (!translation) {
+      console.warn(`Translation missing for key: ${key} in language: ${language}`);
+      return key;
+    }
+    return translation;
+  }, [language]);
+
+  // Создаем объект контекста с мемоизированными значениями
+  const contextValue = React.useMemo(() => ({
+    language,
+    setLanguage,
+    t
+  }), [language, setLanguage, t]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );
 };
 
+// Кастомный хук для доступа к контексту
 export function useLanguage() {
   const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
   return context;
 }
