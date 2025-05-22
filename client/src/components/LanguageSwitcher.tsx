@@ -12,30 +12,21 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export function LanguageSwitcher() {
-  const { language, setLanguage, t } = useLanguage();
-  const { user, isAuthenticated, updateUserLanguage } = useAuth();
+  const { language, setLanguage } = useLanguage();
   const { toast } = useToast();
 
   const handleLanguageChange = async (newLanguage: 'en' | 'ru') => {
-    setLanguage(newLanguage);
+    // Сохраняем выбор языка в localStorage
+    localStorage.setItem('language', newLanguage);
     
-    // Если пользователь авторизован, сохраняем выбор языка в профиле
-    if (isAuthenticated && user) {
-      try {
-        await updateUserLanguage(newLanguage);
-        toast({
-          title: newLanguage === 'en' ? 'Language updated' : 'Язык обновлен',
-          description: newLanguage === 'en' ? 'Your language preference has been saved' : 'Ваши настройки языка были сохранены',
-        });
-      } catch (error) {
-        console.error('Failed to update language preference:', error);
-        toast({
-          title: newLanguage === 'en' ? 'Error' : 'Ошибка',
-          description: newLanguage === 'en' ? 'Failed to save language preference' : 'Не удалось сохранить настройки языка',
-          variant: 'destructive'
-        });
-      }
-    }
+    // Показываем уведомление
+    toast({
+      title: newLanguage === 'en' ? 'Language updated' : 'Язык обновлен',
+      description: newLanguage === 'en' ? 'Your language preference has been saved' : 'Ваши настройки языка были сохранены',
+    });
+    
+    // Принудительно перезагружаем страницу для обновления всех компонентов
+    window.location.reload();
   };
 
   return (
