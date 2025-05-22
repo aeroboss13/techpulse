@@ -1,17 +1,41 @@
 import { Home, Compass, Code, Bot, User } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function MobileNavigation() {
   const [location] = useLocation();
   const { isAuthenticated } = useAuth();
+  const { language } = useLanguage();
   
   const navItems = [
-    { path: "/", label: "Home", icon: Home },
-    { path: "/explore", label: "Explore", icon: Compass },
-    { path: "/snippets", label: "Snippets", icon: Code, requiresAuth: true },
-    { path: "/ai-assistant", label: "AI", icon: Bot },
-    { path: "/profile", label: "Profile", icon: User, requiresAuth: true },
+    { 
+      path: "/", 
+      label: language === 'ru' ? 'Главная' : 'Home', 
+      icon: Home 
+    },
+    { 
+      path: "/explore", 
+      label: language === 'ru' ? 'Обзор' : 'Explore', 
+      icon: Compass 
+    },
+    { 
+      path: "/snippets", 
+      label: language === 'ru' ? 'Код' : 'Snippets', 
+      icon: Code, 
+      requiresAuth: true 
+    },
+    { 
+      path: "/ai-assistant", 
+      label: language === 'ru' ? 'ИИ' : 'AI', 
+      icon: Bot 
+    },
+    { 
+      path: "/profile", 
+      label: language === 'ru' ? 'Профиль' : 'Profile', 
+      icon: User, 
+      requiresAuth: true 
+    },
   ];
   
   const getItemPath = (item: typeof navItems[0]) => {
