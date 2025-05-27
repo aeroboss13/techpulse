@@ -60,6 +60,14 @@ export default function Home() {
   useEffect(() => {
     document.title = "DevStream - Home";
   }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      setSelectedExploreTab("search");
+      searchRefetch();
+    }
+  };
   
   const renderPostSkeleton = () => (
     <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden p-4">
@@ -138,9 +146,103 @@ export default function Home() {
         </TabsContent>
         
         <TabsContent value="explore" className="mt-6">
-          <div className="text-center p-8">
-            <p className="text-gray-500">Содержимое Обзора будет добавлено позже</p>
+          <div className="mb-6">
+            <form onSubmit={handleSearch} className="flex gap-3">
+              <div className="relative flex-1">
+                <Input
+                  type="text"
+                  className="pl-10 pr-4 py-3 rounded-full border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary w-full"
+                  placeholder={language === 'ru' ? 'Поиск постов, тем или пользователей' : 'Search for posts, topics, or users'}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </div>
+              </div>
+              <Button 
+                type="submit" 
+                className="rounded-full px-6 py-3 bg-primary hover:bg-primary/90 text-white font-medium"
+              >
+                {language === 'ru' ? 'Поиск' : 'Search'}
+              </Button>
+            </form>
           </div>
+          
+          <Tabs value={selectedExploreTab} onValueChange={setSelectedExploreTab}>
+            <TabsList className="w-full">
+              <TabsTrigger value="trending" className="flex-1">{language === 'ru' ? 'Популярные' : 'Trending'}</TabsTrigger>
+              <TabsTrigger value="latest" className="flex-1">{language === 'ru' ? 'Новые' : 'Latest'}</TabsTrigger>
+              {searchTerm && (
+                <TabsTrigger value="search" className="flex-1">{language === 'ru' ? 'Результаты поиска' : 'Search Results'}</TabsTrigger>
+              )}
+            </TabsList>
+            
+            <TabsContent value="trending" className="space-y-6 mt-6">
+              {isTrendingLoading ? (
+                <>
+                  {renderPostSkeleton()}
+                  {renderPostSkeleton()}
+                  {renderPostSkeleton()}
+                </>
+              ) : trendingPosts?.length === 0 ? (
+                <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center">
+                  <h3 className="text-xl font-medium mb-2">{language === 'ru' ? 'Нет популярных постов' : 'No trending posts'}</h3>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    {language === 'ru' ? 'Загляните позже, чтобы увидеть популярный контент' : 'Check back later for trending content'}
+                  </p>
+                </div>
+              ) : (
+                trendingPosts?.map((post: any) => (
+                  <PostCard key={post.id} post={post} />
+                ))
+              )}
+            </TabsContent>
+            
+            <TabsContent value="latest" className="space-y-6 mt-6">
+              {isLatestLoading ? (
+                <>
+                  {renderPostSkeleton()}
+                  {renderPostSkeleton()}
+                  {renderPostSkeleton()}
+                </>
+              ) : latestPosts?.length === 0 ? (
+                <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center">
+                  <h3 className="text-xl font-medium mb-2">{language === 'ru' ? 'Нет новых постов' : 'No latest posts'}</h3>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    {language === 'ru' ? 'Загляните позже, чтобы увидеть новый контент' : 'Check back later for new content'}
+                  </p>
+                </div>
+              ) : (
+                latestPosts?.map((post: any) => (
+                  <PostCard key={post.id} post={post} />
+                ))
+              )}
+            </TabsContent>
+            
+            {searchTerm && (
+              <TabsContent value="search" className="space-y-6 mt-6">
+                {isSearchLoading ? (
+                  <>
+                    {renderPostSkeleton()}
+                    {renderPostSkeleton()}
+                    {renderPostSkeleton()}
+                  </>
+                ) : searchResults?.length === 0 ? (
+                  <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center">
+                    <h3 className="text-xl font-medium mb-2">{language === 'ru' ? 'Ничего не найдено' : 'No results found'}</h3>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      {language === 'ru' ? 'Попробуйте изменить запрос' : 'Try a different search term'}
+                    </p>
+                  </div>
+                ) : (
+                  searchResults?.map((post: any) => (
+                    <PostCard key={post.id} post={post} />
+                  ))
+                )}
+              </TabsContent>
+            )}
+          </Tabs>
         </TabsContent>
         
         {isAuthenticated && (

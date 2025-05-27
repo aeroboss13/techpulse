@@ -21,12 +21,7 @@ export default function Sidebar() {
       label: language === 'ru' ? 'Обзор' : 'Explore', 
       icon: Compass 
     },
-    { 
-      path: "/work", 
-      label: language === 'ru' ? 'Работа' : 'Work', 
-      icon: Briefcase,
-      requiresAuth: true 
-    },
+
     { 
       path: "/bookmarks", 
       label: language === 'ru' ? 'Закладки' : 'Bookmarks', 
