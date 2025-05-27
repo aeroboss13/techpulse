@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MapPin, User, Briefcase, Plus, Search, Link as LinkIcon, Github, Linkedin } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import CreateResumeDialog from "@/components/CreateResumeDialog";
 
 interface Resume {
   id: string;
@@ -47,23 +48,6 @@ export default function Resumes() {
   const queryClient = useQueryClient();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [newResume, setNewResume] = useState({
-    title: "",
-    summary: "",
-    experience: "",
-    skills: [] as string[],
-    education: "",
-    location: "",
-    expectedSalary: "",
-    preferredEmploymentType: "full-time",
-    isRemotePreferred: false,
-    portfolioLink: "",
-    githubLink: "",
-    linkedinLink: "",
-    isVisible: true
-  });
-
   const { data: resumes = [], isLoading } = useQuery({
     queryKey: ["/api/resumes"],
     queryFn: async () => {
@@ -72,61 +56,6 @@ export default function Resumes() {
       return res.json();
     }
   });
-
-  const createResumeMutation = useMutation({
-    mutationFn: (resumeData: typeof newResume) => apiRequest("/api/resumes", "POST", resumeData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/resumes"] });
-      setIsCreateDialogOpen(false);
-      setNewResume({
-        title: "",
-        summary: "",
-        experience: "",
-        skills: [],
-        education: "",
-        location: "",
-        expectedSalary: "",
-        preferredEmploymentType: "full-time",
-        isRemotePreferred: false,
-        portfolioLink: "",
-        githubLink: "",
-        linkedinLink: "",
-        isVisible: true
-      });
-      toast({
-        title: language === 'ru' ? "Резюме создано" : "Resume Created",
-        description: language === 'ru' ? "Ваше резюме успешно опубликовано" : "Your resume has been published successfully"
-      });
-    }
-  });
-
-  const handleCreateResume = () => {
-    if (!newResume.title || !newResume.summary) {
-      toast({
-        title: language === 'ru' ? "Ошибка" : "Error",
-        description: language === 'ru' ? "Пожалуйста, заполните все обязательные поля" : "Please fill in all required fields",
-        variant: "destructive"
-      });
-      return;
-    }
-    createResumeMutation.mutate(newResume);
-  };
-
-  const addSkill = (skill: string) => {
-    if (skill && !newResume.skills.includes(skill)) {
-      setNewResume(prev => ({
-        ...prev,
-        skills: [...prev.skills, skill]
-      }));
-    }
-  };
-
-  const removeSkill = (skill: string) => {
-    setNewResume(prev => ({
-      ...prev,
-      skills: prev.skills.filter(s => s !== skill)
-    }));
-  };
 
   const filteredResumes = resumes.filter((resume: Resume) =>
     searchTerm === "" || 
@@ -158,140 +87,12 @@ export default function Resumes() {
           </p>
         </div>
         
-        {isAuthenticated && (
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                {language === 'ru' ? 'Создать резюме' : 'Create Resume'}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>
-                  {language === 'ru' ? 'Создать новое резюме' : 'Create New Resume'}
-                </DialogTitle>
-              </DialogHeader>
-              
-              <div className="space-y-4">
-                <div>
-                  <Label>{language === 'ru' ? 'Название позиции *' : 'Position Title *'}</Label>
-                  <Input
-                    value={newResume.title}
-                    onChange={(e) => setNewResume(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder={language === 'ru' ? 'Full-stack разработчик' : 'Full-stack Developer'}
-                  />
-                </div>
-
-                <div>
-                  <Label>{language === 'ru' ? 'Краткое описание *' : 'Summary *'}</Label>
-                  <Textarea
-                    value={newResume.summary}
-                    onChange={(e) => setNewResume(prev => ({ ...prev, summary: e.target.value }))}
-                    placeholder={language === 'ru' ? 'Расскажите о себе...' : 'Tell us about yourself...'}
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <Label>{language === 'ru' ? 'Опыт работы' : 'Work Experience'}</Label>
-                  <Textarea
-                    value={newResume.experience}
-                    onChange={(e) => setNewResume(prev => ({ ...prev, experience: e.target.value }))}
-                    placeholder={language === 'ru' ? 'Опишите ваш опыт работы...' : 'Describe your work experience...'}
-                    rows={4}
-                  />
-                </div>
-
-                <div>
-                  <Label>{language === 'ru' ? 'Образование' : 'Education'}</Label>
-                  <Textarea
-                    value={newResume.education}
-                    onChange={(e) => setNewResume(prev => ({ ...prev, education: e.target.value }))}
-                    placeholder={language === 'ru' ? 'Ваше образование...' : 'Your education background...'}
-                    rows={2}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>{language === 'ru' ? 'Локация' : 'Location'}</Label>
-                    <Input
-                      value={newResume.location}
-                      onChange={(e) => setNewResume(prev => ({ ...prev, location: e.target.value }))}
-                      placeholder={language === 'ru' ? 'Москва, Россия' : 'New York, USA'}
-                    />
-                  </div>
-                  <div>
-                    <Label>{language === 'ru' ? 'Ожидаемая зарплата' : 'Expected Salary'}</Label>
-                    <Input
-                      value={newResume.expectedSalary}
-                      onChange={(e) => setNewResume(prev => ({ ...prev, expectedSalary: e.target.value }))}
-                      placeholder={language === 'ru' ? '150,000 руб.' : '$100,000'}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="remote"
-                    checked={newResume.isRemotePreferred}
-                    onCheckedChange={(checked) => setNewResume(prev => ({ ...prev, isRemotePreferred: checked as boolean }))}
-                  />
-                  <Label htmlFor="remote">{language === 'ru' ? 'Предпочитаю удаленную работу' : 'Prefer remote work'}</Label>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label>{language === 'ru' ? 'Портфолио' : 'Portfolio'}</Label>
-                    <Input
-                      value={newResume.portfolioLink}
-                      onChange={(e) => setNewResume(prev => ({ ...prev, portfolioLink: e.target.value }))}
-                      placeholder="https://portfolio.com"
-                    />
-                  </div>
-                  <div>
-                    <Label>GitHub</Label>
-                    <Input
-                      value={newResume.githubLink}
-                      onChange={(e) => setNewResume(prev => ({ ...prev, githubLink: e.target.value }))}
-                      placeholder="github.com/username"
-                    />
-                  </div>
-                  <div>
-                    <Label>LinkedIn</Label>
-                    <Input
-                      value={newResume.linkedinLink}
-                      onChange={(e) => setNewResume(prev => ({ ...prev, linkedinLink: e.target.value }))}
-                      placeholder="linkedin.com/in/username"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="visible"
-                    checked={newResume.isVisible}
-                    onCheckedChange={(checked) => setNewResume(prev => ({ ...prev, isVisible: checked as boolean }))}
-                  />
-                  <Label htmlFor="visible">{language === 'ru' ? 'Сделать резюме публичным' : 'Make resume public'}</Label>
-                </div>
-
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                    {language === 'ru' ? 'Отмена' : 'Cancel'}
-                  </Button>
-                  <Button onClick={handleCreateResume} disabled={createResumeMutation.isPending}>
-                    {createResumeMutation.isPending 
-                      ? (language === 'ru' ? 'Создание...' : 'Creating...')
-                      : (language === 'ru' ? 'Создать' : 'Create')
-                    }
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
+        <CreateResumeDialog>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            {language === 'ru' ? 'Создать резюме' : 'Create Resume'}
+          </Button>
+        </CreateResumeDialog>
       </div>
 
       {/* Search */}

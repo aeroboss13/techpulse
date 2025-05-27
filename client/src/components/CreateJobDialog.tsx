@@ -39,10 +39,7 @@ export default function CreateJobDialog({ children }: CreateJobDialogProps) {
   });
 
   const createJobMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/jobs', {
-      method: 'POST',
-      body: JSON.stringify({ ...data, technologies })
-    }),
+    mutationFn: (data: any) => apiRequest('/api/jobs', 'POST', { ...data, technologies }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
       toast({
