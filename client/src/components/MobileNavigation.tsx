@@ -19,11 +19,17 @@ export default function MobileNavigation() {
       label: language === 'ru' ? 'Обзор' : 'Explore', 
       icon: Compass 
     },
-
+    { 
+      path: "/work", 
+      label: language === 'ru' ? 'Работа' : 'Work', 
+      icon: Briefcase,
+      requiresAuth: true 
+    },
     { 
       path: "/ai-assistant", 
       label: language === 'ru' ? 'ИИ' : 'AI', 
-      icon: Bot 
+      icon: Bot,
+      requiresAuth: true 
     },
     { 
       path: "/profile", 

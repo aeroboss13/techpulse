@@ -52,8 +52,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-
-      <Route path="/profile" component={() => <ProtectedRoute component={Profile} />} />
+      <Route path="/explore" component={Explore} />
+      <Route path="/work" component={() => <ProtectedRoute component={Work} />} />
       <Route path="/snippets" component={() => <ProtectedRoute component={Snippets} />} />
       <Route path="/ai-assistant" component={() => <ProtectedRoute component={AIAssistant} />} />
       <Route path="/bookmarks" component={() => <ProtectedRoute component={Bookmarks} />} />

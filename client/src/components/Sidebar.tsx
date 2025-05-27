@@ -21,28 +21,22 @@ export default function Sidebar() {
       label: language === 'ru' ? 'Обзор' : 'Explore', 
       icon: Compass 
     },
-
     { 
-      path: "/bookmarks", 
-      label: language === 'ru' ? 'Закладки' : 'Bookmarks', 
-      icon: Bookmark, 
+      path: "/work", 
+      label: language === 'ru' ? 'Работа' : 'Work', 
+      icon: Briefcase, 
       requiresAuth: true 
     },
     { 
       path: "/snippets", 
-      label: language === 'ru' ? 'Сниппеты кода' : 'Code Snippets', 
+      label: language === 'ru' ? 'Сниппеты' : 'Snippets', 
       icon: Code, 
       requiresAuth: true 
     },
     { 
       path: "/ai-assistant", 
-      label: language === 'ru' ? 'ИИ-ассистент' : 'AI Assistant', 
-      icon: Bot 
-    },
-    { 
-      path: "/profile", 
-      label: language === 'ru' ? 'Профиль' : 'Profile', 
-      icon: User, 
+      label: language === 'ru' ? 'ИИ Ассистент' : 'AI Assistant', 
+      icon: Bot, 
       requiresAuth: true 
     },
   ];
