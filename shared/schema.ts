@@ -131,6 +131,8 @@ export const resumes = pgTable("resumes", {
   experience: text("experience"), // опыт работы
   skills: text("skills").array(), // массив навыков
   education: text("education"),
+  contactEmail: varchar("contact_email"),
+  telegramNick: varchar("telegram_nick"), // Telegram ник для связи
   location: varchar("location"),
   expectedSalary: varchar("expected_salary"),
   preferredEmploymentType: varchar("preferred_employment_type"),

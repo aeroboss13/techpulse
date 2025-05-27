@@ -30,7 +30,7 @@ export default function CreateResumeDialog({ children }: CreateResumeDialogProps
     experience: '',
     education: '',
     contactEmail: '',
-    phoneNumber: '',
+    telegramNick: '',
     location: '',
     portfolioUrl: '',
     isPublic: true,
@@ -67,7 +67,7 @@ export default function CreateResumeDialog({ children }: CreateResumeDialogProps
       experience: '',
       education: '',
       contactEmail: '',
-      phoneNumber: '',
+      telegramNick: '',
       location: '',
       portfolioUrl: '',
       isPublic: true,
@@ -178,13 +178,14 @@ export default function CreateResumeDialog({ children }: CreateResumeDialogProps
               />
             </div>
             <div>
-              <Label htmlFor="phoneNumber">
-                {language === 'ru' ? 'Телефон' : 'Phone'}
+              <Label htmlFor="telegramNick">
+                {language === 'ru' ? 'Telegram ник' : 'Telegram Nick'}
               </Label>
               <Input
-                id="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={(e) => setFormData(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                id="telegramNick"
+                value={formData.telegramNick}
+                onChange={(e) => setFormData(prev => ({ ...prev, telegramNick: e.target.value }))}
+                placeholder={language === 'ru' ? '@username' : '@username'}
               />
             </div>
           </div>
