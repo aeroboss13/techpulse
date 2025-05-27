@@ -11,8 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, User, Briefcase, Plus, Search, Link as LinkIcon, Github, Linkedin } from "lucide-react";
+import { MapPin, User, Briefcase, Plus, Search, Link as LinkIcon, Github, Linkedin, Eye } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import ResumeDetailDialog from "@/components/ResumeDetailDialog";
 import { useToast } from "@/hooks/use-toast";
 import CreateResumeDialog from "@/components/CreateResumeDialog";
 
@@ -48,6 +49,9 @@ export default function Resumes() {
   const queryClient = useQueryClient();
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedResume, setSelectedResume] = useState<Resume | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  
   const { data: resumes = [], isLoading } = useQuery({
     queryKey: ["/api/resumes"],
     queryFn: async () => {
