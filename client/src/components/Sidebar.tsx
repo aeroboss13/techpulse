@@ -1,4 +1,4 @@
-import { Home, Compass, Bookmark, Code, Bot, User, Plus } from "lucide-react";
+import { Home, Compass, Bookmark, Code, Bot, User, Plus, Briefcase, FileText } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -20,6 +20,16 @@ export default function Sidebar() {
       path: "/explore", 
       label: language === 'ru' ? 'Обзор' : 'Explore', 
       icon: Compass 
+    },
+    { 
+      path: "/jobs", 
+      label: language === 'ru' ? 'Вакансии' : 'Jobs', 
+      icon: Briefcase 
+    },
+    { 
+      path: "/resumes", 
+      label: language === 'ru' ? 'Резюме' : 'Resumes', 
+      icon: FileText 
     },
     { 
       path: "/bookmarks", 

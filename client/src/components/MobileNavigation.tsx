@@ -1,4 +1,4 @@
-import { Home, Compass, Code, Bot, User } from "lucide-react";
+import { Home, Compass, Code, Bot, User, Briefcase, FileText } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -20,10 +20,9 @@ export default function MobileNavigation() {
       icon: Compass 
     },
     { 
-      path: "/snippets", 
-      label: language === 'ru' ? 'Код' : 'Snippets', 
-      icon: Code, 
-      requiresAuth: true 
+      path: "/jobs", 
+      label: language === 'ru' ? 'Работа' : 'Jobs', 
+      icon: Briefcase 
     },
     { 
       path: "/ai-assistant", 
@@ -49,17 +48,17 @@ export default function MobileNavigation() {
     <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-gray-800 z-10">
       <div className="flex items-center justify-around h-16">
         {navItems.map((item) => (
-          <Link key={item.path} href={getItemPath(item)}>
-            <a 
-              className={`flex flex-col items-center justify-center ${
-                location === item.path 
-                  ? "text-primary" 
-                  : "text-gray-500 dark:text-gray-400"
-              }`}
-            >
-              <item.icon className="h-5 w-5" />
-              <span className="text-xs mt-1">{item.label}</span>
-            </a>
+          <Link 
+            key={item.path} 
+            href={getItemPath(item)}
+            className={`flex flex-col items-center justify-center ${
+              location === item.path 
+                ? "text-primary" 
+                : "text-gray-500 dark:text-gray-400"
+            }`}
+          >
+            <item.icon className="h-5 w-5" />
+            <span className="text-xs mt-1">{item.label}</span>
           </Link>
         ))}
       </div>

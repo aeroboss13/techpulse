@@ -12,6 +12,8 @@ import Snippets from "@/pages/Snippets";
 import AIAssistant from "@/pages/AIAssistant";
 import Login from "@/pages/Login";
 import Bookmarks from "@/pages/Bookmarks";
+import Jobs from "@/pages/Jobs";
+import Resumes from "@/pages/Resumes";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { useAuth, AuthProvider } from "@/hooks/useAuth";
 import { LanguageProvider } from "@/components/LanguageProvider";
@@ -52,6 +54,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/explore" component={Explore} />
+      <Route path="/jobs" component={Jobs} />
+      <Route path="/resumes" component={Resumes} />
       <Route path="/profile" component={() => <ProtectedRoute component={Profile} />} />
       <Route path="/snippets" component={() => <ProtectedRoute component={Snippets} />} />
       <Route path="/ai-assistant" component={AIAssistant} />
