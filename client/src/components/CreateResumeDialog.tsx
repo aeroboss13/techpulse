@@ -38,7 +38,7 @@ export default function CreateResumeDialog({ children }: CreateResumeDialogProps
   });
 
   const createResumeMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/resumes', 'POST', { ...data, skills }),
+    mutationFn: (data: any) => apiRequest('POST', '/api/resumes', { ...data, skills }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/resumes'] });
       toast({
