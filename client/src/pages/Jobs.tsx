@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/components/LanguageProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,13 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { MapPin, Building, Clock, DollarSign, Users, Plus, Search, Filter, Eye } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
+import { MapPin, Building, Clock, DollarSign, Users, Plus, Search, Eye } from "lucide-react";
 import CreateJobDialog from "@/components/CreateJobDialog";
 import JobDetailDialog from "@/components/JobDetailDialog";
 
@@ -44,119 +38,47 @@ interface Job {
 export default function Jobs() {
   const { isAuthenticated } = useAuth();
   const { language } = useLanguage();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [filters, setFilters] = useState({
-    location: "",
-    experienceLevel: "",
-    employmentType: "",
-    isRemote: undefined as boolean | undefined,
-    technologies: [] as string[]
+    location: "all",
+    experienceLevel: "all",
+    employmentType: "all",
+    isRemote: "all"
   });
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [newJob, setNewJob] = useState({
-    title: "",
-    company: "",
-    description: "",
-    requirements: "",
-    location: "",
-    salary: "",
-    employmentType: "full-time",
-    experienceLevel: "middle",
-    technologies: [] as string[],
-    isRemote: false,
-    contactEmail: "",
-    externalLink: ""
-  });
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [isJobDetailOpen, setIsJobDetailOpen] = useState(false);
 
   const { data: jobs = [], isLoading } = useQuery({
-    queryKey: ["/api/jobs", filters],
-    queryFn: async () => {
-      const params = new URLSearchParams();
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== "" && value !== undefined) {
-          if (Array.isArray(value)) {
-            value.forEach(v => params.append(key, v));
-          } else {
-            params.append(key, String(value));
-          }
-        }
-      });
-      
-      const url = Object.keys(filters).some(key => filters[key as keyof typeof filters] !== "" && filters[key as keyof typeof filters] !== undefined)
-        ? `/api/jobs/search?${params.toString()}`
-        : "/api/jobs";
-      
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Failed to fetch jobs');
-      return res.json();
-    }
+    queryKey: ['/api/jobs/search', { searchTerm, ...filters }],
+    enabled: isAuthenticated,
   });
 
-  const createJobMutation = useMutation({
-    mutationFn: (jobData: typeof newJob) => apiRequest("/api/jobs", "POST", jobData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/jobs"] });
-      setIsCreateDialogOpen(false);
-      setNewJob({
-        title: "",
-        company: "",
-        description: "",
-        requirements: "",
-        location: "",
-        salary: "",
-        employmentType: "full-time",
-        experienceLevel: "middle",
-        technologies: [],
-        isRemote: false,
-        contactEmail: "",
-        externalLink: ""
-      });
-      toast({
-        title: language === 'ru' ? "Вакансия создана" : "Job Created",
-        description: language === 'ru' ? "Ваша вакансия успешно опубликована" : "Your job posting has been published successfully"
-      });
-    }
+  const filteredJobs = jobs.filter((job: Job) => {
+    const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         job.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesLocation = filters.location === "all" || 
+                           job.location?.toLowerCase().includes(filters.location.toLowerCase());
+    
+    const matchesExperience = filters.experienceLevel === "all" || 
+                             job.experienceLevel === filters.experienceLevel;
+    
+    const matchesEmployment = filters.employmentType === "all" || 
+                             job.employmentType === filters.employmentType;
+    
+    const matchesRemote = filters.isRemote === "all" || 
+                         (filters.isRemote === "remote" && job.isRemote) ||
+                         (filters.isRemote === "office" && !job.isRemote);
+
+    return matchesSearch && matchesLocation && matchesExperience && matchesEmployment && matchesRemote;
   });
 
-  const handleCreateJob = () => {
-    if (!newJob.title || !newJob.company || !newJob.description) {
-      toast({
-        title: language === 'ru' ? "Ошибка" : "Error",
-        description: language === 'ru' ? "Пожалуйста, заполните все обязательные поля" : "Please fill in all required fields",
-        variant: "destructive"
-      });
-      return;
-    }
-    createJobMutation.mutate(newJob);
+  const handleJobClick = (job: Job) => {
+    setSelectedJob(job);
+    setIsJobDetailOpen(true);
   };
-
-  const addTechnology = (tech: string) => {
-    if (tech && !newJob.technologies.includes(tech)) {
-      setNewJob(prev => ({
-        ...prev,
-        technologies: [...prev.technologies, tech]
-      }));
-    }
-  };
-
-  const removeTechnology = (tech: string) => {
-    setNewJob(prev => ({
-      ...prev,
-      technologies: prev.technologies.filter(t => t !== tech)
-    }));
-  };
-
-  const filteredJobs = jobs.filter((job: Job) =>
-    searchTerm === "" || 
-    job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    job.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   if (isLoading) {
     return (
@@ -168,7 +90,6 @@ export default function Jobs() {
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">
@@ -181,156 +102,14 @@ export default function Jobs() {
           </p>
         </div>
         
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                {language === 'ru' ? 'Создать вакансию' : 'Post Job'}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>
-                  {language === 'ru' ? 'Создать новую вакансию' : 'Create New Job Posting'}
-                </DialogTitle>
-              </DialogHeader>
-              
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>{language === 'ru' ? 'Название должности *' : 'Job Title *'}</Label>
-                    <Input
-                      value={newJob.title}
-                      onChange={(e) => setNewJob(prev => ({ ...prev, title: e.target.value }))}
-                      placeholder={language === 'ru' ? 'Frontend разработчик' : 'Frontend Developer'}
-                    />
-                  </div>
-                  <div>
-                    <Label>{language === 'ru' ? 'Компания *' : 'Company *'}</Label>
-                    <Input
-                      value={newJob.company}
-                      onChange={(e) => setNewJob(prev => ({ ...prev, company: e.target.value }))}
-                      placeholder={language === 'ru' ? 'Название компании' : 'Company name'}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label>{language === 'ru' ? 'Описание *' : 'Description *'}</Label>
-                  <Textarea
-                    value={newJob.description}
-                    onChange={(e) => setNewJob(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder={language === 'ru' ? 'Описание вакансии...' : 'Job description...'}
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <Label>{language === 'ru' ? 'Требования' : 'Requirements'}</Label>
-                  <Textarea
-                    value={newJob.requirements}
-                    onChange={(e) => setNewJob(prev => ({ ...prev, requirements: e.target.value }))}
-                    placeholder={language === 'ru' ? 'Требования к кандидату...' : 'Requirements for the candidate...'}
-                    rows={3}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>{language === 'ru' ? 'Локация' : 'Location'}</Label>
-                    <Input
-                      value={newJob.location}
-                      onChange={(e) => setNewJob(prev => ({ ...prev, location: e.target.value }))}
-                      placeholder={language === 'ru' ? 'Москва, Россия' : 'New York, USA'}
-                    />
-                  </div>
-                  <div>
-                    <Label>{language === 'ru' ? 'Зарплата' : 'Salary'}</Label>
-                    <Input
-                      value={newJob.salary}
-                      onChange={(e) => setNewJob(prev => ({ ...prev, salary: e.target.value }))}
-                      placeholder={language === 'ru' ? '100,000 - 150,000 руб.' : '$80,000 - $120,000'}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>{language === 'ru' ? 'Тип занятости' : 'Employment Type'}</Label>
-                    <Select value={newJob.employmentType} onValueChange={(value) => setNewJob(prev => ({ ...prev, employmentType: value }))}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="full-time">{language === 'ru' ? 'Полная занятость' : 'Full-time'}</SelectItem>
-                        <SelectItem value="part-time">{language === 'ru' ? 'Частичная занятость' : 'Part-time'}</SelectItem>
-                        <SelectItem value="contract">{language === 'ru' ? 'Контракт' : 'Contract'}</SelectItem>
-                        <SelectItem value="freelance">{language === 'ru' ? 'Фриланс' : 'Freelance'}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>{language === 'ru' ? 'Уровень опыта' : 'Experience Level'}</Label>
-                    <Select value={newJob.experienceLevel} onValueChange={(value) => setNewJob(prev => ({ ...prev, experienceLevel: value }))}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="junior">{language === 'ru' ? 'Junior' : 'Junior'}</SelectItem>
-                        <SelectItem value="middle">{language === 'ru' ? 'Middle' : 'Middle'}</SelectItem>
-                        <SelectItem value="senior">{language === 'ru' ? 'Senior' : 'Senior'}</SelectItem>
-                        <SelectItem value="lead">{language === 'ru' ? 'Lead' : 'Lead'}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="remote"
-                    checked={newJob.isRemote}
-                    onCheckedChange={(checked) => setNewJob(prev => ({ ...prev, isRemote: checked as boolean }))}
-                  />
-                  <Label htmlFor="remote">{language === 'ru' ? 'Удаленная работа' : 'Remote work'}</Label>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>{language === 'ru' ? 'Email для связи' : 'Contact Email'}</Label>
-                    <Input
-                      type="email"
-                      value={newJob.contactEmail}
-                      onChange={(e) => setNewJob(prev => ({ ...prev, contactEmail: e.target.value }))}
-                      placeholder="contact@company.com"
-                    />
-                  </div>
-                  <div>
-                    <Label>{language === 'ru' ? 'Внешняя ссылка' : 'External Link'}</Label>
-                    <Input
-                      value={newJob.externalLink}
-                      onChange={(e) => setNewJob(prev => ({ ...prev, externalLink: e.target.value }))}
-                      placeholder="https://company.com/careers"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                    {language === 'ru' ? 'Отмена' : 'Cancel'}
-                  </Button>
-                  <Button onClick={handleCreateJob} disabled={createJobMutation.isPending}>
-                    {createJobMutation.isPending 
-                      ? (language === 'ru' ? 'Создание...' : 'Creating...')
-                      : (language === 'ru' ? 'Создать' : 'Create')
-                    }
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-        </Dialog>
+        <CreateJobDialog>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            {language === 'ru' ? 'Создать вакансию' : 'Post Job'}
+          </Button>
+        </CreateJobDialog>
       </div>
 
-      {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -343,9 +122,21 @@ export default function Jobs() {
         </div>
         
         <div className="flex gap-2">
+          <Select value={filters.location} onValueChange={(value) => setFilters(prev => ({ ...prev, location: value }))}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder={language === 'ru' ? 'Локация' : 'Location'} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{language === 'ru' ? 'Все' : 'All'}</SelectItem>
+              <SelectItem value="москва">{language === 'ru' ? 'Москва' : 'Moscow'}</SelectItem>
+              <SelectItem value="санкт-петербург">{language === 'ru' ? 'СПб' : 'St. Petersburg'}</SelectItem>
+              <SelectItem value="remote">{language === 'ru' ? 'Удаленно' : 'Remote'}</SelectItem>
+            </SelectContent>
+          </Select>
+          
           <Select value={filters.experienceLevel} onValueChange={(value) => setFilters(prev => ({ ...prev, experienceLevel: value }))}>
             <SelectTrigger className="w-32">
-              <SelectValue placeholder={language === 'ru' ? 'Уровень' : 'Level'} />
+              <SelectValue placeholder={language === 'ru' ? 'Опыт' : 'Experience'} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{language === 'ru' ? 'Все' : 'All'}</SelectItem>
@@ -371,7 +162,6 @@ export default function Jobs() {
         </div>
       </div>
 
-      {/* Jobs List */}
       <div className="space-y-4">
         {filteredJobs.length === 0 ? (
           <Card>
@@ -411,61 +201,60 @@ export default function Jobs() {
                           {job.salary}
                         </div>
                       )}
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        {new Date(job.createdAt).toLocaleDateString()}
+                      </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Badge variant="secondary">{job.experienceLevel}</Badge>
-                    <Badge variant="outline">{job.employmentType}</Badge>
-                    {job.isRemote && (
-                      <Badge variant="secondary">{language === 'ru' ? 'Удаленно' : 'Remote'}</Badge>
-                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleJobClick(job)}
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      {language === 'ru' ? 'Подробнее' : 'Details'}
+                    </Button>
                   </div>
                 </div>
               </CardHeader>
+              
               <CardContent>
                 <p className="text-gray-700 dark:text-gray-300 mb-4 line-clamp-3">
                   {job.description}
                 </p>
                 
-                {job.technologies && job.technologies.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {job.technologies.map((tech, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {tech}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-                
-                <div className="flex justify-between items-center">
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {language === 'ru' ? 'Опубликовано' : 'Posted'} {new Date(job.createdAt).toLocaleDateString()}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => {
-                        setSelectedJob(job);
-                        setIsDetailDialogOpen(true);
-                      }}
-                    >
-                      <Eye className="h-4 w-4 mr-1" />
-                      {language === 'ru' ? 'Детали' : 'Details'}
-                    </Button>
-                    {job.externalLink && (
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={job.externalLink} target="_blank" rel="noopener noreferrer">
-                          {language === 'ru' ? 'Подробнее' : 'Learn More'}
-                        </a>
-                      </Button>
-                    )}
-                    {isAuthenticated && (
-                      <Button size="sm">
-                        {language === 'ru' ? 'Откликнуться' : 'Apply'}
-                      </Button>
-                    )}
-                  </div>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {job.isRemote && (
+                    <Badge variant="secondary">
+                      {language === 'ru' ? 'Удаленно' : 'Remote'}
+                    </Badge>
+                  )}
+                  {job.experienceLevel && (
+                    <Badge variant="outline">
+                      {job.experienceLevel}
+                    </Badge>
+                  )}
+                  {job.employmentType && (
+                    <Badge variant="outline">
+                      {job.employmentType === 'full-time' ? (language === 'ru' ? 'Полная занятость' : 'Full-time') :
+                       job.employmentType === 'part-time' ? (language === 'ru' ? 'Частичная занятость' : 'Part-time') :
+                       job.employmentType === 'contract' ? (language === 'ru' ? 'Контракт' : 'Contract') :
+                       job.employmentType === 'freelance' ? (language === 'ru' ? 'Фриланс' : 'Freelance') :
+                       job.employmentType}
+                    </Badge>
+                  )}
+                  {job.technologies?.slice(0, 3).map((tech, index) => (
+                    <Badge key={index} variant="secondary">
+                      {tech}
+                    </Badge>
+                  ))}
+                  {job.technologies?.length > 3 && (
+                    <Badge variant="secondary">
+                      +{job.technologies.length - 3} {language === 'ru' ? 'еще' : 'more'}
+                    </Badge>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -473,12 +262,13 @@ export default function Jobs() {
         )}
       </div>
 
-      {/* Job Detail Dialog */}
-      <JobDetailDialog
-        job={selectedJob}
-        open={isDetailDialogOpen}
-        onOpenChange={setIsDetailDialogOpen}
-      />
+      {selectedJob && (
+        <JobDetailDialog
+          job={selectedJob}
+          open={isJobDetailOpen}
+          onOpenChange={setIsJobDetailOpen}
+        />
+      )}
     </div>
   );
 }
