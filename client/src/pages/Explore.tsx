@@ -88,11 +88,11 @@ export default function Explore() {
   return (
     <MainLayout>
       <div className="mb-6">
-        <form onSubmit={handleSearch}>
-          <div className="relative">
+        <form onSubmit={handleSearch} className="flex gap-3">
+          <div className="relative flex-1">
             <Input
               type="text"
-              className="pl-10 pr-4 py-2 rounded-full border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary w-full"
+              className="pl-10 pr-4 py-3 rounded-full border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary w-full"
               placeholder={language === 'ru' ? 'Поиск постов, тем или пользователей' : 'Search for posts, topics, or users'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -100,10 +100,13 @@ export default function Explore() {
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
               <Search className="h-5 w-5 text-gray-400" />
             </div>
-            <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
-              <Button type="submit" className="rounded-full">{language === 'ru' ? 'Поиск' : 'Search'}</Button>
-            </div>
           </div>
+          <Button 
+            type="submit" 
+            className="rounded-full px-6 py-3 bg-primary hover:bg-primary/90 text-white font-medium"
+          >
+            {language === 'ru' ? 'Поиск' : 'Search'}
+          </Button>
         </form>
       </div>
       

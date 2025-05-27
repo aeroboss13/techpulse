@@ -66,10 +66,10 @@ export default function Sidebar() {
             return (
               <li key={item.path}>
                 <Link href={item.path} className={cn(
-                  "flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300",
+                  "flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors",
                   location === item.path 
-                    ? "bg-blue-50 dark:bg-primary-dark text-primary font-medium" 
-                    : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                    ? "bg-blue-50 dark:bg-blue-900/50 text-primary dark:text-blue-400 font-medium" 
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
                 )}>
                   <item.icon className="h-5 w-5" />
                   <span>{item.label}</span>

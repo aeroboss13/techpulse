@@ -51,10 +51,10 @@ export default function MobileNavigation() {
           <Link 
             key={item.path} 
             href={getItemPath(item)}
-            className={`flex flex-col items-center justify-center ${
+            className={`flex flex-col items-center justify-center transition-colors ${
               location === item.path 
-                ? "text-primary" 
-                : "text-gray-500 dark:text-gray-400"
+                ? "text-primary dark:text-blue-400" 
+                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             }`}
           >
             <item.icon className="h-5 w-5" />
