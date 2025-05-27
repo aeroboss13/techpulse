@@ -20,9 +20,10 @@ export default function MobileNavigation() {
       icon: Compass 
     },
     { 
-      path: "/jobs", 
-      label: language === 'ru' ? 'Работа' : 'Jobs', 
-      icon: Briefcase 
+      path: "/work", 
+      label: language === 'ru' ? 'Работа' : 'Work', 
+      icon: Briefcase,
+      requiresAuth: true 
     },
     { 
       path: "/ai-assistant", 

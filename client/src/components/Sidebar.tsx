@@ -22,14 +22,10 @@ export default function Sidebar() {
       icon: Compass 
     },
     { 
-      path: "/jobs", 
-      label: language === 'ru' ? 'Вакансии' : 'Jobs', 
-      icon: Briefcase 
-    },
-    { 
-      path: "/resumes", 
-      label: language === 'ru' ? 'Резюме' : 'Resumes', 
-      icon: FileText 
+      path: "/work", 
+      label: language === 'ru' ? 'Работа' : 'Work', 
+      icon: Briefcase,
+      requiresAuth: true 
     },
     { 
       path: "/bookmarks", 
