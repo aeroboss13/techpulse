@@ -102,9 +102,9 @@ export default function ApplyJobDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>{t("apply_for_job")}</DialogTitle>
+          <DialogTitle>Откликнуться на вакансию</DialogTitle>
           <DialogDescription>
-            {t("applying_for")}: {jobTitle}
+            Отклик на вакансию: {jobTitle}
           </DialogDescription>
         </DialogHeader>
 
@@ -115,11 +115,11 @@ export default function ApplyJobDialog({
               name="resumeId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("select_resume")}</FormLabel>
+                  <FormLabel>Выберите резюме</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={t("choose_resume")} />
+                        <SelectValue placeholder="Выберите резюме" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -140,10 +140,10 @@ export default function ApplyJobDialog({
               name="coverLetter"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("cover_letter")}</FormLabel>
+                  <FormLabel>Сопроводительное письмо</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder={t("cover_letter_placeholder")}
+                      placeholder="Расскажите, почему вы подходите для этой позиции..."
                       rows={6}
                       {...field}
                     />
@@ -159,13 +159,13 @@ export default function ApplyJobDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                {t("cancel")}
+                Отмена
               </Button>
               <Button
                 type="submit"
                 disabled={applyMutation.isPending || resumes.length === 0}
               >
-                {applyMutation.isPending ? t("sending") : t("send_application")}
+                {applyMutation.isPending ? "Отправка..." : "Отправить отклик"}
               </Button>
             </div>
           </form>
@@ -173,8 +173,8 @@ export default function ApplyJobDialog({
 
         {resumes.length === 0 && (
           <div className="text-center text-muted-foreground">
-            <p>{t("no_resumes_available")}</p>
-            <p className="text-sm">{t("create_resume_first")}</p>
+            <p>У вас нет доступных резюме</p>
+            <p className="text-sm">Сначала создайте резюме, чтобы откликнуться на вакансию</p>
           </div>
         )}
       </DialogContent>
