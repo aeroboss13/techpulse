@@ -798,8 +798,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/jobs/search', async (req, res) => {
     try {
+      // Отключаем кэширование
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      
       const filter = req.query;
       const jobs = await storage.getJobsByFilter(filter);
+      console.log('Returning jobs to client:', jobs.length);
       res.json(jobs);
     } catch (error) {
       console.error("Error searching jobs:", error);
@@ -882,7 +888,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Resumes API
   app.get('/api/resumes', async (req, res) => {
     try {
+      // Отключаем кэширование
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      
       const resumes = await storage.getPublicResumes();
+      console.log('Returning resumes to client:', resumes.length);
       res.json(resumes);
     } catch (error) {
       console.error("Error fetching resumes:", error);
