@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Building, Calendar, DollarSign, Clock, Users, Eye, Send } from "lucide-react";
+import { MapPin, Building, Calendar, DollarSign, Clock, Users, Eye, Send, BarChart3 } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { useAuth } from "@/hooks/useAuth";
 import ApplyJobDialog from "./ApplyJobDialog";
@@ -19,11 +19,18 @@ export default function JobDetailDialog({ job, open, onOpenChange }: JobDetailDi
   const { t } = useLanguage();
   const { user, isAuthenticated } = useAuth();
   const [showApplyDialog, setShowApplyDialog] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   // Check if user has already applied to this job
   const { data: applicationStatus } = useQuery({
     queryKey: [`/api/applications/check/${job?.id}`],
-    enabled: open && isAuthenticated && !!job?.id,
+    enabled: open && isAuthenticated && !!job?.id && user?.id !== job?.postedBy,
+  });
+
+  // Get analytics data if user is the job creator
+  const { data: analytics } = useQuery({
+    queryKey: [`/api/jobs/${job?.id}/analytics`],
+    enabled: open && isAuthenticated && !!job?.id && user?.id === job?.postedBy,
   });
 
   if (!job) return null;
@@ -160,10 +167,19 @@ export default function JobDetailDialog({ job, open, onOpenChange }: JobDetailDi
             </span>
           </div>
 
-          {/* Apply Button */}
-          {isAuthenticated && user?.id !== job.postedBy && (
+          {/* Apply Button or Analytics Button */}
+          {isAuthenticated && (
             <div className="flex justify-end pt-4 border-t">
-              {applicationStatus?.hasApplied ? (
+              {user?.id === job.postedBy ? (
+                <Button 
+                  onClick={() => setShowAnalytics(!showAnalytics)}
+                  className="flex items-center gap-2"
+                  variant="outline"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  {showAnalytics ? 'Скрыть аналитику' : 'Посмотреть аналитику'}
+                </Button>
+              ) : applicationStatus?.hasApplied ? (
                 <Button disabled variant="outline">
                   {t('already_applied')}
                 </Button>
@@ -175,6 +191,90 @@ export default function JobDetailDialog({ job, open, onOpenChange }: JobDetailDi
                   <Send className="w-4 h-4" />
                   {t('apply_now')}
                 </Button>
+              )}
+            </div>
+          )}
+
+          {/* Analytics Section */}
+          {showAnalytics && analytics && user?.id === job.postedBy && (
+            <div className="mt-6 pt-6 border-t">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                Аналитика по вакансии
+              </h3>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    {analytics.totalApplications}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Всего откликов
+                  </div>
+                </div>
+                
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                    {analytics.pendingApplications}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    В ожидании
+                  </div>
+                </div>
+                
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    {analytics.acceptedApplications}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Принято
+                  </div>
+                </div>
+                
+                <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                    {analytics.rejectedApplications}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Отклонено
+                  </div>
+                </div>
+              </div>
+
+              {analytics.applications && analytics.applications.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-3">Список откликов:</h4>
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {analytics.applications.map((app: any) => (
+                      <div key={app.id} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <div className="font-medium">{app.applicantName}</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              Резюме: {app.resumeTitle}
+                            </div>
+                          </div>
+                          <div className={`px-2 py-1 rounded text-xs font-medium ${
+                            app.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
+                            app.status === 'accepted' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' :
+                            'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                          }`}>
+                            {app.status === 'pending' ? 'В ожидании' :
+                             app.status === 'accepted' ? 'Принято' : 'Отклонено'}
+                          </div>
+                        </div>
+                        {app.coverLetter && (
+                          <div className="text-sm text-gray-700 dark:text-gray-300 mt-2">
+                            <strong>Сопроводительное письмо:</strong> {app.coverLetter}
+                          </div>
+                        )}
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                          Подано: {new Date(app.appliedAt).toLocaleDateString('ru-RU')}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           )}
