@@ -93,7 +93,8 @@ export default function CreateJobDialog({ children }: CreateJobDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createJobMutation.mutate(formData);
+    console.log('Submitting job with data:', { ...formData, technologies });
+    createJobMutation.mutate({ ...formData, technologies });
   };
 
   return (
