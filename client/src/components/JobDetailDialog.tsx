@@ -1,8 +1,13 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Building, Calendar, DollarSign, Clock, Users, Eye } from "lucide-react";
+import { MapPin, Building, Calendar, DollarSign, Clock, Users, Eye, Send } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
+import { useAuth } from "@/hooks/useAuth";
+import ApplyJobDialog from "./ApplyJobDialog";
 
 interface JobDetailDialogProps {
   job: any;

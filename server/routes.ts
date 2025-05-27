@@ -1048,6 +1048,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/applications/check/:jobId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const jobId = req.params.jobId;
+      const hasApplied = await storage.hasUserAppliedToJob(userId, jobId);
+      res.json({ hasApplied });
+    } catch (error) {
+      console.error("Error checking job application:", error);
+      res.status(500).json({ message: "Failed to check job application" });
+    }
+  });
+
+  // Job Offers API
+  app.post('/api/resumes/:id/offer', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const resumeId = req.params.id;
+      const { jobId, message } = req.body;
+
+      // Get resume to get the author's ID
+      const resume = await storage.getResumeById(resumeId);
+      if (!resume) {
+        return res.status(404).json({ message: "Resume not found" });
+      }
+
+      const offer = await storage.createJobOffer({
+        jobId,
+        resumeId,
+        resumeAuthorId: resume.userId,
+        offeredByUserId: userId,
+        message
+      });
+
+      res.status(201).json(offer);
+    } catch (error) {
+      console.error("Error creating job offer:", error);
+      res.status(500).json({ message: "Failed to create job offer" });
+    }
+  });
+
+  app.get('/api/user/offers', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const offers = await storage.getJobOffersByUser(userId);
+      res.json(offers);
+    } catch (error) {
+      console.error("Error fetching user job offers:", error);
+      res.status(500).json({ message: "Failed to fetch job offers" });
+    }
+  });
+
+  app.get('/api/resumes/:id/offers', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const resumeId = req.params.id;
+      
+      // Check if user owns the resume
+      const resume = await storage.getResumeById(resumeId);
+      if (!resume || resume.userId !== userId) {
+        return res.status(403).json({ message: "Not authorized to view offers for this resume" });
+      }
+
+      const offers = await storage.getJobOffersByResume(resumeId);
+      res.json(offers);
+    } catch (error) {
+      console.error("Error fetching resume job offers:", error);
+      res.status(500).json({ message: "Failed to fetch job offers" });
+    }
+  });
+
+  app.patch('/api/offers/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const offerId = req.params.id;
+      const { status } = req.body;
+
+      const updatedOffer = await storage.updateJobOfferStatus(offerId, status);
+      res.json(updatedOffer);
+    } catch (error) {
+      console.error("Error updating offer status:", error);
+      res.status(500).json({ message: "Failed to update offer status" });
+    }
+  });
+
+  app.get('/api/offers/check/:resumeId/:jobId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const { resumeId, jobId } = req.params;
+      const hasOffered = await storage.hasUserOfferedJobToResume(userId, resumeId, jobId);
+      res.json({ hasOffered });
+    } catch (error) {
+      console.error("Error checking job offer:", error);
+      res.status(500).json({ message: "Failed to check job offer" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
