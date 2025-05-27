@@ -11,10 +11,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MapPin, Building, Clock, DollarSign, Users, Plus, Search, Filter } from "lucide-react";
+import { MapPin, Building, Clock, DollarSign, Users, Plus, Search, Filter, Eye } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import CreateJobDialog from "@/components/CreateJobDialog";
+import JobDetailDialog from "@/components/JobDetailDialog";
 
 interface Job {
   id: string;
@@ -47,6 +48,8 @@ export default function Jobs() {
   const queryClient = useQueryClient();
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [filters, setFilters] = useState({
     location: "",
     experienceLevel: "",

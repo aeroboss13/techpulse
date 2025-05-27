@@ -221,11 +221,24 @@ export default function Resumes() {
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       {language === 'ru' ? 'Обновлено' : 'Updated'} {new Date(resume.createdAt).toLocaleDateString()}
                     </div>
-                    {isAuthenticated && (
-                      <Button size="sm">
-                        {language === 'ru' ? 'Связаться' : 'Contact'}
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedResume(resume);
+                          setIsDetailDialogOpen(true);
+                        }}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        {language === 'ru' ? 'Детали' : 'Details'}
                       </Button>
-                    )}
+                      {isAuthenticated && (
+                        <Button size="sm">
+                          {language === 'ru' ? 'Связаться' : 'Contact'}
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -233,6 +246,13 @@ export default function Resumes() {
           ))
         )}
       </div>
+
+      {/* Resume Detail Dialog */}
+      <ResumeDetailDialog
+        resume={selectedResume}
+        open={isDetailDialogOpen}
+        onOpenChange={setIsDetailDialogOpen}
+      />
     </div>
   );
 }
