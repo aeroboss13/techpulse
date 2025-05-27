@@ -269,6 +269,30 @@ const translations: Record<Language, Record<string, string>> = {
     'general.noPostsMessage': 'Будьте первым, кто поделится чем-то с сообществом!',
     'general.loadError': 'Не удалось загрузить посты. Пожалуйста, повторите попытку позже.',
     'general.tryNow': 'Попробовать сейчас',
+    
+    // Job Applications & Analytics
+    'description': 'Описание',
+    'requirements': 'Требования', 
+    'skills': 'Навыки',
+    'posted': 'Опубликовано',
+    'created': 'Создано',
+    'apply_now': 'Откликнуться',
+    'already_applied': 'Уже откликнулись',
+    'apply_for_job': 'Отклик на вакансию',
+    'applying_for': 'Откликаетесь на',
+    'cancel': 'Отменить',
+    'send_application': 'Отправить отклик',
+    'no_resumes_available': 'Нет доступных резюме',
+    'create_resume_first': 'Сначала создайте резюме',
+    'job_analytics': 'Аналитика вакансии',
+    'view_analytics': 'Посмотреть аналитику',
+    'total_applications': 'Всего откликов',
+    'pending_applications': 'Ожидают рассмотрения',
+    'accepted_applications': 'Принято',
+    'rejected_applications': 'Отклонено',
+    'applicants': 'Кандидаты',
+    'anonymous': 'Аноним',
+    'offer_job': 'Предложить вакансию',
   }
 };
 

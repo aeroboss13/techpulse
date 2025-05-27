@@ -890,6 +890,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get job analytics for job creators
+  app.get('/api/jobs/:jobId/analytics', isAuthenticated, async (req: any, res) => {
+    try {
+      const { jobId } = req.params;
+      const userId = req.session.userId;
+      
+      const job = await storage.getJobById(jobId);
+      if (!job) {
+        return res.status(404).json({ message: 'Job not found' });
+      }
+      
+      // Only job creator can see analytics
+      if (job.postedBy !== userId) {
+        return res.status(403).json({ message: 'Unauthorized' });
+      }
+      
+      const applications = await storage.getJobApplicationsByJob(jobId);
+      const analytics = {
+        totalApplications: applications.length,
+        pendingApplications: applications.filter(app => app.status === 'pending').length,
+        acceptedApplications: applications.filter(app => app.status === 'accepted').length,
+        rejectedApplications: applications.filter(app => app.status === 'rejected').length,
+        applications: applications.map(app => ({
+          id: app.id,
+          applicantName: app.applicantName,
+          resumeTitle: app.resumeTitle,
+          coverLetter: app.coverLetter,
+          status: app.status,
+          appliedAt: app.createdAt
+        }))
+      };
+      
+      res.json(analytics);
+    } catch (error) {
+      console.error('Error fetching job analytics:', error);
+      res.status(500).json({ message: 'Failed to fetch job analytics' });
+    }
+  });
+
   // Resumes API
   app.get('/api/resumes', async (req, res) => {
     try {
