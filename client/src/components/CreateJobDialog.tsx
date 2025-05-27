@@ -41,7 +41,11 @@ export default function CreateJobDialog({ children }: CreateJobDialogProps) {
   const createJobMutation = useMutation({
     mutationFn: (data: any) => apiRequest('POST', '/api/jobs', { ...data, technologies }),
     onSuccess: () => {
+      // Принудительно обновляем кэш вакансий
       queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/jobs/search'] });
+      queryClient.refetchQueries({ queryKey: ['/api/jobs/search'] });
+      
       toast({
         title: language === 'ru' ? 'Успешно!' : 'Success!',
         description: language === 'ru' ? 'Вакансия создана' : 'Job created successfully'

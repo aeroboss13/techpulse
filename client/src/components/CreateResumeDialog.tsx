@@ -40,7 +40,10 @@ export default function CreateResumeDialog({ children }: CreateResumeDialogProps
   const createResumeMutation = useMutation({
     mutationFn: (data: any) => apiRequest('POST', '/api/resumes', { ...data, skills }),
     onSuccess: () => {
+      // Принудительно обновляем кэш резюме
       queryClient.invalidateQueries({ queryKey: ['/api/resumes'] });
+      queryClient.refetchQueries({ queryKey: ['/api/resumes'] });
+      
       toast({
         title: language === 'ru' ? 'Успешно!' : 'Success!',
         description: language === 'ru' ? 'Резюме создано' : 'Resume created successfully'
