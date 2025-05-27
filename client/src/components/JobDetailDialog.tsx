@@ -16,7 +16,15 @@ interface JobDetailDialogProps {
 }
 
 export default function JobDetailDialog({ job, open, onOpenChange }: JobDetailDialogProps) {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
+  const { user, isAuthenticated } = useAuth();
+  const [showApplyDialog, setShowApplyDialog] = useState(false);
+
+  // Check if user has already applied to this job
+  const { data: applicationStatus } = useQuery({
+    queryKey: [`/api/applications/check/${job?.id}`],
+    enabled: open && isAuthenticated && !!job?.id,
+  });
 
   if (!job) return null;
 
@@ -79,7 +87,7 @@ export default function JobDetailDialog({ job, open, onOpenChange }: JobDetailDi
           {job.description && (
             <div>
               <h3 className="text-lg font-semibold mb-3">
-                {language === 'ru' ? 'Описание' : 'Description'}
+                {t('description')}
               </h3>
               <div className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
                 {job.description}
@@ -91,7 +99,7 @@ export default function JobDetailDialog({ job, open, onOpenChange }: JobDetailDi
           {job.requirements && (
             <div>
               <h3 className="text-lg font-semibold mb-3">
-                {language === 'ru' ? 'Требования' : 'Requirements'}
+                {t('requirements')}
               </h3>
               <div className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
                 {job.requirements}
@@ -148,11 +156,38 @@ export default function JobDetailDialog({ job, open, onOpenChange }: JobDetailDi
           <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <Calendar className="w-4 h-4" />
             <span>
-              {language === 'ru' ? 'Опубликовано' : 'Posted'}: {new Date(job.createdAt).toLocaleDateString()}
+              {t('posted')}: {new Date(job.createdAt).toLocaleDateString()}
             </span>
           </div>
+
+          {/* Apply Button */}
+          {isAuthenticated && user?.id !== job.postedBy && (
+            <div className="flex justify-end pt-4 border-t">
+              {applicationStatus?.hasApplied ? (
+                <Button disabled variant="outline">
+                  {t('already_applied')}
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => setShowApplyDialog(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  {t('apply_now')}
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </DialogContent>
+
+      {/* Apply Job Dialog */}
+      <ApplyJobDialog
+        jobId={job.id}
+        jobTitle={job.title}
+        open={showApplyDialog}
+        onOpenChange={setShowApplyDialog}
+      />
     </Dialog>
   );
 }
