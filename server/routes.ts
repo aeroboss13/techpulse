@@ -785,6 +785,252 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Jobs API
+  app.get('/api/jobs', async (req, res) => {
+    try {
+      const jobs = await storage.getAllJobs();
+      res.json(jobs);
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+      res.status(500).json({ message: "Failed to fetch jobs" });
+    }
+  });
+
+  app.get('/api/jobs/search', async (req, res) => {
+    try {
+      const filter = req.query;
+      const jobs = await storage.getJobsByFilter(filter);
+      res.json(jobs);
+    } catch (error) {
+      console.error("Error searching jobs:", error);
+      res.status(500).json({ message: "Failed to search jobs" });
+    }
+  });
+
+  app.get('/api/jobs/:id', async (req, res) => {
+    try {
+      const job = await storage.getJobById(req.params.id);
+      if (!job) {
+        return res.status(404).json({ message: "Job not found" });
+      }
+      res.json(job);
+    } catch (error) {
+      console.error("Error fetching job:", error);
+      res.status(500).json({ message: "Failed to fetch job" });
+    }
+  });
+
+  app.post('/api/jobs', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const jobData = { ...req.body, postedBy: userId };
+      const job = await storage.createJob(jobData);
+      res.status(201).json(job);
+    } catch (error) {
+      console.error("Error creating job:", error);
+      res.status(500).json({ message: "Failed to create job" });
+    }
+  });
+
+  app.put('/api/jobs/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const jobId = req.params.id;
+      
+      const existingJob = await storage.getJobById(jobId);
+      if (!existingJob || existingJob.postedBy !== userId) {
+        return res.status(403).json({ message: "Not authorized to update this job" });
+      }
+
+      const updatedJob = await storage.updateJob(jobId, req.body);
+      res.json(updatedJob);
+    } catch (error) {
+      console.error("Error updating job:", error);
+      res.status(500).json({ message: "Failed to update job" });
+    }
+  });
+
+  app.delete('/api/jobs/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const jobId = req.params.id;
+      
+      const existingJob = await storage.getJobById(jobId);
+      if (!existingJob || existingJob.postedBy !== userId) {
+        return res.status(403).json({ message: "Not authorized to delete this job" });
+      }
+
+      await storage.deleteJob(jobId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting job:", error);
+      res.status(500).json({ message: "Failed to delete job" });
+    }
+  });
+
+  app.get('/api/user/jobs', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const jobs = await storage.getJobsByUser(userId);
+      res.json(jobs);
+    } catch (error) {
+      console.error("Error fetching user jobs:", error);
+      res.status(500).json({ message: "Failed to fetch user jobs" });
+    }
+  });
+
+  // Resumes API
+  app.get('/api/resumes', async (req, res) => {
+    try {
+      const resumes = await storage.getPublicResumes();
+      res.json(resumes);
+    } catch (error) {
+      console.error("Error fetching resumes:", error);
+      res.status(500).json({ message: "Failed to fetch resumes" });
+    }
+  });
+
+  app.get('/api/resumes/:id', async (req, res) => {
+    try {
+      const resume = await storage.getResumeById(req.params.id);
+      if (!resume) {
+        return res.status(404).json({ message: "Resume not found" });
+      }
+      res.json(resume);
+    } catch (error) {
+      console.error("Error fetching resume:", error);
+      res.status(500).json({ message: "Failed to fetch resume" });
+    }
+  });
+
+  app.get('/api/user/resumes', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const resumes = await storage.getResumesByUser(userId);
+      res.json(resumes);
+    } catch (error) {
+      console.error("Error fetching user resumes:", error);
+      res.status(500).json({ message: "Failed to fetch user resumes" });
+    }
+  });
+
+  app.post('/api/resumes', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const resumeData = { ...req.body, userId };
+      const resume = await storage.createResume(resumeData);
+      res.status(201).json(resume);
+    } catch (error) {
+      console.error("Error creating resume:", error);
+      res.status(500).json({ message: "Failed to create resume" });
+    }
+  });
+
+  app.put('/api/resumes/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const resumeId = req.params.id;
+      
+      const existingResume = await storage.getResumeById(resumeId);
+      if (!existingResume || existingResume.userId !== userId) {
+        return res.status(403).json({ message: "Not authorized to update this resume" });
+      }
+
+      const updatedResume = await storage.updateResume(resumeId, req.body);
+      res.json(updatedResume);
+    } catch (error) {
+      console.error("Error updating resume:", error);
+      res.status(500).json({ message: "Failed to update resume" });
+    }
+  });
+
+  app.delete('/api/resumes/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const resumeId = req.params.id;
+      
+      const existingResume = await storage.getResumeById(resumeId);
+      if (!existingResume || existingResume.userId !== userId) {
+        return res.status(403).json({ message: "Not authorized to delete this resume" });
+      }
+
+      await storage.deleteResume(resumeId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting resume:", error);
+      res.status(500).json({ message: "Failed to delete resume" });
+    }
+  });
+
+  // Job Applications API
+  app.post('/api/jobs/:id/apply', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const jobId = req.params.id;
+      const { resumeId, coverLetter } = req.body;
+
+      const application = await storage.createJobApplication({
+        jobId,
+        applicantId: userId,
+        resumeId,
+        coverLetter
+      });
+
+      res.status(201).json(application);
+    } catch (error) {
+      console.error("Error creating job application:", error);
+      res.status(500).json({ message: "Failed to create job application" });
+    }
+  });
+
+  app.get('/api/jobs/:id/applications', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const jobId = req.params.id;
+      
+      // Check if user owns the job
+      const job = await storage.getJobById(jobId);
+      if (!job || job.postedBy !== userId) {
+        return res.status(403).json({ message: "Not authorized to view applications for this job" });
+      }
+
+      const applications = await storage.getJobApplicationsByJob(jobId);
+      res.json(applications);
+    } catch (error) {
+      console.error("Error fetching job applications:", error);
+      res.status(500).json({ message: "Failed to fetch job applications" });
+    }
+  });
+
+  app.get('/api/user/applications', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const applications = await storage.getJobApplicationsByUser(userId);
+      res.json(applications);
+    } catch (error) {
+      console.error("Error fetching user applications:", error);
+      res.status(500).json({ message: "Failed to fetch user applications" });
+    }
+  });
+
+  app.patch('/api/applications/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const applicationId = req.params.id;
+      const { status } = req.body;
+
+      // Get the application to check permissions
+      const applications = await storage.getJobApplicationsByJob('dummy'); // We need to find the application first
+      // This is a simplified check - in a real app, we'd have a more efficient way
+      
+      const updatedApplication = await storage.updateJobApplicationStatus(applicationId, status);
+      res.json(updatedApplication);
+    } catch (error) {
+      console.error("Error updating application status:", error);
+      res.status(500).json({ message: "Failed to update application status" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

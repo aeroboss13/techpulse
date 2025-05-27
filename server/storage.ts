@@ -606,6 +606,221 @@ export class MemStorage implements IStorage {
       })
       .slice(0, 7); // Берем только топ-7 хэштегов
   }
+
+  // Job operations
+  async getAllJobs(): Promise<any[]> {
+    return Array.from(this.jobs.values())
+      .filter(job => job.status === 'active')
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getJobsByFilter(filter: any): Promise<any[]> {
+    const jobs = Array.from(this.jobs.values()).filter(job => job.status === 'active');
+    
+    return jobs.filter(job => {
+      if (filter.location && !job.location?.toLowerCase().includes(filter.location.toLowerCase())) return false;
+      if (filter.experienceLevel && job.experienceLevel !== filter.experienceLevel) return false;
+      if (filter.employmentType && job.employmentType !== filter.employmentType) return false;
+      if (filter.isRemote !== undefined && job.isRemote !== filter.isRemote) return false;
+      if (filter.technologies && filter.technologies.length > 0) {
+        const hasMatchingTech = filter.technologies.some((tech: string) => 
+          job.technologies?.some((jobTech: string) => 
+            jobTech.toLowerCase().includes(tech.toLowerCase())
+          )
+        );
+        if (!hasMatchingTech) return false;
+      }
+      return true;
+    });
+  }
+
+  async getJobById(id: string): Promise<any> {
+    const job = this.jobs.get(id);
+    if (!job) return undefined;
+    
+    // Добавляем информацию о пользователе, создавшем вакансию
+    const poster = this.users.get(job.postedBy);
+    return {
+      ...job,
+      poster: poster ? {
+        id: poster.id,
+        username: poster.username,
+        firstName: poster.firstName,
+        lastName: poster.lastName,
+        profileImageUrl: poster.profileImageUrl
+      } : null
+    };
+  }
+
+  async createJob(jobData: any): Promise<any> {
+    const job = {
+      id: uuidv4(),
+      ...jobData,
+      status: 'active',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.jobs.set(job.id, job);
+    return job;
+  }
+
+  async updateJob(id: string, data: any): Promise<any> {
+    const job = this.jobs.get(id);
+    if (!job) throw new Error('Job not found');
+    
+    const updatedJob = {
+      ...job,
+      ...data,
+      updatedAt: new Date()
+    };
+    
+    this.jobs.set(id, updatedJob);
+    return updatedJob;
+  }
+
+  async deleteJob(id: string): Promise<void> {
+    this.jobs.delete(id);
+  }
+
+  async getJobsByUser(userId: string): Promise<any[]> {
+    return Array.from(this.jobs.values())
+      .filter(job => job.postedBy === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  // Resume operations
+  async getResumesByUser(userId: string): Promise<any[]> {
+    return Array.from(this.resumes.values())
+      .filter(resume => resume.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getPublicResumes(): Promise<any[]> {
+    return Array.from(this.resumes.values())
+      .filter(resume => resume.isVisible)
+      .map(resume => {
+        const user = this.users.get(resume.userId);
+        return {
+          ...resume,
+          user: user ? {
+            id: user.id,
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            profileImageUrl: user.profileImageUrl
+          } : null
+        };
+      })
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getResumeById(id: string): Promise<any> {
+    const resume = this.resumes.get(id);
+    if (!resume) return undefined;
+    
+    const user = this.users.get(resume.userId);
+    return {
+      ...resume,
+      user: user ? {
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        profileImageUrl: user.profileImageUrl
+      } : null
+    };
+  }
+
+  async createResume(resumeData: any): Promise<any> {
+    const resume = {
+      id: uuidv4(),
+      ...resumeData,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.resumes.set(resume.id, resume);
+    return resume;
+  }
+
+  async updateResume(id: string, data: any): Promise<any> {
+    const resume = this.resumes.get(id);
+    if (!resume) throw new Error('Resume not found');
+    
+    const updatedResume = {
+      ...resume,
+      ...data,
+      updatedAt: new Date()
+    };
+    
+    this.resumes.set(id, updatedResume);
+    return updatedResume;
+  }
+
+  async deleteResume(id: string): Promise<void> {
+    this.resumes.delete(id);
+  }
+
+  // Job application operations
+  async createJobApplication(applicationData: any): Promise<any> {
+    const application = {
+      id: uuidv4(),
+      ...applicationData,
+      status: 'pending',
+      appliedAt: new Date()
+    };
+    
+    this.jobApplications.set(application.id, application);
+    return application;
+  }
+
+  async getJobApplicationsByJob(jobId: string): Promise<any[]> {
+    return Array.from(this.jobApplications.values())
+      .filter(app => app.jobId === jobId)
+      .map(app => {
+        const applicant = this.users.get(app.applicantId);
+        const resume = app.resumeId ? this.resumes.get(app.resumeId) : null;
+        return {
+          ...app,
+          applicant: applicant ? {
+            id: applicant.id,
+            username: applicant.username,
+            firstName: applicant.firstName,
+            lastName: applicant.lastName,
+            profileImageUrl: applicant.profileImageUrl
+          } : null,
+          resume
+        };
+      })
+      .sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime());
+  }
+
+  async getJobApplicationsByUser(userId: string): Promise<any[]> {
+    return Array.from(this.jobApplications.values())
+      .filter(app => app.applicantId === userId)
+      .map(app => {
+        const job = this.jobs.get(app.jobId);
+        return {
+          ...app,
+          job
+        };
+      })
+      .sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime());
+  }
+
+  async updateJobApplicationStatus(id: string, status: string): Promise<any> {
+    const application = this.jobApplications.get(id);
+    if (!application) throw new Error('Application not found');
+    
+    const updatedApplication = {
+      ...application,
+      status
+    };
+    
+    this.jobApplications.set(id, updatedApplication);
+    return updatedApplication;
+  }
 }
 
 export const storage = new MemStorage();
