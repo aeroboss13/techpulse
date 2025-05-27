@@ -736,6 +736,7 @@ export class MemStorage implements IStorage {
     const resume = {
       id: uuidv4(),
       ...resumeData,
+      isVisible: true, // По умолчанию резюме видимое
       createdAt: new Date(),
       updatedAt: new Date()
     };
