@@ -181,7 +181,7 @@ export default function JobDetailDialog({ job, open, onOpenChange }: JobDetailDi
                 </Button>
               ) : applicationStatus?.hasApplied ? (
                 <Button disabled variant="outline">
-                  {t('already_applied')}
+                  Уже откликнулись
                 </Button>
               ) : (
                 <Button 
@@ -189,7 +189,7 @@ export default function JobDetailDialog({ job, open, onOpenChange }: JobDetailDi
                   className="flex items-center gap-2"
                 >
                   <Send className="w-4 h-4" />
-                  {t('apply_now')}
+                  Откликнуться
                 </Button>
               )}
             </div>
