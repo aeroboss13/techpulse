@@ -54,11 +54,11 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/explore" component={Explore} />
-      <Route path="/jobs" component={Jobs} />
-      <Route path="/resumes" component={Resumes} />
+      <Route path="/jobs" component={() => <ProtectedRoute component={Jobs} />} />
+      <Route path="/resumes" component={() => <ProtectedRoute component={Resumes} />} />
       <Route path="/profile" component={() => <ProtectedRoute component={Profile} />} />
       <Route path="/snippets" component={() => <ProtectedRoute component={Snippets} />} />
-      <Route path="/ai-assistant" component={AIAssistant} />
+      <Route path="/ai-assistant" component={() => <ProtectedRoute component={AIAssistant} />} />
       <Route path="/bookmarks" component={() => <ProtectedRoute component={Bookmarks} />} />
       <Route path="/login" component={Login} />
       <Route component={NotFound} />
