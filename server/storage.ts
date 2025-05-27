@@ -61,6 +61,29 @@ export interface IStorage {
   
   // Trending topics
   getTrendingTopics(): Promise<TrendingTopic[]>;
+  
+  // Job operations
+  getAllJobs(): Promise<any[]>;
+  getJobsByFilter(filter: any): Promise<any[]>;
+  getJobById(id: string): Promise<any>;
+  createJob(job: any): Promise<any>;
+  updateJob(id: string, data: any): Promise<any>;
+  deleteJob(id: string): Promise<void>;
+  getJobsByUser(userId: string): Promise<any[]>;
+  
+  // Resume operations
+  getResumesByUser(userId: string): Promise<any[]>;
+  getPublicResumes(): Promise<any[]>;
+  getResumeById(id: string): Promise<any>;
+  createResume(resume: any): Promise<any>;
+  updateResume(id: string, data: any): Promise<any>;
+  deleteResume(id: string): Promise<void>;
+  
+  // Job application operations
+  createJobApplication(application: any): Promise<any>;
+  getJobApplicationsByJob(jobId: string): Promise<any[]>;
+  getJobApplicationsByUser(userId: string): Promise<any[]>;
+  updateJobApplicationStatus(id: string, status: string): Promise<any>;
 }
 
 export class MemStorage implements IStorage {
@@ -72,6 +95,9 @@ export class MemStorage implements IStorage {
   private follows: Map<string, any>;
   private codeSnippets: Map<string, CodeSnippet>;
   private trendingTopics: Map<string, TrendingTopic>;
+  private jobs: Map<string, any>;
+  private resumes: Map<string, any>;
+  private jobApplications: Map<string, any>;
 
   constructor() {
     this.users = new Map();
@@ -82,6 +108,9 @@ export class MemStorage implements IStorage {
     this.follows = new Map();
     this.codeSnippets = new Map();
     this.trendingTopics = new Map();
+    this.jobs = new Map();
+    this.resumes = new Map();
+    this.jobApplications = new Map();
     
     this.initializeSampleData();
   }

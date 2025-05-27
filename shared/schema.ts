@@ -101,6 +101,59 @@ export const trendingTopics = pgTable("trending_topics", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Таблица вакансий
+export const jobs = pgTable("jobs", {
+  id: varchar("id").primaryKey().notNull(),
+  title: varchar("title").notNull(),
+  company: varchar("company").notNull(),
+  description: text("description").notNull(),
+  requirements: text("requirements"),
+  location: varchar("location"),
+  salary: varchar("salary"),
+  employmentType: varchar("employment_type"), // full-time, part-time, contract, freelance
+  experienceLevel: varchar("experience_level"), // junior, middle, senior, lead
+  technologies: text("technologies").array(), // массив технологий
+  isRemote: boolean("is_remote").default(false),
+  contactEmail: varchar("contact_email"),
+  externalLink: varchar("external_link"),
+  status: varchar("status").default("active"), // active, closed, paused
+  postedBy: varchar("posted_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Таблица резюме
+export const resumes = pgTable("resumes", {
+  id: varchar("id").primaryKey().notNull(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  title: varchar("title").notNull(), // например "Full-stack Developer"
+  summary: text("summary"),
+  experience: text("experience"), // опыт работы
+  skills: text("skills").array(), // массив навыков
+  education: text("education"),
+  location: varchar("location"),
+  expectedSalary: varchar("expected_salary"),
+  preferredEmploymentType: varchar("preferred_employment_type"),
+  isRemotePreferred: boolean("is_remote_preferred").default(false),
+  portfolioLink: varchar("portfolio_link"),
+  githubLink: varchar("github_link"),
+  linkedinLink: varchar("linkedin_link"),
+  isVisible: boolean("is_visible").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Таблица откликов на вакансии
+export const jobApplications = pgTable("job_applications", {
+  id: varchar("id").primaryKey().notNull(),
+  jobId: varchar("job_id").notNull().references(() => jobs.id),
+  applicantId: varchar("applicant_id").notNull().references(() => users.id),
+  resumeId: varchar("resume_id").references(() => resumes.id),
+  coverLetter: text("cover_letter"),
+  status: varchar("status").default("pending"), // pending, reviewed, accepted, rejected
+  appliedAt: timestamp("applied_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
@@ -126,6 +179,43 @@ export const insertCodeSnippetSchema = createInsertSchema(codeSnippets).pick({
   isPublic: true,
 });
 
+export const insertJobSchema = createInsertSchema(jobs).pick({
+  title: true,
+  company: true,
+  description: true,
+  requirements: true,
+  location: true,
+  salary: true,
+  employmentType: true,
+  experienceLevel: true,
+  technologies: true,
+  isRemote: true,
+  contactEmail: true,
+  externalLink: true,
+});
+
+export const insertResumeSchema = createInsertSchema(resumes).pick({
+  title: true,
+  summary: true,
+  experience: true,
+  skills: true,
+  education: true,
+  location: true,
+  expectedSalary: true,
+  preferredEmploymentType: true,
+  isRemotePreferred: true,
+  portfolioLink: true,
+  githubLink: true,
+  linkedinLink: true,
+  isVisible: true,
+});
+
+export const insertJobApplicationSchema = createInsertSchema(jobApplications).pick({
+  jobId: true,
+  resumeId: true,
+  coverLetter: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -134,3 +224,9 @@ export type InsertPost = z.infer<typeof insertPostSchema>;
 export type CodeSnippet = typeof codeSnippets.$inferSelect;
 export type InsertCodeSnippet = z.infer<typeof insertCodeSnippetSchema>;
 export type TrendingTopic = typeof trendingTopics.$inferSelect;
+export type Job = typeof jobs.$inferSelect;
+export type InsertJob = z.infer<typeof insertJobSchema>;
+export type Resume = typeof resumes.$inferSelect;
+export type InsertResume = z.infer<typeof insertResumeSchema>;
+export type JobApplication = typeof jobApplications.$inferSelect;
+export type InsertJobApplication = z.infer<typeof insertJobApplicationSchema>;
