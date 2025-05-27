@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { MapPin, Building, Clock, DollarSign, Users, Plus, Search, Filter } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import CreateJobDialog from "@/components/CreateJobDialog";
 
 interface Job {
   id: string;
@@ -346,7 +347,7 @@ export default function Jobs() {
               <SelectValue placeholder={language === 'ru' ? 'Уровень' : 'Level'} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">{language === 'ru' ? 'Все' : 'All'}</SelectItem>
+              <SelectItem value="all">{language === 'ru' ? 'Все' : 'All'}</SelectItem>
               <SelectItem value="junior">Junior</SelectItem>
               <SelectItem value="middle">Middle</SelectItem>
               <SelectItem value="senior">Senior</SelectItem>
@@ -359,7 +360,7 @@ export default function Jobs() {
               <SelectValue placeholder={language === 'ru' ? 'Тип' : 'Type'} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">{language === 'ru' ? 'Все' : 'All'}</SelectItem>
+              <SelectItem value="all">{language === 'ru' ? 'Все' : 'All'}</SelectItem>
               <SelectItem value="full-time">{language === 'ru' ? 'Полная' : 'Full-time'}</SelectItem>
               <SelectItem value="part-time">{language === 'ru' ? 'Частичная' : 'Part-time'}</SelectItem>
               <SelectItem value="contract">{language === 'ru' ? 'Контракт' : 'Contract'}</SelectItem>
