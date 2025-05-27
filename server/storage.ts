@@ -697,8 +697,18 @@ export class MemStorage implements IStorage {
   }
 
   async getPublicResumes(): Promise<any[]> {
-    return Array.from(this.resumes.values())
-      .filter(resume => resume.isVisible)
+    console.log('All resumes in storage:', Array.from(this.resumes.values()));
+    const allResumes = Array.from(this.resumes.values());
+    console.log('Total resumes count:', allResumes.length);
+    
+    const visibleResumes = allResumes.filter(resume => {
+      console.log('Resume visibility check:', resume.id, 'isVisible:', resume.isVisible);
+      return resume.isVisible === true || resume.isVisible === undefined; // Включаем резюме без явного флага
+    });
+    
+    console.log('Visible resumes count:', visibleResumes.length);
+    
+    return visibleResumes
       .map(resume => {
         const user = this.users.get(resume.userId);
         return {
