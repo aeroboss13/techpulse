@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Mail, Phone, Calendar, Briefcase, GraduationCap, Globe } from "lucide-react";
+import { MapPin, Mail, Phone, Calendar, Briefcase, GraduationCap, Globe, Send } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
+import { useAuth } from "@/hooks/useAuth";
+import OfferJobDialog from "./OfferJobDialog";
 
 interface ResumeDetailDialogProps {
   resume: any;
@@ -11,7 +15,9 @@ interface ResumeDetailDialogProps {
 }
 
 export default function ResumeDetailDialog({ resume, open, onOpenChange }: ResumeDetailDialogProps) {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
+  const { user, isAuthenticated } = useAuth();
+  const [showOfferDialog, setShowOfferDialog] = useState(false);
 
   if (!resume) return null;
 
@@ -155,11 +161,33 @@ export default function ResumeDetailDialog({ resume, open, onOpenChange }: Resum
           <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <Calendar className="w-4 h-4" />
             <span>
-              {language === 'ru' ? 'Создано' : 'Created'}: {new Date(resume.createdAt).toLocaleDateString()}
+              {t('created')}: {new Date(resume.createdAt).toLocaleDateString()}
             </span>
           </div>
+
+          {/* Offer Job Button */}
+          {isAuthenticated && user?.id !== resume.userId && (
+            <div className="flex justify-end pt-4 border-t">
+              <Button 
+                onClick={() => setShowOfferDialog(true)}
+                className="flex items-center gap-2"
+              >
+                <Send className="w-4 h-4" />
+                {t('offer_job')}
+              </Button>
+            </div>
+          )}
         </div>
       </DialogContent>
+
+      {/* Offer Job Dialog */}
+      <OfferJobDialog
+        resumeId={resume.id}
+        resumeTitle={resume.title}
+        resumeAuthorName={resume.contactEmail || t('anonymous')}
+        open={showOfferDialog}
+        onOpenChange={setShowOfferDialog}
+      />
     </Dialog>
   );
 }
