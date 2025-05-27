@@ -178,8 +178,7 @@ export default function Jobs() {
           </p>
         </div>
         
-        {isAuthenticated && (
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
@@ -325,8 +324,7 @@ export default function Jobs() {
                 </div>
               </div>
             </DialogContent>
-          </Dialog>
-        )}
+        </Dialog>
       </div>
 
       {/* Search and Filters */}
