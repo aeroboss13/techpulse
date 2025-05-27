@@ -442,6 +442,17 @@ export default function Jobs() {
                     {language === 'ru' ? 'Опубликовано' : 'Posted'} {new Date(job.createdAt).toLocaleDateString()}
                   </div>
                   <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedJob(job);
+                        setIsDetailDialogOpen(true);
+                      }}
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      {language === 'ru' ? 'Детали' : 'Details'}
+                    </Button>
                     {job.externalLink && (
                       <Button variant="outline" size="sm" asChild>
                         <a href={job.externalLink} target="_blank" rel="noopener noreferrer">
@@ -461,6 +472,13 @@ export default function Jobs() {
           ))
         )}
       </div>
+
+      {/* Job Detail Dialog */}
+      <JobDetailDialog
+        job={selectedJob}
+        open={isDetailDialogOpen}
+        onOpenChange={setIsDetailDialogOpen}
+      />
     </div>
   );
 }
