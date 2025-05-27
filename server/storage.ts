@@ -84,6 +84,14 @@ export interface IStorage {
   getJobApplicationsByJob(jobId: string): Promise<any[]>;
   getJobApplicationsByUser(userId: string): Promise<any[]>;
   updateJobApplicationStatus(id: string, status: string): Promise<any>;
+  hasUserAppliedToJob(userId: string, jobId: string): Promise<boolean>;
+  
+  // Job offer operations
+  createJobOffer(offer: any): Promise<any>;
+  getJobOffersByUser(userId: string): Promise<any[]>;
+  getJobOffersByResume(resumeId: string): Promise<any[]>;
+  updateJobOfferStatus(id: string, status: string): Promise<any>;
+  hasUserOfferedJobToResume(userId: string, resumeId: string, jobId: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -98,6 +106,7 @@ export class MemStorage implements IStorage {
   private jobs: Map<string, any>;
   private resumes: Map<string, any>;
   private jobApplications: Map<string, any>;
+  private jobOffers: Map<string, any>;
 
   constructor() {
     this.users = new Map();
@@ -111,6 +120,7 @@ export class MemStorage implements IStorage {
     this.jobs = new Map();
     this.resumes = new Map();
     this.jobApplications = new Map();
+    this.jobOffers = new Map();
     
     this.initializeSampleData();
   }
@@ -831,6 +841,54 @@ export class MemStorage implements IStorage {
     
     this.jobApplications.set(id, updatedApplication);
     return updatedApplication;
+  }
+
+  async hasUserAppliedToJob(userId: string, jobId: string): Promise<boolean> {
+    return Array.from(this.jobApplications.values())
+      .some(app => app.applicantId === userId && app.jobId === jobId);
+  }
+
+  // Job offer operations
+  async createJobOffer(offerData: any): Promise<any> {
+    const id = `job-offer-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const offer = {
+      id,
+      ...offerData,
+      createdAt: new Date()
+    };
+    
+    this.jobOffers.set(id, offer);
+    return offer;
+  }
+
+  async getJobOffersByUser(userId: string): Promise<any[]> {
+    return Array.from(this.jobOffers.values())
+      .filter(offer => offer.resumeAuthorId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getJobOffersByResume(resumeId: string): Promise<any[]> {
+    return Array.from(this.jobOffers.values())
+      .filter(offer => offer.resumeId === resumeId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async updateJobOfferStatus(id: string, status: string): Promise<any> {
+    const offer = this.jobOffers.get(id);
+    if (!offer) throw new Error('Job offer not found');
+    
+    const updatedOffer = {
+      ...offer,
+      status
+    };
+    
+    this.jobOffers.set(id, updatedOffer);
+    return updatedOffer;
+  }
+
+  async hasUserOfferedJobToResume(userId: string, resumeId: string, jobId: string): Promise<boolean> {
+    return Array.from(this.jobOffers.values())
+      .some(offer => offer.offeredByUserId === userId && offer.resumeId === resumeId && offer.jobId === jobId);
   }
 }
 

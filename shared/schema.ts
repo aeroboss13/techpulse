@@ -156,6 +156,18 @@ export const jobApplications = pgTable("job_applications", {
   appliedAt: timestamp("applied_at").defaultNow(),
 });
 
+// Таблица предложений вакансий для авторов резюме
+export const jobOffers = pgTable("job_offers", {
+  id: varchar("id").primaryKey().notNull(),
+  jobId: varchar("job_id").notNull().references(() => jobs.id),
+  resumeId: varchar("resume_id").notNull().references(() => resumes.id),
+  resumeAuthorId: varchar("resume_author_id").notNull().references(() => users.id),
+  offeredByUserId: varchar("offered_by_user_id").notNull().references(() => users.id),
+  message: text("message"), // персональное сообщение от HR
+  status: varchar("status").default("pending"), // pending, viewed, interested, declined
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
@@ -218,6 +230,12 @@ export const insertJobApplicationSchema = createInsertSchema(jobApplications).pi
   coverLetter: true,
 });
 
+export const insertJobOfferSchema = createInsertSchema(jobOffers).pick({
+  jobId: true,
+  resumeId: true,
+  message: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -232,3 +250,5 @@ export type Resume = typeof resumes.$inferSelect;
 export type InsertResume = z.infer<typeof insertResumeSchema>;
 export type JobApplication = typeof jobApplications.$inferSelect;
 export type InsertJobApplication = z.infer<typeof insertJobApplicationSchema>;
+export type JobOffer = typeof jobOffers.$inferSelect;
+export type InsertJobOffer = z.infer<typeof insertJobOfferSchema>;
