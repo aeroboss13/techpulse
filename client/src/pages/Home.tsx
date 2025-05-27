@@ -1,15 +1,23 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import MainLayout from "@/components/MainLayout";
 import CreatePostCard from "@/components/CreatePostCard";
 import PostCard from "@/components/PostCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
+import Jobs from "./Jobs";
+import Resumes from "./Resumes";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
   const { t, language } = useLanguage();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedExploreTab, setSelectedExploreTab] = useState("trending");
   
   const { data: posts, isLoading, error } = useQuery({
     queryKey: ["/api/posts"],
@@ -18,6 +26,35 @@ export default function Home() {
       if (!res.ok) throw new Error("Failed to fetch posts");
       return res.json();
     },
+  });
+
+  const { data: trendingPosts, isLoading: isTrendingLoading } = useQuery({
+    queryKey: ["/api/posts/trending"],
+    queryFn: async () => {
+      const res = await fetch("/api/posts/trending");
+      if (!res.ok) throw new Error("Failed to fetch trending posts");
+      return res.json();
+    },
+  });
+  
+  const { data: latestPosts, isLoading: isLatestLoading } = useQuery({
+    queryKey: ["/api/posts/latest"],
+    queryFn: async () => {
+      const res = await fetch("/api/posts/latest");
+      if (!res.ok) throw new Error("Failed to fetch latest posts");
+      return res.json();
+    },
+  });
+  
+  const { data: searchResults, isLoading: isSearchLoading, refetch: searchRefetch } = useQuery({
+    queryKey: ["/api/posts/search", searchTerm],
+    queryFn: async () => {
+      if (!searchTerm.trim()) return [];
+      const res = await fetch(`/api/posts/search?q=${encodeURIComponent(searchTerm)}`);
+      if (!res.ok) throw new Error("Failed to search posts");
+      return res.json();
+    },
+    enabled: false,
   });
   
   useEffect(() => {
@@ -54,8 +91,8 @@ export default function Home() {
     </div>
   );
   
-  return (
-    <MainLayout>
+  const renderHomeContent = () => (
+    <>
       {isAuthenticated && <CreatePostCard />}
       
       <div className="space-y-6">
@@ -82,6 +119,49 @@ export default function Home() {
           ))
         )}
       </div>
+    </>
+  );
+
+  return (
+    <MainLayout>
+      <Tabs defaultValue="home" className="w-full">
+        <TabsList className={`grid w-full ${isAuthenticated ? 'grid-cols-3' : 'grid-cols-2'}`}>
+          <TabsTrigger value="home">Главная</TabsTrigger>
+          <TabsTrigger value="explore">Обзор</TabsTrigger>
+          {isAuthenticated && (
+            <TabsTrigger value="work">Работа</TabsTrigger>
+          )}
+        </TabsList>
+        
+        <TabsContent value="home" className="mt-6">
+          {renderHomeContent()}
+        </TabsContent>
+        
+        <TabsContent value="explore" className="mt-6">
+          <div className="text-center p-8">
+            <p className="text-gray-500">Содержимое Обзора будет добавлено позже</p>
+          </div>
+        </TabsContent>
+        
+        {isAuthenticated && (
+          <TabsContent value="work" className="mt-6">
+            <Tabs defaultValue="jobs" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="jobs">Вакансии</TabsTrigger>
+                <TabsTrigger value="resumes">Резюме</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="jobs" className="mt-6">
+                <Jobs />
+              </TabsContent>
+              
+              <TabsContent value="resumes" className="mt-6">
+                <Resumes />
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
+        )}
+      </Tabs>
     </MainLayout>
   );
 }
