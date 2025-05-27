@@ -24,6 +24,8 @@ interface Resume {
   experience: string;
   skills: string[];
   education: string;
+  contactEmail: string;
+  telegramNick: string;
   location: string;
   expectedSalary: string;
   preferredEmploymentType: string;
@@ -233,9 +235,22 @@ export default function Resumes() {
                         <Eye className="h-4 w-4 mr-1" />
                         {language === 'ru' ? 'Детали' : 'Details'}
                       </Button>
-                      {isAuthenticated && (
-                        <Button size="sm">
-                          {language === 'ru' ? 'Связаться' : 'Contact'}
+                      {isAuthenticated && resume.telegramNick && (
+                        <Button 
+                          size="sm" 
+                          asChild
+                          className="bg-blue-500 hover:bg-blue-600 text-white"
+                        >
+                          <a 
+                            href={`https://t.me/${resume.telegramNick.replace('@', '')}`}
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                          >
+                            <svg className="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 0C5.372 0 0 5.373 0 12s5.372 12 12 12 12-5.373 12-12S18.628 0 12 0zm5.568 8.16c-.169 1.58-.896 5.42-1.266 7.175-.157.742-.465 1-.756 1.025-.641.059-1.127-.424-1.748-.832-.97-.635-1.516-.969-2.456-1.551-.108-.067-.208-.135-.287-.202-.109-.09-.137-.202-.07-.31.056-.09.26-.31.43-.46.674-.598 1.82-1.293 2.493-1.85.301-.249.202-.394-.124-.143-.73.564-2.093 1.47-2.864 1.958-.438.277-.916.285-1.414.114-.543-.188-1.156-.394-1.703-.579-.941-.318-1.69-.486-1.624-1.024.033-.269.408-.536 1.123-.8l8.4-3.2c.8-.301 1.5-.2 1.96.12z"/>
+                            </svg>
+                            {language === 'ru' ? 'Связаться' : 'Contact'}
+                          </a>
                         </Button>
                       )}
                     </div>
