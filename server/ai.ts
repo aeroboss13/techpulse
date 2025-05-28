@@ -1,12 +1,11 @@
 import { User, Post } from "@shared/schema";
 
-// Simple AI assistant without external dependencies
+// Local AI assistant without external dependencies
 export async function generateAiSuggestion(prompt: string): Promise<string> {
-  try {
-    // For now, provide helpful programming responses based on keywords
-    const lowerPrompt = prompt.toLowerCase();
-    
-    if (lowerPrompt.includes("react") || lowerPrompt.includes("component")) {
+  // Provide helpful programming responses based on keywords
+  const lowerPrompt = prompt.toLowerCase();
+  
+  if (lowerPrompt.includes("react") || lowerPrompt.includes("component")) {
       return `Here's a React tip: Consider using React.memo() for components that re-render frequently with the same props. This can significantly improve performance! 
 
 \`\`\`jsx
@@ -79,8 +78,8 @@ Which algorithm are you working on? I can suggest specific optimizations!
 #Algorithms #BigO #Performance`;
     }
     
-    // Default response for general programming questions
-    return `Great question! Here are some general programming principles that always help:
+  // Default response for general programming questions
+  return `Great question! Here are some general programming principles that always help:
 
 🎯 **Write clear, readable code** - Your future self will thank you
 🧪 **Test early and often** - Catch bugs before they multiply  
@@ -90,11 +89,7 @@ Which algorithm are you working on? I can suggest specific optimizations!
 What specific technology or problem are you working with? I'd love to provide more targeted advice!
 
 #Programming #BestPractices #ContinuousLearning`;
-    
-  } catch (error) {
-    console.error("Error generating AI suggestion:", error);
-    return "I'm here to help with your programming questions! What would you like to know about?";
-  }
+
 }
 
 // Function to analyze a post's content and provide improvement suggestions
