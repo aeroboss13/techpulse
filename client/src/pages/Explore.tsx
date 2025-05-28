@@ -115,7 +115,7 @@ export default function Explore() {
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
         <TabsList className="w-full">
           <TabsTrigger value="trending" className="flex-1">{t('general.trending')}</TabsTrigger>
-          <TabsTrigger value="latest" className="flex-1">{t('general.latest')}</TabsTrigger>
+          <TabsTrigger value="latest" className="flex-1">{language === 'ru' ? 'Сохраненное' : 'Bookmarked'}</TabsTrigger>
           {searchTerm && (
             <TabsTrigger value="search" className="flex-1">{language === 'ru' ? 'Результаты поиска' : 'Search Results'}</TabsTrigger>
           )}
@@ -143,21 +143,21 @@ export default function Explore() {
         </TabsContent>
         
         <TabsContent value="latest" className="space-y-6 mt-6">
-          {isLatestLoading ? (
+          {isBookmarkedLoading ? (
             <>
               {renderPostSkeleton()}
               {renderPostSkeleton()}
               {renderPostSkeleton()}
             </>
-          ) : latestPosts?.length === 0 ? (
+          ) : bookmarkedPosts?.length === 0 ? (
             <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center">
-              <h3 className="text-xl font-medium mb-2">{language === 'ru' ? 'Пока нет постов' : 'No posts yet'}</h3>
+              <h3 className="text-xl font-medium mb-2">{language === 'ru' ? 'У вас пока нет сохраненных постов' : 'No bookmarked posts yet'}</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                {language === 'ru' ? 'Будьте первым, кто поделится чем-то с сообществом!' : 'Be the first to share something with the community!'}
+                {language === 'ru' ? 'Сохраняйте интересные посты, нажимая на иконку закладки!' : 'Save interesting posts by clicking the bookmark icon!'}
               </p>
             </div>
           ) : (
-            latestPosts?.map((post: any) => (
+            bookmarkedPosts?.map((post: any) => (
               <PostCard key={post.id} post={post} />
             ))
           )}

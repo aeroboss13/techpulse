@@ -429,6 +429,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user's bookmarked posts
+  app.get('/api/user/bookmarked-posts', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      // Get all posts that this user has bookmarked
+      const allPosts = await storage.getAllPosts();
+      const bookmarkedPosts = [];
+      
+      for (const post of allPosts) {
+        const isBookmarked = await storage.isPostBookmarkedByUser(post.id, userId);
+        if (isBookmarked) {
+          bookmarkedPosts.push(post);
+        }
+      }
+      
+      const enhancedPosts = await Promise.all(bookmarkedPosts.map(async (post) => {
+        const user = await storage.getUser(post.userId);
+        const isLiked = await storage.isPostLikedByUser(post.id, userId);
+        const isBookmarked = await storage.isPostBookmarkedByUser(post.id, userId);
+        
+        return {
+          ...post,
+          isLiked,
+          isBookmarked,
+          user: {
+            id: user?.id,
+            username: user?.username || user?.email?.split('@')[0] || 'user',
+            displayName: user?.firstName || user?.email?.split('@')[0] || 'User',
+            profileImageUrl: user?.profileImageUrl
+          }
+        };
+      }));
+      
+      res.json(enhancedPosts);
+    } catch (error) {
+      console.error("Error fetching bookmarked posts:", error);
+      res.status(500).json({ message: "Failed to fetch bookmarked posts" });
+    }
+  });
+
   app.post('/api/posts', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.session.userId;
