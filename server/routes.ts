@@ -467,6 +467,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (liked) {
         await storage.likePost(postId, userId);
+        
+        // Создаем уведомление для автора поста (если это не сам автор)
+        const posts = await storage.getAllPosts();
+        const post = posts.find(p => p.id === postId);
+        if (post && post.userId !== userId) {
+          const user = await storage.getUser(userId);
+          const username = user?.username || user?.firstName || user?.email?.split('@')[0] || 'Пользователь';
+          
+          await storage.createNotification({
+            userId: post.userId,
+            fromUserId: userId,
+            type: 'like',
+            message: `${username} оценил ваш пост`,
+          });
+        }
       } else {
         await storage.unlikePost(postId, userId);
       }
@@ -515,6 +530,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('[FOLLOW DEBUG] About to follow user');
         await storage.followUser(userId, targetUserId);
         console.log(`[FOLLOW DEBUG] User ${userId} followed user ${targetUserId}`);
+        
+        // Создаем уведомление о новом подписчике
+        const user = await storage.getUser(userId);
+        const username = user?.username || user?.firstName || user?.email?.split('@')[0] || 'Пользователь';
+        
+        await storage.createNotification({
+          userId: targetUserId,
+          fromUserId: userId,
+          type: 'follow',
+          message: `${username} подписался на вас`,
+        });
       } else {
         console.log('[FOLLOW DEBUG] About to unfollow user');
         await storage.unfollowUser(userId, targetUserId);
