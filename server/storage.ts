@@ -275,13 +275,27 @@ export class MemStorage implements IStorage {
   }
 
   async getUserFollowersCount(userId: string): Promise<number> {
-    // Возвращаем 0 для новых пользователей
-    return 0;
+    console.log(`[FOLLOWERS COUNT] Counting followers for user ${userId}`);
+    let count = 0;
+    for (const follow of this.follows.values()) {
+      if (follow.followingId === userId) {
+        count++;
+      }
+    }
+    console.log(`[FOLLOWERS COUNT] User ${userId} has ${count} followers`);
+    return count;
   }
 
   async getUserFollowingCount(userId: string): Promise<number> {
-    // Возвращаем 0 для новых пользователей
-    return 0;
+    console.log(`[FOLLOWING COUNT] Counting following for user ${userId}`);
+    let count = 0;
+    for (const follow of this.follows.values()) {
+      if (follow.followerId === userId) {
+        count++;
+      }
+    }
+    console.log(`[FOLLOWING COUNT] User ${userId} is following ${count} users`);
+    return count;
   }
 
   async getSuggestedUsers(userId: string): Promise<any[]> {
