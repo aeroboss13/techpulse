@@ -74,16 +74,27 @@ export default function Explore() {
   });
 
   // Query for hashtag posts
-  const { data: hashtagPosts, isLoading: isHashtagLoading } = useQuery({
+  const { data: hashtagPosts, isLoading: isHashtagLoading, refetch: refetchHashtagPosts } = useQuery({
     queryKey: ["/api/posts/hashtag", selectedHashtag],
     queryFn: async () => {
       if (!selectedHashtag) return [];
+      console.log('[HASHTAG QUERY] Fetching posts for:', selectedHashtag);
       const res = await fetch(`/api/posts/hashtag/${encodeURIComponent(selectedHashtag)}`);
       if (!res.ok) throw new Error("Failed to fetch hashtag posts");
-      return res.json();
+      const posts = await res.json();
+      console.log('[HASHTAG QUERY] Found posts:', posts.length);
+      return posts;
     },
     enabled: !!selectedHashtag && selectedTab === "hashtag",
   });
+
+  // Принудительное обновление при изменении хэштега
+  useEffect(() => {
+    if (selectedHashtag && selectedTab === "hashtag") {
+      console.log('[HASHTAG EFFECT] Refetching posts for:', selectedHashtag);
+      refetchHashtagPosts();
+    }
+  }, [selectedHashtag, selectedTab]);
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
