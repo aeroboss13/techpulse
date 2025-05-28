@@ -39,6 +39,7 @@ export interface IStorage {
   getUserPosts(userId: string): Promise<Post[]>;
   getUserPostsCount(userId: string): Promise<number>;
   getUserLikedPosts(userId: string): Promise<Post[]>;
+  getFollowingPosts(userId: string): Promise<Post[]>;
   createPost(post: any): Promise<Post>;
   
   // Like operations
@@ -333,6 +334,21 @@ export class MemStorage implements IStorage {
     
     return Array.from(this.posts.values())
       .filter(post => likedPostIds.includes(post.id))
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getFollowingPosts(userId: string): Promise<Post[]> {
+    // Получаем список пользователей, на которых подписан текущий пользователь
+    const followingUserIds = Array.from(this.follows.values())
+      .filter(follow => follow.followerId === userId)
+      .map(follow => follow.followingId);
+    
+    // Добавляем собственные посты пользователя
+    followingUserIds.push(userId);
+    
+    // Возвращаем посты от подписок и собственные посты
+    return Array.from(this.posts.values())
+      .filter(post => followingUserIds.includes(post.userId))
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 

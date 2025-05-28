@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import * as React from 'react';
 import { useParams } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import MainLayout from '@/components/MainLayout';
@@ -34,6 +35,19 @@ export default function Profile() {
     queryKey: [`/api/users/${userId}/stats`],
   });
 
+  // Проверяем статус подписки при загрузке
+  const { data: followStatus } = useQuery({
+    queryKey: [`/api/users/${userId}/follow-status`],
+    enabled: !!currentUser && currentUser.id !== userId,
+  });
+
+  // Обновляем состояние подписки при получении данных
+  React.useEffect(() => {
+    if (followStatus?.isFollowing !== undefined) {
+      setIsFollowing(followStatus.isFollowing);
+    }
+  }, [followStatus]);
+
   const followMutation = useMutation({
     mutationFn: async (followed: boolean) => {
       return await apiRequest(`/api/users/${userId}/follow`, {
@@ -43,6 +57,8 @@ export default function Profile() {
       });
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}/follow-status`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}/stats`] });
       queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}`] });
     }
   });

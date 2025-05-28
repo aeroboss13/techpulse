@@ -210,7 +210,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Posts
   app.get('/api/posts', async (req: any, res) => {
     try {
-      const posts = await storage.getAllPosts();
+      // Если пользователь авторизован, показываем посты от подписок + собственные
+      // Если не авторизован, показываем все посты
+      const posts = req.session && req.session.userId 
+        ? await storage.getFollowingPosts(req.session.userId)
+        : await storage.getAllPosts();
+        
       const enhancedPosts = await Promise.all(posts.map(async (post) => {
         const user = await storage.getUser(post.userId);
         const isLiked = req.session && req.session.userId 
@@ -508,6 +513,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error following/unfollowing user:", error);
       res.status(500).json({ message: "Failed to follow/unfollow user" });
+    }
+  });
+
+  // Check if user is following another user
+  app.get('/api/users/:id/follow-status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const targetUserId = req.params.id;
+      
+      const isFollowing = await storage.isUserFollowedBy(userId, targetUserId);
+      res.json({ isFollowing });
+    } catch (error) {
+      console.error("Error checking follow status:", error);
+      res.status(500).json({ message: "Failed to check follow status" });
     }
   });
 
