@@ -1,49 +1,99 @@
 import { User, Post } from "@shared/schema";
-import { Ollama } from 'ollama';
 
-// Initialize Ollama client
-const ollama = new Ollama({
-  host: 'http://localhost:11434'
-});
-
-// Function to generate AI suggestions using Ollama
+// Simple AI assistant without external dependencies
 export async function generateAiSuggestion(prompt: string): Promise<string> {
   try {
-    // Call Ollama API
-    const response = await ollama.chat({
-      model: 'llama3.1:8b',
-      messages: [
-        {
-          role: 'system',
-          content: `You are an AI assistant for a social media platform for developers called DevStream. 
-          You help developers with technical questions, generate code examples, and provide suggestions to improve their posts.
-          Your responses should be concise, technical, and in the style of a professional developer.
-          Include emojis sparingly and appropriate hashtags when they make sense.
-          When providing code, make sure it's well-formatted and correct.
-          Limit your responses to 250 words maximum.`
-        },
-        { role: 'user', content: prompt }
-      ],
-      options: {
-        temperature: 0.7,
-        num_predict: 500,
-      }
-    });
+    // For now, provide helpful programming responses based on keywords
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (lowerPrompt.includes("react") || lowerPrompt.includes("component")) {
+      return `Here's a React tip: Consider using React.memo() for components that re-render frequently with the same props. This can significantly improve performance! 
 
-    return response.message?.content || "Sorry, I couldn't generate a response. Please try again.";
-  } catch (error) {
-    console.error("Error calling Ollama API:", error);
-    
-    // Fallback response for API errors
-    if (prompt.includes("bug") || prompt.includes("error")) {
-      return `I recently encountered a challenging bug in my codebase that had me puzzled for hours. After careful debugging and tracing through the execution flow, I discovered that the issue was related to an unexpected state mutation. The fix was surprisingly simple: implementing proper immutability patterns solved the problem entirely! 💡 #DebuggingWins #CleanCode`;
-    } 
-    
-    if (prompt.includes("learn") || prompt.includes("studying")) {
-      return `I've been diving deep into advanced TypeScript patterns lately and it's been a game-changer for my development workflow. Type safety combined with powerful generics has eliminated an entire category of bugs in our production systems. Highly recommend investing time to master these concepts! 📚 #TypeScript #ContinuousLearning`;
+\`\`\`jsx
+const MyComponent = React.memo(({ data }) => {
+  return <div>{data.name}</div>;
+});
+\`\`\`
+
+#React #Performance #WebDev`;
     }
     
-    return `Just had a breakthrough moment refactoring our codebase! Reduced complexity by 40% and improved performance by implementing proper design patterns. Code quality matters more than we often realize! 💻 #CleanCode #Refactoring`;
+    if (lowerPrompt.includes("javascript") || lowerPrompt.includes("js")) {
+      return `JavaScript pro tip: Use optional chaining (?.) to safely access nested object properties without errors!
+
+\`\`\`js
+// Instead of this:
+if (user && user.profile && user.profile.settings) {
+  console.log(user.profile.settings.theme);
+}
+
+// Use this:
+console.log(user?.profile?.settings?.theme);
+\`\`\`
+
+#JavaScript #ES2020 #CleanCode`;
+    }
+    
+    if (lowerPrompt.includes("python") || lowerPrompt.includes("data")) {
+      return `Python data processing tip: Use list comprehensions for cleaner, faster code!
+
+\`\`\`python
+# Instead of loops:
+result = []
+for item in data:
+    if item > 0:
+        result.append(item * 2)
+
+# Use comprehension:
+result = [item * 2 for item in data if item > 0]
+\`\`\`
+
+#Python #DataScience #Optimization`;
+    }
+    
+    if (lowerPrompt.includes("bug") || lowerPrompt.includes("debug")) {
+      return `Debugging strategy that works every time:
+
+1. 🔍 **Reproduce** the issue consistently
+2. 📝 **Log** key variables at each step  
+3. 🔬 **Isolate** the problem area
+4. 🧪 **Test** your hypothesis
+5. ✅ **Verify** the fix
+
+The key is being systematic, not rushing! What specific issue are you facing?
+
+#Debugging #ProblemSolving #DevTips`;
+    }
+    
+    if (lowerPrompt.includes("algorithm") || lowerPrompt.includes("performance")) {
+      return `Algorithm optimization tip: Always consider time complexity!
+
+Common patterns:
+• O(1) - Hash maps for lookups
+• O(log n) - Binary search on sorted data  
+• O(n) - Single pass through data
+• O(n²) - Nested loops (often can be improved!)
+
+Which algorithm are you working on? I can suggest specific optimizations!
+
+#Algorithms #BigO #Performance`;
+    }
+    
+    // Default response for general programming questions
+    return `Great question! Here are some general programming principles that always help:
+
+🎯 **Write clear, readable code** - Your future self will thank you
+🧪 **Test early and often** - Catch bugs before they multiply  
+📚 **Keep learning** - Technology evolves fast
+🤝 **Ask for help** - Code reviews make everyone better
+
+What specific technology or problem are you working with? I'd love to provide more targeted advice!
+
+#Programming #BestPractices #ContinuousLearning`;
+    
+  } catch (error) {
+    console.error("Error generating AI suggestion:", error);
+    return "I'm here to help with your programming questions! What would you like to know about?";
   }
 }
 
@@ -55,44 +105,80 @@ export async function analyzePost(postContent: string): Promise<{
   readability: 'easy' | 'medium' | 'complex';
 }> {
   try {
-    const response = await ollama.chat({
-      model: 'llama3.1:8b',
-      messages: [
-        {
-          role: "system",
-          content: `Analyze this developer's social media post and provide:
-          1. A list of 3-5 specific suggestions to improve engagement
-          2. Key technical topics mentioned with relevance scores (0.0-1.0)
-          3. Overall sentiment (positive, neutral, or negative)
-          4. Readability assessment (easy, medium, or complex)
-          
-          Return your analysis in JSON format with these keys:
-          - suggestions: string[]
-          - topics: array of {name: string, relevance: number}
-          - sentiment: "positive" | "neutral" | "negative"
-          - readability: "easy" | "medium" | "complex" 
-          `
-        },
-        { role: "user", content: postContent }
-      ],
-      format: 'json',
-      options: {
-        temperature: 0.5,
+    const content = postContent.toLowerCase();
+    const suggestions: string[] = [];
+    const topics: {name: string, relevance: number}[] = [];
+    
+    // Analyze content for suggestions
+    if (!content.includes('```') && !content.includes('code')) {
+      suggestions.push("Add a code example to illustrate your point");
+    }
+    
+    if (!content.includes('#')) {
+      suggestions.push("Include relevant hashtags to increase visibility");
+    }
+    
+    if (!content.includes('?')) {
+      suggestions.push("Ask a question to encourage community discussion");
+    }
+    
+    if (content.length < 50) {
+      suggestions.push("Expand your post with more details or context");
+    }
+    
+    if (content.length > 500) {
+      suggestions.push("Consider breaking this into multiple posts for better engagement");
+    }
+    
+    // Detect technical topics
+    const techKeywords = [
+      { name: 'JavaScript', keywords: ['javascript', 'js', 'react', 'node', 'vue', 'angular'] },
+      { name: 'Python', keywords: ['python', 'django', 'flask', 'pandas', 'numpy'] },
+      { name: 'Web Development', keywords: ['html', 'css', 'frontend', 'backend', 'api'] },
+      { name: 'Database', keywords: ['sql', 'mongodb', 'database', 'postgresql', 'mysql'] },
+      { name: 'DevOps', keywords: ['docker', 'kubernetes', 'aws', 'cloud', 'deployment'] },
+      { name: 'Mobile', keywords: ['mobile', 'android', 'ios', 'flutter', 'react native'] }
+    ];
+    
+    techKeywords.forEach(tech => {
+      const matches = tech.keywords.filter(keyword => content.includes(keyword));
+      if (matches.length > 0) {
+        topics.push({
+          name: tech.name,
+          relevance: Math.min(matches.length / tech.keywords.length, 1)
+        });
       }
     });
-
-    const result = JSON.parse(response.message?.content || "{}");
+    
+    // Determine sentiment
+    const positiveWords = ['great', 'awesome', 'love', 'amazing', 'excellent', 'fantastic'];
+    const negativeWords = ['bad', 'terrible', 'hate', 'awful', 'broken', 'frustrating'];
+    
+    const positiveCount = positiveWords.filter(word => content.includes(word)).length;
+    const negativeCount = negativeWords.filter(word => content.includes(word)).length;
+    
+    let sentiment: 'positive' | 'neutral' | 'negative' = 'neutral';
+    if (positiveCount > negativeCount) sentiment = 'positive';
+    if (negativeCount > positiveCount) sentiment = 'negative';
+    
+    // Determine readability
+    const sentences = content.split(/[.!?]+/).length;
+    const words = content.split(/\s+/).length;
+    const avgWordsPerSentence = words / sentences;
+    
+    let readability: 'easy' | 'medium' | 'complex' = 'medium';
+    if (avgWordsPerSentence < 15) readability = 'easy';
+    if (avgWordsPerSentence > 25) readability = 'complex';
     
     return {
-      suggestions: result.suggestions || [],
-      topics: result.topics || [],
-      sentiment: result.sentiment || 'neutral',
-      readability: result.readability || 'medium'
+      suggestions,
+      topics,
+      sentiment,
+      readability
     };
   } catch (error) {
-    console.error("Error analyzing post with Ollama:", error);
+    console.error("Error analyzing post:", error);
     
-    // Fallback response
     return {
       suggestions: [
         "Add a code example to illustrate your point",
@@ -111,141 +197,86 @@ export async function analyzePost(postContent: string): Promise<{
 
 // Function to generate content ideas based on user's interests
 export async function generateContentIdeas(topics: string[], count: number = 5): Promise<string[]> {
-  try {
-    const topicsString = topics.join(", ");
-    
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-      messages: [
-        {
-          role: "system",
-          content: `Generate ${count} creative post ideas for a developer to share on a technical social media platform.
-          The ideas should be related to these topics: ${topicsString}.
-          Each idea should be engaging, showcase technical expertise, and encourage discussion.
-          Format each idea as a single paragraph of 1-2 sentences.
-          Return the ideas as a JSON array of strings.`
-        }
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.8,
-    });
-
-    const result = JSON.parse(response.choices[0].message.content || "{}");
-    return result.ideas || [];
-  } catch (error) {
-    console.error("Error generating content ideas with OpenAI:", error);
-    
-    // Fallback ideas
-    return [
-      "Share your experience with the latest framework update and how it improved your development workflow.",
-      "Post a code snippet that demonstrates a clever optimization technique you discovered recently.",
-      "Discuss a challenging bug you solved and the debugging process that led to the solution.",
-      "Explain a complex technical concept using a simple, real-world analogy that anyone can understand.",
-      "Share your top 3 productivity tools or VSCode extensions that every developer should know about."
-    ];
+  const ideas: string[] = [];
+  
+  const ideaTemplates = [
+    "Share your experience with {topic} and how it improved your development workflow",
+    "Post a code snippet demonstrating a clever {topic} technique you discovered recently",
+    "Discuss common {topic} mistakes and how to avoid them", 
+    "Explain a complex {topic} concept using simple, real-world analogies",
+    "Share your favorite {topic} tools and resources that every developer should know",
+    "Write about the latest updates in {topic} and their impact on development",
+    "Create a beginner's guide to getting started with {topic}",
+    "Compare different approaches to solving problems in {topic}",
+    "Share a challenging {topic} project you completed and lessons learned",
+    "Discuss best practices for {topic} that you wish you knew earlier"
+  ];
+  
+  for (let i = 0; i < count && i < ideaTemplates.length; i++) {
+    const template = ideaTemplates[i];
+    const topic = topics[i % topics.length] || "programming";
+    ideas.push(template.replace('{topic}', topic));
   }
+  
+  return ideas;
 }
 
-// AI recommendation function - uses both mock data and AI generation
+// AI recommendation function with local suggestions
 export async function getAiRecommendations(
   user: User | undefined,
   userPosts: Post[],
   likedPosts: Post[]
 ): Promise<Post[]> {
-  // Create base recommendations with mock data
   const recommendations: Post[] = [];
   
-  // Add mock recommendations for consistent experience
+  // Create educational recommendations
   recommendations.push({
     id: "rec1",
     userId: "ai-rec-1",
-    content: "Built a simple pandas trick that boosted my data processing pipeline by 70%. Here's the before and after:",
-    codeSnippet: `# Before: Slow iterative approach
-for index, row in df.iterrows():
-    # process each row
-    result = process_data(row)
-    results.append(result)
+    content: "Built a performance optimization that reduced our React app load time by 60%! Here's the key technique:",
+    codeSnippet: `// Lazy loading components with React.lazy()
+const LazyComponent = React.lazy(() => import('./HeavyComponent'));
 
-# After: Vectorized operations
-df['processed'] = df.apply(process_data, axis=1)
-# OR even better
-df['processed'] = process_data_vectorized(df)`,
-    language: "python",
-    tags: ["Python", "DataScience"],
+function App() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LazyComponent />
+    </Suspense>
+  );
+}`,
+    language: "javascript",
+    tags: ["React", "Performance"],
     likes: 203,
     comments: 18,
     isAiRecommended: true,
-    aiRecommendationReason: "Recommended based on your interest in Python and Data Science",
-    image: "https://images.unsplash.com/photo-1531482615713-2afd69097998",
-    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+    aiRecommendationReason: "Recommended based on popular React optimization techniques",
+    image: null,
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
     updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000)
   });
   
-  // Create a React performance recommendation
   recommendations.push({
-    id: "rec2",
+    id: "rec2", 
     userId: "ai-rec-2",
-    content: "Just solved a tricky React performance issue with useMemo. Remember folks: not all renders are created equal! 🚀",
-    codeSnippet: `// Before: Re-computing on every render 😱
-const filteredItems = items.filter(item => 
-  item.name.includes(searchTerm)
-);
-
-// After: Only recompute when dependencies change 🎉
-const filteredItems = React.useMemo(() => {
-  return items.filter(item => 
-    item.name.includes(searchTerm)
-  );
-}, [items, searchTerm]);`,
-    language: "javascript",
-    tags: ["React", "Performance"],
+    content: "Python developers: This one-liner can save you hours of debugging! 🐍✨",
+    codeSnippet: `# Use the walrus operator for cleaner conditionals
+if (n := len(data)) > 10:
+    print(f"Processing {n} items...")
+    
+# Instead of:
+# n = len(data)
+# if n > 10:
+#     print(f"Processing {n} items...")`,
+    language: "python",
+    tags: ["Python", "Tips"],
     likes: 142,
     comments: 24,
     isAiRecommended: true,
-    aiRecommendationReason: "Recommended based on your frontend development activity",
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    aiRecommendationReason: "Educational content about modern Python features",
+    image: null,
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
     updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
   });
-  
-  // Attempt to generate a personalized recommendation if we have user data
-  try {
-    if (user && (userPosts.length > 0 || likedPosts.length > 0)) {
-      // Extract topics from user's posts and likes
-      const userTopics = new Set<string>();
-      
-      userPosts.forEach(post => {
-        post.tags?.forEach(tag => userTopics.add(tag));
-      });
-      
-      likedPosts.forEach(post => {
-        post.tags?.forEach(tag => userTopics.add(tag));
-      });
-      
-      // If we have topics, generate a personalized recommendation
-      if (userTopics.size > 0) {
-        const topicsArray = Array.from(userTopics).slice(0, 5);
-        const ideas = await generateContentIdeas(topicsArray, 1);
-        
-        if (ideas.length > 0) {
-          // Create AI-generated personalized recommendation
-          recommendations.push({
-            id: "rec-personalized",
-            userId: "ai-personalized",
-            content: ideas[0],
-            tags: topicsArray,
-            likes: Math.floor(Math.random() * 100) + 50,
-            comments: Math.floor(Math.random() * 20) + 5,
-            isAiRecommended: true,
-            aiRecommendationReason: `Personalized recommendation based on your interests in ${topicsArray.join(", ")}`,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          });
-        }
-      }
-    }
-  } catch (error) {
-    console.error("Error generating personalized recommendation:", error);
-  }
   
   return recommendations;
 }
