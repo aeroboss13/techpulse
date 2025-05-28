@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import MainLayout from '@/components/MainLayout';
@@ -6,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PostCard from '@/components/PostCard';
+import EditProfileDialog from '@/components/EditProfileDialog';
 import { useLanguage } from '@/components/LanguageProvider';
 import { useAuth } from '@/hooks/useAuth';
 import { CalendarDays, MapPin, Users, MessageSquare, Heart, Code, Briefcase } from 'lucide-react';
@@ -14,6 +16,7 @@ export default function Profile() {
   const { userId } = useParams();
   const { t } = useLanguage();
   const { user: currentUser } = useAuth();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const { data: profileUser, isLoading: userLoading } = useQuery({
     queryKey: [`/api/users/${userId}`],
@@ -65,8 +68,12 @@ export default function Profile() {
                   </AvatarFallback>
                 </Avatar>
                 {isOwnProfile && (
-                  <Button variant="outline" size="sm">
-                    {t('profile.editProfile')}
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setIsEditDialogOpen(true)}
+                  >
+                    Редактировать профиль
                   </Button>
                 )}
               </div>
@@ -170,6 +177,16 @@ export default function Profile() {
           </TabsContent>
         </Tabs>
       </div>
+      
+      <EditProfileDialog 
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        profileData={profileUser}
+        onProfileUpdate={() => {
+          // Refresh profile data after update
+          window.location.reload();
+        }}
+      />
     </MainLayout>
   );
 }
