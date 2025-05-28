@@ -170,7 +170,7 @@ export default function AIAssistant() {
   });
 
   // Преобразуем посты пользователя в формат для анализа
-  const postsForAnalysis: PostAnalysis[] = userPosts.map((post: any) => ({
+  const postsForAnalysis: PostAnalysis[] = Array.isArray(userPosts) ? userPosts.map((post: any) => ({
     id: post.id,
     content: post.content,
     engagement: (post.likes || 0) + (post.comments || 0),
@@ -178,7 +178,7 @@ export default function AIAssistant() {
     topics: extractTopics(post.content),
     sentiment: analyzeSentiment(post.content),
     readability: analyzeReadability(post.content)
-  }));
+  })) : [];
 
   // Функции для анализа постов
   function generateSuggestions(post: any): string[] {
@@ -205,7 +205,8 @@ export default function AIAssistant() {
     
     for (const keyword of techKeywords) {
       if (lowerContent.includes(keyword.toLowerCase())) {
-        const relevance = (content.match(new RegExp(keyword, 'gi')) || []).length * 0.3;
+        const matches = content.match(new RegExp(keyword, 'g')) || [];
+        const relevance = matches.length * 0.3;
         topics.push({ name: keyword, relevance: Math.min(relevance, 1) });
       }
     }
@@ -657,27 +658,39 @@ export default function AIAssistant() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="p-4 max-h-[50vh] overflow-y-auto">
-                    <div className="space-y-3">
-                      {MOCK_POSTS_FOR_ANALYSIS.map((post) => (
-                        <div 
-                          key={post.id} 
-                          className={`p-3 rounded-lg border cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${selectedPost?.id === post.id ? 'border-primary' : 'border-gray-200 dark:border-gray-700'}`}
-                          onClick={() => handleSelectPost(post)}
-                        >
-                          <p className="text-sm line-clamp-2">{post.content}</p>
-                          <div className="flex items-center mt-2 text-xs text-gray-500">
-                            <div className="flex items-center mr-3">
-                              <MessageSquare className="h-3 w-3 mr-1" />
-                              <span>ID: {post.id}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <BarChart className="h-3 w-3 mr-1" />
-                              <span>{language === 'en' ? 'Engagement' : 'Вовлеченность'}: {post.engagement}</span>
+                    {isLoadingPosts ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                        <span className="ml-2">{language === 'en' ? 'Loading your posts...' : 'Загружаем ваши посты...'}</span>
+                      </div>
+                    ) : postsForAnalysis.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                        <p>{language === 'en' ? 'No posts found. Create your first post to see analysis!' : 'Посты не найдены. Создайте первый пост для анализа!'}</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {postsForAnalysis.map((post) => (
+                          <div 
+                            key={post.id} 
+                            className={`p-3 rounded-lg border cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${selectedPost?.id === post.id ? 'border-primary' : 'border-gray-200 dark:border-gray-700'}`}
+                            onClick={() => handleSelectPost(post)}
+                          >
+                            <p className="text-sm line-clamp-2">{post.content}</p>
+                            <div className="flex items-center mt-2 text-xs text-gray-500">
+                              <div className="flex items-center mr-3">
+                                <MessageSquare className="h-3 w-3 mr-1" />
+                                <span>{post.id.slice(0, 8)}...</span>
+                              </div>
+                              <div className="flex items-center">
+                                <BarChart className="h-3 w-3 mr-1" />
+                                <span>{language === 'en' ? 'Engagement' : 'Вовлеченность'}: {post.engagement}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
