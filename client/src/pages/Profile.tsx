@@ -50,22 +50,35 @@ export default function Profile() {
 
   const followMutation = useMutation({
     mutationFn: async (followed: boolean) => {
-      return await apiRequest(`/api/users/${userId}/follow`, {
+      console.log('Отправка запроса подписки:', followed);
+      const response = await apiRequest(`/api/users/${userId}/follow`, {
         method: 'POST',
         body: JSON.stringify({ followed }),
         headers: { 'Content-Type': 'application/json' }
       });
+      console.log('Ответ сервера:', response);
+      return response;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Успешная подписка, обновляем кэш');
+      // Обновляем локальное состояние на основе ответа сервера
+      if (data && typeof data.isFollowing === 'boolean') {
+        setIsFollowing(data.isFollowing);
+      }
       queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}/follow-status`] });
       queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}/stats`] });
       queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}`] });
+    },
+    onError: (error) => {
+      console.error('Ошибка подписки:', error);
+      // Возвращаем предыдущее состояние при ошибке
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}/follow-status`] });
     }
   });
 
   const handleFollowToggle = () => {
     const newFollowState = !isFollowing;
-    setIsFollowing(newFollowState);
+    console.log('Клик по кнопке подписки, новое состояние:', newFollowState);
     followMutation.mutate(newFollowState);
   };
 
