@@ -10,7 +10,8 @@ import PostCard from '@/components/PostCard';
 import EditProfileDialog from '@/components/EditProfileDialog';
 import { useLanguage } from '@/components/LanguageProvider';
 import { useAuth } from '@/hooks/useAuth';
-import { CalendarDays, MapPin, Users, MessageSquare, Heart, Code, Briefcase } from 'lucide-react';
+import { CalendarDays, MapPin, Users, MessageSquare, Heart, Code, Briefcase, Github } from 'lucide-react';
+import { SiTelegram, SiX } from 'react-icons/si';
 
 export default function Profile() {
   const { userId } = useParams();
@@ -109,6 +110,46 @@ export default function Profile() {
                       </a>
                     </div>
                   )}
+                  
+                  {/* Social Media Links */}
+                  <div className="flex items-center gap-4">
+                    {profileUser?.github && (
+                      <a 
+                        href={profileUser.github.startsWith('http') ? profileUser.github : `https://github.com/${profileUser.github}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors p-2 rounded-lg hover:bg-accent"
+                      >
+                        <Github className="h-5 w-5" />
+                        <span className="text-sm font-medium">GitHub</span>
+                      </a>
+                    )}
+                    
+                    {profileUser?.telegram && (
+                      <a 
+                        href={profileUser.telegram.startsWith('http') ? profileUser.telegram : `https://t.me/${profileUser.telegram}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-muted-foreground hover:text-[#0088cc] transition-colors p-2 rounded-lg hover:bg-accent"
+                      >
+                        <SiTelegram className="h-5 w-5" />
+                        <span className="text-sm font-medium">Telegram</span>
+                      </a>
+                    )}
+                    
+                    {profileUser?.twitter && (
+                      <a 
+                        href={profileUser.twitter.startsWith('http') ? profileUser.twitter : `https://twitter.com/${profileUser.twitter}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-muted-foreground hover:text-[#1da1f2] transition-colors p-2 rounded-lg hover:bg-accent"
+                      >
+                        <SiX className="h-5 w-5" />
+                        <span className="text-sm font-medium">Twitter</span>
+                      </a>
+                    )}
+                  </div>
+                  
                   <div className="flex items-center gap-1">
                     <CalendarDays className="h-4 w-4" />
                     <span>

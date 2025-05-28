@@ -41,6 +41,7 @@ export default function EditProfileDialog({
     website: profileData?.website || '',
     github: profileData?.github || '',
     twitter: profileData?.twitter || '',
+    telegram: profileData?.telegram || '',
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);

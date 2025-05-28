@@ -28,6 +28,7 @@ export const users = pgTable("users", {
   website: varchar("website"),
   github: varchar("github"),
   twitter: varchar("twitter"),
+  telegram: varchar("telegram"),
   language: varchar("language").default("en"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
