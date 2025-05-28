@@ -433,9 +433,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/user/bookmarked-posts', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.session.userId;
+      console.log('[BOOKMARKS] Getting bookmarked posts for user:', userId);
+      
       // Get all posts that this user has bookmarked
       const bookmarkedPosts = await storage.getUserBookmarkedPosts(userId);
-      console.log('Bookmarked posts for user:', userId, 'found:', bookmarkedPosts.length);
+      console.log('[BOOKMARKS] Found bookmarked posts:', bookmarkedPosts.length);
+      console.log('[BOOKMARKS] Posts:', bookmarkedPosts.map(p => ({ id: p.id, content: p.content?.substring(0, 50) })));
       
       const enhancedPosts = await Promise.all(bookmarkedPosts.map(async (post) => {
         const user = await storage.getUser(post.userId);

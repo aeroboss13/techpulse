@@ -450,6 +450,8 @@ export class MemStorage implements IStorage {
     const existingBookmark = Array.from(this.bookmarks.values())
       .find(bookmark => bookmark.postId === postId && bookmark.userId === userId);
     
+    console.log('[BOOKMARKS] Bookmark request:', { postId, userId, existingBookmark: !!existingBookmark });
+    
     if (!existingBookmark) {
       this.bookmarks.set(bookmarkId, {
         id: bookmarkId,
@@ -457,6 +459,9 @@ export class MemStorage implements IStorage {
         userId,
         createdAt: new Date()
       });
+      console.log('[BOOKMARKS] Bookmark created:', bookmarkId, 'Total bookmarks:', this.bookmarks.size);
+    } else {
+      console.log('[BOOKMARKS] Bookmark already exists');
     }
   }
 
@@ -475,12 +480,20 @@ export class MemStorage implements IStorage {
   }
 
   async getUserBookmarkedPosts(userId: string): Promise<Post[]> {
+    console.log('[BOOKMARKS] Getting bookmarks for user:', userId);
+    console.log('[BOOKMARKS] Total bookmarks in storage:', this.bookmarks.size);
+    
     const userBookmarks = Array.from(this.bookmarks.values())
       .filter(bookmark => bookmark.userId === userId);
+    
+    console.log('[BOOKMARKS] User bookmarks found:', userBookmarks.length);
+    console.log('[BOOKMARKS] User bookmark IDs:', userBookmarks.map(b => ({ id: b.id, postId: b.postId })));
     
     const bookmarkedPosts = userBookmarks
       .map(bookmark => this.posts.get(bookmark.postId))
       .filter(post => post !== undefined) as Post[];
+    
+    console.log('[BOOKMARKS] Bookmarked posts found:', bookmarkedPosts.length);
     
     return bookmarkedPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
