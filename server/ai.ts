@@ -9,8 +9,23 @@ export async function generateAiSuggestion(prompt: string): Promise<string> {
   const lowerPrompt = prompt.toLowerCase();
   console.log("Processed prompt:", lowerPrompt);
   
-  if (lowerPrompt.includes("react") || lowerPrompt.includes("component")) {
-    return `Here's a React tip: Consider using React.memo() for components that re-render frequently with the same props. This can significantly improve performance! 
+  // Handle greetings in Russian and English
+  if (lowerPrompt.includes("привет") || lowerPrompt.includes("hello") || lowerPrompt.includes("hi")) {
+    return `Привет! 👋 Я ваш ИИ-помощник по программированию. Готов помочь с:
+
+🔸 **React** - компоненты, хуки, оптимизация
+🔸 **JavaScript** - современный синтаксис, асинхронность 
+🔸 **Python** - лучшие практики, алгоритмы
+🔸 **Отладка** - поиск и исправление ошибок
+🔸 **Алгоритмы** - оптимизация производительности
+
+Задавайте любые технические вопросы! 
+
+#ПрограммированиеПомощь #ИИАссистент`;
+  }
+
+  if (lowerPrompt.includes("react") || lowerPrompt.includes("component") || lowerPrompt.includes("реакт")) {
+    return `Совет по React: Используйте React.memo() для компонентов, которые часто перерендериваются с одинаковыми props. Это значительно улучшит производительность! 
 
 \`\`\`jsx
 const MyComponent = React.memo(({ data }) => {
@@ -21,7 +36,7 @@ const MyComponent = React.memo(({ data }) => {
 #React #Performance #WebDev`;
   }
   
-  if (lowerPrompt.includes("javascript") || lowerPrompt.includes("js")) {
+  if (lowerPrompt.includes("javascript") || lowerPrompt.includes("js") || lowerPrompt.includes("джаваскрипт")) {
     return `JavaScript best practice: Use async/await instead of promise chains for cleaner, more readable code!
 
 \`\`\`javascript
