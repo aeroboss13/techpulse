@@ -6,7 +6,7 @@ export async function generateAiSuggestion(prompt: string): Promise<string> {
   const lowerPrompt = prompt.toLowerCase();
   
   if (lowerPrompt.includes("react") || lowerPrompt.includes("component")) {
-      return `Here's a React tip: Consider using React.memo() for components that re-render frequently with the same props. This can significantly improve performance! 
+    return `Here's a React tip: Consider using React.memo() for components that re-render frequently with the same props. This can significantly improve performance! 
 
 \`\`\`jsx
 const MyComponent = React.memo(({ data }) => {
@@ -15,69 +15,79 @@ const MyComponent = React.memo(({ data }) => {
 \`\`\`
 
 #React #Performance #WebDev`;
-    }
-    
-    if (lowerPrompt.includes("javascript") || lowerPrompt.includes("js")) {
-      return `JavaScript pro tip: Use optional chaining (?.) to safely access nested object properties without errors!
+  }
+  
+  if (lowerPrompt.includes("javascript") || lowerPrompt.includes("js")) {
+    return `JavaScript best practice: Use async/await instead of promise chains for cleaner, more readable code!
 
-\`\`\`js
+\`\`\`javascript
 // Instead of this:
-if (user && user.profile && user.profile.settings) {
-  console.log(user.profile.settings.theme);
-}
+getData()
+  .then(data => processData(data))
+  .then(result => console.log(result))
+  .catch(error => console.error(error));
 
-// Use this:
-console.log(user?.profile?.settings?.theme);
+// Do this:
+try {
+  const data = await getData();
+  const result = await processData(data);
+  console.log(result);
+} catch (error) {
+  console.error(error);
+}
 \`\`\`
 
-#JavaScript #ES2020 #CleanCode`;
-    }
-    
-    if (lowerPrompt.includes("python") || lowerPrompt.includes("data")) {
-      return `Python data processing tip: Use list comprehensions for cleaner, faster code!
+#JavaScript #AsyncAwait #CleanCode`;
+  }
+  
+  if (lowerPrompt.includes("python")) {
+    return `Python tip: Use list comprehensions for more Pythonic and efficient code!
 
 \`\`\`python
-# Instead of loops:
+# Instead of:
 result = []
-for item in data:
-    if item > 0:
+for item in items:
+    if item > 5:
         result.append(item * 2)
 
-# Use comprehension:
-result = [item * 2 for item in data if item > 0]
+# Do this:
+result = [item * 2 for item in items if item > 5]
 \`\`\`
 
-#Python #DataScience #Optimization`;
-    }
-    
-    if (lowerPrompt.includes("bug") || lowerPrompt.includes("debug")) {
-      return `Debugging strategy that works every time:
+#Python #ListComprehensions #PythonicCode`;
+  }
+  
+  if (lowerPrompt.includes("debug") || lowerPrompt.includes("error") || lowerPrompt.includes("bug")) {
+    return `Debugging strategies that actually work:
 
-1. 🔍 **Reproduce** the issue consistently
-2. 📝 **Log** key variables at each step  
-3. 🔬 **Isolate** the problem area
-4. 🧪 **Test** your hypothesis
-5. ✅ **Verify** the fix
+🔍 **Use console.log strategically** - Don't spam, be targeted
+🧪 **Write minimal test cases** - Isolate the problem
+📝 **Read error messages carefully** - They often tell you exactly what's wrong
+🔄 **Use the debugger** - Step through code line by line
+🤔 **Rubber duck debugging** - Explain your code to someone (or something!)
 
-The key is being systematic, not rushing! What specific issue are you facing?
+Remember: Bugs are just undiscovered features waiting to be fixed! 
 
-#Debugging #ProblemSolving #DevTips`;
-    }
-    
-    if (lowerPrompt.includes("algorithm") || lowerPrompt.includes("performance")) {
-      return `Algorithm optimization tip: Always consider time complexity!
+#Debugging #Programming #ProblemSolving`;
+  }
+  
+  if (lowerPrompt.includes("algorithm") || lowerPrompt.includes("performance") || lowerPrompt.includes("optimize")) {
+    return `Algorithm optimization tips:
 
-Common patterns:
-• O(1) - Hash maps for lookups
-• O(log n) - Binary search on sorted data  
-• O(n) - Single pass through data
-• O(n²) - Nested loops (often can be improved!)
+⚡ **Know your Big O** - O(n²) can become O(n log n) with the right approach
+📊 **Profile before optimizing** - Measure what's actually slow
+🎯 **Choose the right data structure** - Arrays vs Objects vs Maps
+🔄 **Cache expensive operations** - Don't recalculate the same thing
 
-Which algorithm are you working on? I can suggest specific optimizations!
+\`\`\`javascript
+// Example: Use Map for O(1) lookups instead of Array.find()
+const userMap = new Map(users.map(u => [u.id, u]));
+const user = userMap.get(userId); // O(1) instead of O(n)
+\`\`\`
 
 #Algorithms #BigO #Performance`;
-    }
-    
+  }
+  
   // Default response for general programming questions
   return `Great question! Here are some general programming principles that always help:
 
@@ -89,189 +99,89 @@ Which algorithm are you working on? I can suggest specific optimizations!
 What specific technology or problem are you working with? I'd love to provide more targeted advice!
 
 #Programming #BestPractices #ContinuousLearning`;
-
 }
 
 // Function to analyze a post's content and provide improvement suggestions
 export async function analyzePost(postContent: string): Promise<{
+  sentiment: "positive" | "neutral" | "negative";
+  topics: string[];
   suggestions: string[];
-  topics: {name: string, relevance: number}[];
-  sentiment: 'positive' | 'neutral' | 'negative';
-  readability: 'easy' | 'medium' | 'complex';
 }> {
-  try {
-    const content = postContent.toLowerCase();
-    const suggestions: string[] = [];
-    const topics: {name: string, relevance: number}[] = [];
-    
-    // Analyze content for suggestions
-    if (!content.includes('```') && !content.includes('code')) {
-      suggestions.push("Add a code example to illustrate your point");
-    }
-    
-    if (!content.includes('#')) {
-      suggestions.push("Include relevant hashtags to increase visibility");
-    }
-    
-    if (!content.includes('?')) {
-      suggestions.push("Ask a question to encourage community discussion");
-    }
-    
-    if (content.length < 50) {
-      suggestions.push("Expand your post with more details or context");
-    }
-    
-    if (content.length > 500) {
-      suggestions.push("Consider breaking this into multiple posts for better engagement");
-    }
-    
-    // Detect technical topics
-    const techKeywords = [
-      { name: 'JavaScript', keywords: ['javascript', 'js', 'react', 'node', 'vue', 'angular'] },
-      { name: 'Python', keywords: ['python', 'django', 'flask', 'pandas', 'numpy'] },
-      { name: 'Web Development', keywords: ['html', 'css', 'frontend', 'backend', 'api'] },
-      { name: 'Database', keywords: ['sql', 'mongodb', 'database', 'postgresql', 'mysql'] },
-      { name: 'DevOps', keywords: ['docker', 'kubernetes', 'aws', 'cloud', 'deployment'] },
-      { name: 'Mobile', keywords: ['mobile', 'android', 'ios', 'flutter', 'react native'] }
-    ];
-    
-    techKeywords.forEach(tech => {
-      const matches = tech.keywords.filter(keyword => content.includes(keyword));
-      if (matches.length > 0) {
-        topics.push({
-          name: tech.name,
-          relevance: Math.min(matches.length / tech.keywords.length, 1)
-        });
-      }
-    });
-    
-    // Determine sentiment
-    const positiveWords = ['great', 'awesome', 'love', 'amazing', 'excellent', 'fantastic'];
-    const negativeWords = ['bad', 'terrible', 'hate', 'awful', 'broken', 'frustrating'];
-    
-    const positiveCount = positiveWords.filter(word => content.includes(word)).length;
-    const negativeCount = negativeWords.filter(word => content.includes(word)).length;
-    
-    let sentiment: 'positive' | 'neutral' | 'negative' = 'neutral';
-    if (positiveCount > negativeCount) sentiment = 'positive';
-    if (negativeCount > positiveCount) sentiment = 'negative';
-    
-    // Determine readability
-    const sentences = content.split(/[.!?]+/).length;
-    const words = content.split(/\s+/).length;
-    const avgWordsPerSentence = words / sentences;
-    
-    let readability: 'easy' | 'medium' | 'complex' = 'medium';
-    if (avgWordsPerSentence < 15) readability = 'easy';
-    if (avgWordsPerSentence > 25) readability = 'complex';
-    
-    return {
-      suggestions,
-      topics,
-      sentiment,
-      readability
-    };
-  } catch (error) {
-    console.error("Error analyzing post:", error);
-    
-    return {
-      suggestions: [
-        "Add a code example to illustrate your point",
-        "Include relevant technical hashtags",
-        "Ask a question to encourage responses"
-      ],
-      topics: [
-        {name: "Development", relevance: 0.9},
-        {name: "Programming", relevance: 0.8}
-      ],
-      sentiment: 'neutral',
-      readability: 'medium'
-    };
-  }
-}
-
-// Function to generate content ideas based on user's interests
-export async function generateContentIdeas(topics: string[], count: number = 5): Promise<string[]> {
-  const ideas: string[] = [];
+  const lowerContent = postContent.toLowerCase();
   
-  const ideaTemplates = [
-    "Share your experience with {topic} and how it improved your development workflow",
-    "Post a code snippet demonstrating a clever {topic} technique you discovered recently",
-    "Discuss common {topic} mistakes and how to avoid them", 
-    "Explain a complex {topic} concept using simple, real-world analogies",
-    "Share your favorite {topic} tools and resources that every developer should know",
-    "Write about the latest updates in {topic} and their impact on development",
-    "Create a beginner's guide to getting started with {topic}",
-    "Compare different approaches to solving problems in {topic}",
-    "Share a challenging {topic} project you completed and lessons learned",
-    "Discuss best practices for {topic} that you wish you knew earlier"
+  // Simple sentiment analysis based on keywords
+  let sentiment: "positive" | "neutral" | "negative" = "neutral";
+  
+  const positiveWords = ["good", "great", "awesome", "excellent", "love", "amazing", "perfect", "best"];
+  const negativeWords = ["bad", "terrible", "awful", "hate", "worst", "problem", "issue", "bug"];
+  
+  const positiveCount = positiveWords.filter(word => lowerContent.includes(word)).length;
+  const negativeCount = negativeWords.filter(word => lowerContent.includes(word)).length;
+  
+  if (positiveCount > negativeCount) sentiment = "positive";
+  else if (negativeCount > positiveCount) sentiment = "negative";
+  
+  // Extract topics based on common programming keywords
+  const topics: string[] = [];
+  const techKeywords = [
+    "javascript", "react", "python", "node", "css", "html", "typescript",
+    "vue", "angular", "backend", "frontend", "database", "api", "git"
   ];
   
-  for (let i = 0; i < count && i < ideaTemplates.length; i++) {
-    const template = ideaTemplates[i];
-    const topic = topics[i % topics.length] || "programming";
-    ideas.push(template.replace('{topic}', topic));
+  techKeywords.forEach(keyword => {
+    if (lowerContent.includes(keyword)) {
+      topics.push(keyword);
+    }
+  });
+  
+  // Generate suggestions
+  const suggestions: string[] = [];
+  
+  if (postContent.length < 50) {
+    suggestions.push("Consider adding more details to make your post more engaging");
   }
   
-  return ideas;
+  if (!postContent.includes("#")) {
+    suggestions.push("Add relevant hashtags to increase visibility");
+  }
+  
+  if (topics.length > 0) {
+    suggestions.push(`Great tech content! Consider sharing code examples for ${topics[0]}`);
+  }
+  
+  return { sentiment, topics, suggestions };
 }
 
-// AI recommendation function with local suggestions
-export async function getAiRecommendations(
-  user: User | undefined,
-  userPosts: Post[],
-  likedPosts: Post[]
-): Promise<Post[]> {
-  const recommendations: Post[] = [];
+// Function to generate content ideas based on trending topics
+export async function generateContentIdeas(topics: string[], count: number = 5): Promise<string[]> {
+  const ideas = [
+    "Share a code snippet that solved a tricky problem",
+    "Write about a new technology you're learning",
+    "Discuss best practices in your favorite programming language",
+    "Share a debugging story and what you learned",
+    "Review a tool or library you've been using",
+    "Explain a complex concept in simple terms",
+    "Share your development environment setup",
+    "Discuss the pros and cons of different frameworks",
+    "Write about a project you're working on",
+    "Share tips for junior developers"
+  ];
   
-  // Create educational recommendations
-  recommendations.push({
-    id: "rec1",
-    userId: "ai-rec-1",
-    content: "Built a performance optimization that reduced our React app load time by 60%! Here's the key technique:",
-    codeSnippet: `// Lazy loading components with React.lazy()
-const LazyComponent = React.lazy(() => import('./HeavyComponent'));
+  return ideas.slice(0, count);
+}
 
-function App() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <LazyComponent />
-    </Suspense>
-  );
-}`,
-    language: "javascript",
-    tags: ["React", "Performance"],
-    likes: 203,
-    comments: 18,
-    isAiRecommended: true,
-    aiRecommendationReason: "Recommended based on popular React optimization techniques",
-    image: null,
-    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000)
+// Function to get AI-powered recommendations for posts
+export async function getAiRecommendations(
+  userInterests: string[],
+  recentPosts: Post[]
+): Promise<Post[]> {
+  // Simple recommendation based on content matching
+  const recommendedPosts = recentPosts.filter(post => {
+    const postContent = post.content.toLowerCase();
+    return userInterests.some(interest => 
+      postContent.includes(interest.toLowerCase())
+    );
   });
   
-  recommendations.push({
-    id: "rec2", 
-    userId: "ai-rec-2",
-    content: "Python developers: This one-liner can save you hours of debugging! 🐍✨",
-    codeSnippet: `# Use the walrus operator for cleaner conditionals
-if (n := len(data)) > 10:
-    print(f"Processing {n} items...")
-    
-# Instead of:
-# n = len(data)
-# if n > 10:
-#     print(f"Processing {n} items...")`,
-    language: "python",
-    tags: ["Python", "Tips"],
-    likes: 142,
-    comments: 24,
-    isAiRecommended: true,
-    aiRecommendationReason: "Educational content about modern Python features",
-    image: null,
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
-  });
-  
-  return recommendations;
+  return recommendedPosts.slice(0, 5);
 }
