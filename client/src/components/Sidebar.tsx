@@ -6,7 +6,7 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { cn } from "@/lib/utils";
 
 export default function Sidebar() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { isAuthenticated } = useAuth();
   const { language } = useLanguage();
   
@@ -48,17 +48,25 @@ export default function Sidebar() {
           {navItems.map((item) => {
             if (item.requiresAuth && !isAuthenticated) return null;
             
+            const handleNavClick = (e: React.MouseEvent) => {
+              e.preventDefault();
+              setLocation(item.path);
+            };
+            
             return (
               <li key={item.path}>
-                <Link href={item.path} className={cn(
-                  "flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors",
-                  location === item.path 
-                    ? "bg-blue-50 dark:bg-blue-900/50 text-primary dark:text-blue-400 font-medium" 
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
-                )}>
+                <button 
+                  onClick={handleNavClick}
+                  className={cn(
+                    "flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors w-full text-left",
+                    location === item.path 
+                      ? "bg-blue-50 dark:bg-blue-900/50 text-primary dark:text-blue-400 font-medium" 
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                  )}
+                >
                   <item.icon className="h-5 w-5" />
                   <span>{item.label}</span>
-                </Link>
+                </button>
               </li>
             );
           })}

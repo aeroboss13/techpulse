@@ -20,15 +20,15 @@ import { LanguageProvider } from "@/components/LanguageProvider";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, isLoading } = useAuth();
-  const [, setLocation] = React.useState('/login');
+  const [, setLocation] = useLocation();
   
   React.useEffect(() => {
     // При изменении состояния аутентификации, перенаправляем
     if (!isLoading && !isAuthenticated) {
       console.log('Redirecting to login page (protected route)');
-      window.location.href = '/login';
+      setLocation('/login');
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, isLoading, setLocation]);
   
   if (isLoading) {
     return (
