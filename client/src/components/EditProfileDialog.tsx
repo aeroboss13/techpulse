@@ -168,7 +168,7 @@ export default function EditProfileDialog({
             
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="github">{t('profile.github')}</Label>
+                <Label htmlFor="github">GitHub</Label>
                 <Input
                   id="github"
                   name="github"
@@ -179,15 +179,26 @@ export default function EditProfileDialog({
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="twitter">{t('profile.twitter')}</Label>
+                <Label htmlFor="telegram">Telegram</Label>
                 <Input
-                  id="twitter"
-                  name="twitter"
-                  value={formData.twitter}
+                  id="telegram"
+                  name="telegram"
+                  value={formData.telegram}
                   onChange={handleChange}
                   placeholder="username"
                 />
               </div>
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="twitter">Twitter</Label>
+              <Input
+                id="twitter"
+                name="twitter"
+                value={formData.twitter}
+                onChange={handleChange}
+                placeholder="username"
+              />
             </div>
           </div>
           
