@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'wouter';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import MainLayout from '@/components/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -12,12 +12,15 @@ import { useLanguage } from '@/components/LanguageProvider';
 import { useAuth } from '@/hooks/useAuth';
 import { CalendarDays, MapPin, Users, MessageSquare, Heart, Code, Briefcase, Github } from 'lucide-react';
 import { SiTelegram, SiX } from 'react-icons/si';
+import { apiRequest } from '@/lib/queryClient';
 
 export default function Profile() {
   const { userId } = useParams();
   const { t } = useLanguage();
   const { user: currentUser } = useAuth();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: profileUser, isLoading: userLoading } = useQuery({
     queryKey: [`/api/users/${userId}`],
@@ -30,6 +33,25 @@ export default function Profile() {
   const { data: userStats } = useQuery({
     queryKey: [`/api/users/${userId}/stats`],
   });
+
+  const followMutation = useMutation({
+    mutationFn: async (followed: boolean) => {
+      return await apiRequest(`/api/users/${userId}/follow`, {
+        method: 'POST',
+        body: JSON.stringify({ followed }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${userId}`] });
+    }
+  });
+
+  const handleFollowToggle = () => {
+    const newFollowState = !isFollowing;
+    setIsFollowing(newFollowState);
+    followMutation.mutate(newFollowState);
+  };
 
   if (userLoading) {
     return (

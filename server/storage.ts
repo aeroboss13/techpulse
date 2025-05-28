@@ -424,6 +424,36 @@ export class MemStorage implements IStorage {
       .some(bookmark => bookmark.postId === postId && bookmark.userId === userId);
   }
 
+  // Follow operations
+  async followUser(followerId: string, followingId: string): Promise<void> {
+    const followId = uuidv4();
+    const existingFollow = Array.from(this.follows.values())
+      .find(follow => follow.followerId === followerId && follow.followingId === followingId);
+    
+    if (!existingFollow) {
+      this.follows.set(followId, {
+        id: followId,
+        followerId,
+        followingId,
+        createdAt: new Date()
+      });
+    }
+  }
+
+  async unfollowUser(followerId: string, followingId: string): Promise<void> {
+    const existingFollow = Array.from(this.follows.values())
+      .find(follow => follow.followerId === followerId && follow.followingId === followingId);
+    
+    if (existingFollow) {
+      this.follows.delete(existingFollow.id);
+    }
+  }
+
+  async isUserFollowedBy(followerId: string, followingId: string): Promise<boolean> {
+    return Array.from(this.follows.values())
+      .some(follow => follow.followerId === followerId && follow.followingId === followingId);
+  }
+
   // Code snippet operations
   async getUserCodeSnippets(userId: string): Promise<CodeSnippet[]> {
     return Array.from(this.codeSnippets.values())

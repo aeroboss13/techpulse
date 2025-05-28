@@ -487,6 +487,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Follow/Unfollow users
+  app.post('/api/users/:id/follow', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const targetUserId = req.params.id;
+      const { followed } = req.body;
+
+      if (userId === targetUserId) {
+        return res.status(400).json({ message: "Cannot follow yourself" });
+      }
+
+      if (followed) {
+        await storage.followUser(userId, targetUserId);
+      } else {
+        await storage.unfollowUser(userId, targetUserId);
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error following/unfollowing user:", error);
+      res.status(500).json({ message: "Failed to follow/unfollow user" });
+    }
+  });
+
   // User Posts
   app.get('/api/user/posts', isAuthenticated, async (req: any, res) => {
     try {
