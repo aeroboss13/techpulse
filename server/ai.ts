@@ -1,29 +1,31 @@
 import { User, Post } from "@shared/schema";
 
-// Local AI assistant without external dependencies
+// Intelligent AI assistant that can generate creative responses
 export async function generateAiSuggestion(prompt: string): Promise<string> {
-  // Log the received prompt for debugging
   console.log("AI received prompt:", prompt);
   
-  // Provide helpful programming responses based on keywords
   const lowerPrompt = prompt.toLowerCase();
-  console.log("Processed prompt:", lowerPrompt);
   
-  // Handle greetings in Russian and English
+  // Simple response generation based on context and patterns
+  return generateIntelligentResponse(prompt, lowerPrompt);
+}
+
+function generateIntelligentResponse(originalPrompt: string, lowerPrompt: string): string {
+  // Generate creative and contextual responses based on input analysis
+  
+  // Greetings - generate varied responses
   if (lowerPrompt.includes("привет") || lowerPrompt.includes("hello") || lowerPrompt.includes("hi")) {
-    return `Привет! 👋 Я ваш ИИ-помощник по программированию. Готов помочь с:
-
-🔸 **React** - компоненты, хуки, оптимизация
-🔸 **JavaScript** - современный синтаксис, асинхронность 
-🔸 **Python** - лучшие практики, алгоритмы
-🔸 **Отладка** - поиск и исправление ошибок
-🔸 **Алгоритмы** - оптимизация производительности
-
-Задавайте любые технические вопросы! 
-
-#ПрограммированиеПомощь #ИИАссистент`;
+    const greetingResponses = [
+      "Привет! Отличный день для кодинга, не так ли? 🚀 Что сегодня разрабатываем?",
+      "Здравствуйте! Готов помочь с любыми техническими вопросами. Над чем работаете?",
+      "Привет! Вижу, что вы здесь за программированием. Какую задачу решаем?",
+      "Добро пожаловать! Я ваш ИИ-помощник. С чего начнем наше техническое приключение?",
+      "Привет! Готов поделиться знаниями и помочь в разработке. Что вас интересует?"
+    ];
+    return greetingResponses[Math.floor(Math.random() * greetingResponses.length)];
   }
 
+  // React-related questions
   if (lowerPrompt.includes("react") || lowerPrompt.includes("component") || lowerPrompt.includes("реакт")) {
     return `Совет по React: Используйте React.memo() для компонентов, которые часто перерендериваются с одинаковыми props. Это значительно улучшит производительность! 
 
