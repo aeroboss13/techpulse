@@ -68,13 +68,21 @@ export default function Profile() {
                     {(profileUser?.firstName?.[0] || profileUser?.email?.[0] || 'U').toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                {isOwnProfile && (
+                {isOwnProfile ? (
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={() => setIsEditDialogOpen(true)}
                   >
                     Редактировать профиль
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="default" 
+                    size="sm"
+                    onClick={() => console.log('Подписаться на пользователя')}
+                  >
+                    Подписаться
                   </Button>
                 )}
               </div>

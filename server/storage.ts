@@ -51,6 +51,11 @@ export interface IStorage {
   unbookmarkPost(postId: string, userId: string): Promise<void>;
   isPostBookmarkedByUser(postId: string, userId: string): Promise<boolean>;
   
+  // Follow operations
+  followUser(followerId: string, followingId: string): Promise<void>;
+  unfollowUser(followerId: string, followingId: string): Promise<void>;
+  isUserFollowedBy(followerId: string, followingId: string): Promise<boolean>;
+  
   // Code snippet operations
   getUserCodeSnippets(userId: string): Promise<CodeSnippet[]>;
   getPublicCodeSnippets(): Promise<CodeSnippet[]>;

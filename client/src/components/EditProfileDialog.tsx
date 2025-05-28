@@ -192,16 +192,7 @@ export default function EditProfileDialog({
               </div>
             </div>
             
-            <div className="grid gap-2">
-              <Label htmlFor="twitter">Twitter</Label>
-              <Input
-                id="twitter"
-                name="twitter"
-                value={formData.twitter}
-                onChange={handleChange}
-                placeholder="username"
-              />
-            </div>
+
           </div>
           
           <DialogFooter>
