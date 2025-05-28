@@ -5,6 +5,20 @@ import { User, Post } from "@shared/schema";
 const genAI = new GoogleGenerativeAI("AIzaSyDgQ0QqG8slJcrgcuqRLb3RAu-iUrwrDXM");
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
+// Helper function to completely remove hashtags
+function removeHashtagsCompletely(text: string): string {
+  // Find the first # symbol and cut everything from there
+  const hashtagIndex = text.indexOf('#');
+  if (hashtagIndex !== -1) {
+    text = text.substring(0, hashtagIndex);
+  }
+  
+  // Clean up any remaining whitespace
+  text = text.trim();
+  
+  return text;
+}
+
 // AI assistant powered by Google Gemini
 export async function generateAiSuggestion(prompt: string): Promise<string> {
   try {
@@ -44,31 +58,8 @@ Answer in English without hashtags.`;
     const response = await result.response;
     let text = response.text();
     
-    // ULTRA AGGRESSIVE hashtag removal - multiple passes
-    
-    // 1. Remove entire lines that contain hashtags
-    const lines = text.split('\n');
-    const cleanLines = lines.filter(line => !line.includes('#'));
-    text = cleanLines.join('\n');
-    
-    // 2. Remove any hashtags that might be inline
-    text = text.replace(/#\w+/g, '');
-    text = text.replace(/#[\u0400-\u04FF]+/g, ''); // Cyrillic
-    text = text.replace(/#[a-zA-Z]+/g, ''); // Latin
-    
-    // 3. Remove any remaining # symbols
-    text = text.replace(/#/g, '');
-    
-    // 4. Clean up extra whitespace
-    text = text.replace(/\s+/g, ' ');
-    text = text.replace(/\n\s*\n/g, '\n');
-    text = text.trim();
-    
-    // 5. Final check - if any hashtags still remain, cut off everything after the first one
-    const hashtagIndex = text.indexOf('#');
-    if (hashtagIndex !== -1) {
-      text = text.substring(0, hashtagIndex).trim();
-    }
+    // COMPLETE hashtag removal
+    text = removeHashtagsCompletely(text);
     
     // If AI responded in wrong language, make a second attempt with more explicit prompt
     if (language === 'Russian' && !/[а-яё]/i.test(text.slice(0, 100))) {
@@ -84,20 +75,7 @@ Answer in English without hashtags.`;
         let secondText = secondResponse.text();
         
         // Clean up second response too
-        const secondLines = secondText.split('\n');
-        const secondCleanLines = [];
-        
-        for (const line of secondLines) {
-          const trimmedLine = line.trim();
-          if (!trimmedLine.includes('#') && trimmedLine.length > 0) {
-            secondCleanLines.push(line);
-          }
-        }
-        
-        secondText = secondCleanLines.join('\n').trim();
-        secondText = secondText.replace(/#[^\s\n]*/g, '');
-        secondText = secondText.replace(/\s+/g, ' ');
-        text = secondText.trim();
+        text = removeHashtagsCompletely(secondText);
       } catch (secondError) {
         console.error("Error with second AI attempt:", secondError);
         // Keep original text if second attempt fails
