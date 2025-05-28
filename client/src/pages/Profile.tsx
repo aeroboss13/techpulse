@@ -16,15 +16,15 @@ export default function Profile() {
   const { user: currentUser } = useAuth();
 
   const { data: profileUser, isLoading: userLoading } = useQuery({
-    queryKey: ['/api/users', userId],
+    queryKey: [`/api/users/${userId}`],
   });
 
   const { data: userPosts, isLoading: postsLoading } = useQuery({
-    queryKey: ['/api/posts/user', userId],
+    queryKey: [`/api/posts/user/${userId}`],
   });
 
   const { data: userStats } = useQuery({
-    queryKey: ['/api/users', userId, 'stats'],
+    queryKey: [`/api/users/${userId}/stats`],
   });
 
   if (userLoading) {
