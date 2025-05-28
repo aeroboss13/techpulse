@@ -27,11 +27,13 @@ export default function Explore() {
     },
   });
   
-  const { data: latestPosts, isLoading: isLatestLoading } = useQuery({
-    queryKey: ["/api/posts/latest"],
+  const { data: bookmarkedPosts, isLoading: isBookmarkedLoading } = useQuery({
+    queryKey: ["/api/user/bookmarked-posts"],
     queryFn: async () => {
-      const res = await fetch("/api/posts/latest");
-      if (!res.ok) throw new Error("Failed to fetch latest posts");
+      const res = await fetch("/api/user/bookmarked-posts", {
+        credentials: "include"
+      });
+      if (!res.ok) throw new Error("Failed to fetch bookmarked posts");
       return res.json();
     },
   });
