@@ -246,6 +246,10 @@ export class MemStorage implements IStorage {
       ...existingUser,
       ...userData,
       username,
+      // Убеждаемся, что социальные поля инициализированы
+      github: userData.github !== undefined ? userData.github : (existingUser?.github || null),
+      twitter: userData.twitter !== undefined ? userData.twitter : (existingUser?.twitter || null),
+      telegram: userData.telegram !== undefined ? userData.telegram : (existingUser?.telegram || null),
       updatedAt: new Date()
     };
     
