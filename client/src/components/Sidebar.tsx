@@ -77,7 +77,7 @@ export default function Sidebar() {
                   : 'Ask me anything about coding or get help with your posts...'}
               </p>
               <Button variant="link" className="mt-1 h-auto p-0" asChild>
-                <span onClick={() => window.location.href = "/ai-assistant"}>{language === 'ru' ? 'Отправить' : 'Send'}</span>
+                <Link href="/ai-assistant">{language === 'ru' ? 'Отправить' : 'Send'}</Link>
               </Button>
             </div>
           </div>
