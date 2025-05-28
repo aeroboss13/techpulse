@@ -530,7 +530,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.session.userId;
       const targetUserId = req.params.id;
       
+      console.log(`Checking follow status: userId=${userId}, targetUserId=${targetUserId}`);
+      
       const isFollowing = await storage.isUserFollowedBy(userId, targetUserId);
+      console.log(`Follow status result: ${isFollowing}`);
+      
       res.json({ isFollowing });
     } catch (error) {
       console.error("Error checking follow status:", error);
