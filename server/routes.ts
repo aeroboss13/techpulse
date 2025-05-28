@@ -277,6 +277,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         storage.getUserPostsCount(userId)
       ]);
 
+      // Отключаем кэширование для этого endpoint
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      
       res.json({
         followersCount,
         followingCount,
