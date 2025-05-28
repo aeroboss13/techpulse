@@ -440,6 +440,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('[BOOKMARKS] Found bookmarked posts:', bookmarkedPosts.length);
       console.log('[BOOKMARKS] Posts:', bookmarkedPosts.map(p => ({ id: p.id, content: p.content?.substring(0, 50) })));
       
+      if (bookmarkedPosts.length === 0) {
+        console.log('[BOOKMARKS] No bookmarked posts found, returning empty array');
+        return res.json([]);
+      }
+      
       const enhancedPosts = await Promise.all(bookmarkedPosts.map(async (post) => {
         const user = await storage.getUser(post.userId);
         const isLiked = await storage.isPostLikedByUser(post.id, userId);
@@ -458,6 +463,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
       }));
       
+      console.log('[BOOKMARKS] Returning enhanced posts:', enhancedPosts.length);
       res.json(enhancedPosts);
     } catch (error) {
       console.error("Error fetching bookmarked posts:", error);
