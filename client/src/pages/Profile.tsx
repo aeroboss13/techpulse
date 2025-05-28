@@ -59,9 +59,9 @@ export default function Profile() {
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex flex-col items-center space-y-4">
                 <Avatar className="h-32 w-32">
-                  <AvatarImage src={profileUser.profileImageUrl} alt={profileUser.displayName} />
+                  <AvatarImage src={profileUser?.profileImageUrl} alt={profileUser?.firstName || profileUser?.email} />
                   <AvatarFallback className="text-2xl">
-                    {profileUser.displayName?.[0]?.toUpperCase() || 'U'}
+                    {(profileUser?.firstName?.[0] || profileUser?.email?.[0] || 'U').toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 {isOwnProfile && (
@@ -73,8 +73,8 @@ export default function Profile() {
               
               <div className="flex-1 space-y-4">
                 <div>
-                  <h1 className="text-3xl font-bold">{profileUser.displayName}</h1>
-                  <p className="text-muted-foreground">@{profileUser.username}</p>
+                  <h1 className="text-3xl font-bold">{profileUser?.firstName || profileUser?.email?.split('@')[0] || 'Пользователь'}</h1>
+                  <p className="text-muted-foreground">@{profileUser?.username || profileUser?.email?.split('@')[0] || 'user'}</p>
                 </div>
                 
                 {profileUser.bio && (

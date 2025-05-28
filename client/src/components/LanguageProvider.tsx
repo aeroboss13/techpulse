@@ -285,6 +285,16 @@ const translations: Record<Language, Record<string, string>> = {
     'profile.noSnippetsMessage': 'Поделитесь своим первым сниппетом кода с сообществом!',
     'profile.noLikes': 'Нет понравившихся постов',
     'profile.noLikesMessage': 'Отмечайте посты как понравившиеся, чтобы видеть их здесь!',
+    'profile.notFound': 'Пользователь не найден',
+    'profile.userNotExists': 'Этот пользователь не существует.',
+    'profile.editProfile': 'Редактировать профиль',
+    'profile.joinedDate': 'Присоединился {date}',
+    'profile.likes': 'Понравившиеся',
+    'profile.codeSnippets': 'Сниппеты кода',
+    'profile.noPostsOwn': 'Вы еще ничего не опубликовали. Поделитесь своим первым постом!',
+    'profile.noPostsUser': 'Этот пользователь еще ничего не опубликовал.',
+    'profile.noLikesDesc': 'Понравившиеся посты будут отображаться здесь.',
+    'profile.noSnippetsDesc': 'Сниппеты кода, созданные пользователем, будут отображаться здесь.',
     
     // General
     'general.search': 'Поиск',
