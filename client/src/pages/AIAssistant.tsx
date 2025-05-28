@@ -63,32 +63,7 @@ const EXAMPLE_PROMPTS = [
   },
 ];
 
-const POST_ANALYSIS_PROMPTS = [
-  {
-    title: 'Analyze Engagement',
-    description: 'Get insights on improving post engagement',
-    icon: <LineChart className="h-5 w-5" />,
-    prompt: "Analyze why my recent posts aren't getting much engagement and suggest improvements",
-  },
-  {
-    title: 'Content Strategy',
-    description: 'Build a better content strategy',
-    icon: <Target className="h-5 w-5" />,
-    prompt: "Help me create a content strategy for growing my developer audience",
-  },
-  {
-    title: 'Trending Topics',
-    description: 'Discover popular tech topics',
-    icon: <TrendingUp className="h-5 w-5" />,
-    prompt: "What are the current trending topics in web development I should write about?",
-  },
-  {
-    title: 'Post Ideas',
-    description: 'Generate fresh content ideas',
-    icon: <Lightbulb className="h-5 w-5" />,
-    prompt: "Generate 5 post ideas about React that would interest other developers",
-  },
-];
+const POST_ANALYSIS_PROMPTS = [];
 
 // Mock data for post analysis
 const MOCK_POSTS_FOR_ANALYSIS: PostAnalysis[] = [
@@ -815,29 +790,6 @@ export default function AIAssistant() {
                 )}
               </div>
             </div>
-            
-            <Card className="flex-1">
-              <CardFooter className="p-4 border-t">
-                <form onSubmit={handleSubmit} className="flex w-full space-x-2">
-                  <Textarea
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder={language === 'en' ? "Ask for content strategy advice..." : "Спросите совета по стратегии контента..."}
-                    className="flex-1 resize-none"
-                    rows={1}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSubmit(e);
-                      }
-                    }}
-                  />
-                  <Button type="submit" size="icon" disabled={isLoading}>
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </form>
-              </CardFooter>
-            </Card>
           </TabsContent>
         </Tabs>
       </div>
