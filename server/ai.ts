@@ -1,33 +1,12 @@
 import { User, Post } from "@shared/schema";
 
-// Intelligent AI assistant that can generate creative responses
+// Local AI assistant without external dependencies
 export async function generateAiSuggestion(prompt: string): Promise<string> {
-  console.log("AI received prompt:", prompt);
-  
+  // Provide helpful programming responses based on keywords
   const lowerPrompt = prompt.toLowerCase();
   
-  // Simple response generation based on context and patterns
-  return generateIntelligentResponse(prompt, lowerPrompt);
-}
-
-function generateIntelligentResponse(originalPrompt: string, lowerPrompt: string): string {
-  // Generate creative and contextual responses based on input analysis
-  
-  // Greetings - generate varied responses
-  if (lowerPrompt.includes("привет") || lowerPrompt.includes("hello") || lowerPrompt.includes("hi")) {
-    const greetingResponses = [
-      "Привет! Отличный день для кодинга, не так ли? 🚀 Что сегодня разрабатываем?",
-      "Здравствуйте! Готов помочь с любыми техническими вопросами. Над чем работаете?",
-      "Привет! Вижу, что вы здесь за программированием. Какую задачу решаем?",
-      "Добро пожаловать! Я ваш ИИ-помощник. С чего начнем наше техническое приключение?",
-      "Привет! Готов поделиться знаниями и помочь в разработке. Что вас интересует?"
-    ];
-    return greetingResponses[Math.floor(Math.random() * greetingResponses.length)];
-  }
-
-  // React-related questions
-  if (lowerPrompt.includes("react") || lowerPrompt.includes("component") || lowerPrompt.includes("реакт")) {
-    return `Совет по React: Используйте React.memo() для компонентов, которые часто перерендериваются с одинаковыми props. Это значительно улучшит производительность! 
+  if (lowerPrompt.includes("react") || lowerPrompt.includes("component")) {
+    return `Here's a React tip: Consider using React.memo() for components that re-render frequently with the same props. This can significantly improve performance! 
 
 \`\`\`jsx
 const MyComponent = React.memo(({ data }) => {
@@ -38,7 +17,7 @@ const MyComponent = React.memo(({ data }) => {
 #React #Performance #WebDev`;
   }
   
-  if (lowerPrompt.includes("javascript") || lowerPrompt.includes("js") || lowerPrompt.includes("джаваскрипт")) {
+  if (lowerPrompt.includes("javascript") || lowerPrompt.includes("js")) {
     return `JavaScript best practice: Use async/await instead of promise chains for cleaner, more readable code!
 
 \`\`\`javascript
