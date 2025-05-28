@@ -2,8 +2,12 @@ import { User, Post } from "@shared/schema";
 
 // Local AI assistant without external dependencies
 export async function generateAiSuggestion(prompt: string): Promise<string> {
+  // Log the received prompt for debugging
+  console.log("AI received prompt:", prompt);
+  
   // Provide helpful programming responses based on keywords
   const lowerPrompt = prompt.toLowerCase();
+  console.log("Processed prompt:", lowerPrompt);
   
   if (lowerPrompt.includes("react") || lowerPrompt.includes("component")) {
     return `Here's a React tip: Consider using React.memo() for components that re-render frequently with the same props. This can significantly improve performance! 
