@@ -17,23 +17,18 @@ export default function Explore() {
   const [location, setLocation] = useLocation();
   const { t, language } = useLanguage();
 
-  // Обработка параметра topic из URL
+  // Обработка хэштега из localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const topic = urlParams.get('topic');
-      console.log('[HASHTAG FILTER] Current URL:', window.location.href);
-      console.log('[HASHTAG FILTER] Topic from URL:', topic);
+      const savedHashtag = localStorage.getItem('selectedHashtag');
+      console.log('[HASHTAG FILTER] Checking localStorage for hashtag:', savedHashtag);
       
-      if (topic) {
-        console.log('[HASHTAG FILTER] Setting hashtag filter:', topic);
-        setSelectedHashtag(topic);
+      if (savedHashtag) {
+        console.log('[HASHTAG FILTER] Setting hashtag filter from localStorage:', savedHashtag);
+        setSelectedHashtag(savedHashtag);
         setSelectedTab("hashtag");
-      } else if (selectedHashtag && selectedTab === "hashtag") {
-        // Если нет параметра topic, но хэштег выбран - сбрасываем
-        console.log('[HASHTAG FILTER] Clearing hashtag filter');
-        setSelectedHashtag(null);
-        setSelectedTab("trending");
+        // Очищаем localStorage после использования
+        localStorage.removeItem('selectedHashtag');
       }
     }
   }, [location]);

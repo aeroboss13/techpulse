@@ -27,7 +27,9 @@ export default function RightSidebar() {
 
   const handleHashtagClick = (hashtag: string) => {
     console.log('[HASHTAG CLICK] Navigating to hashtag:', hashtag);
-    setLocation(`/explore?topic=${encodeURIComponent(hashtag)}`);
+    // Сохраняем хэштег в localStorage для передачи на страницу Explore
+    localStorage.setItem('selectedHashtag', hashtag);
+    setLocation('/explore');
   };
   const { data: trendingTopics } = useQuery<TrendingTopic[]>({
     queryKey: ["/api/trending-topics"],
