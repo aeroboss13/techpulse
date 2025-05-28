@@ -8,13 +8,19 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 // AI assistant powered by Google Gemini
 export async function generateAiSuggestion(prompt: string): Promise<string> {
   try {
-    // Create a system prompt for programming assistance
+    // Detect language and create appropriate system prompt
+    const hasRussian = /[а-яё]/i.test(prompt);
+    const language = hasRussian ? 'Russian' : 'English';
+    
     const systemPrompt = `You are a helpful programming assistant for a social platform for IT professionals. 
-    Your responses should be:
-    - Practical and actionable
+    
+    CRITICAL RULES - MUST FOLLOW:
+    - Write your ENTIRE response in ${language} language only
+    - NEVER include hashtags (#) anywhere in your response
+    - NEVER mix languages - use only ${language}
+    - Be practical and actionable
     - Include code examples when relevant
     - Be encouraging and supportive
-    - Add relevant hashtags at the end
     - Keep responses concise but informative
     - Focus on best practices and modern approaches
     
@@ -22,21 +28,38 @@ export async function generateAiSuggestion(prompt: string): Promise<string> {
 
     const result = await model.generateContent(systemPrompt);
     const response = await result.response;
-    const text = response.text();
+    let text = response.text();
+    
+    // Remove any hashtags that might have been included
+    text = text.replace(/#\w+/g, '');
+    // Remove multiple hashtags together
+    text = text.replace(/#[\w\s]+/g, '');
+    // Clean up any remaining # symbols
+    text = text.replace(/#/g, '');
+    text = text.trim();
     
     return text;
     
   } catch (error) {
     console.error("Error calling Gemini API:", error);
-    // Fallback to a helpful response
-    return `I'm here to help with your programming questions! Could you provide a bit more detail about what you're working on? I can assist with:
+    // Fallback response based on detected language
+    const hasRussian = /[а-яё]/i.test(prompt);
+    
+    if (hasRussian) {
+      return `Я здесь, чтобы помочь с вашими вопросами по программированию! Можете предоставить больше деталей о том, над чем вы работаете? Я могу помочь с:
+
+🔧 Отладка и оптимизация кода
+💡 Лучшие практики и паттерны проектирования
+📚 Изучение новых технологий
+🚀 Советы по архитектуре проектов`;
+    } else {
+      return `I'm here to help with your programming questions! Could you provide a bit more detail about what you're working on? I can assist with:
 
 🔧 Code debugging and optimization
 💡 Best practices and design patterns  
 📚 Learning new technologies
-🚀 Project architecture advice
-
-#Programming #Help #CodingSupport`;
+🚀 Project architecture advice`;
+    }
   }
 }
 
