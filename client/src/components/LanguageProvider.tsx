@@ -157,6 +157,24 @@ const translations: Record<Language, Record<string, string>> = {
     'general.noPostsMessage': 'Be the first to share something with the community!',
     'general.loadError': 'Failed to load posts. Please try again later.',
     'general.tryNow': 'Try It Now',
+    
+    // Profile
+    'profile.notFound': 'User Not Found',
+    'profile.userNotExists': 'This user does not exist.',
+    'profile.editProfile': 'Edit Profile',
+    'profile.joinedDate': 'Joined {date}',
+    'profile.followers': 'followers',
+    'profile.following': 'following',
+    'profile.posts': 'Posts',
+    'profile.likes': 'Likes',
+    'profile.codeSnippets': 'Code Snippets',
+    'profile.noPosts': 'No posts yet',
+    'profile.noPostsOwn': 'You haven\'t posted anything yet. Share your first post!',
+    'profile.noPostsUser': 'This user hasn\'t posted anything yet.',
+    'profile.noLikes': 'No likes yet',
+    'profile.noLikesDesc': 'Posts liked by this user will appear here.',
+    'profile.noSnippets': 'No code snippets',
+    'profile.noSnippetsDesc': 'Code snippets shared by this user will appear here.',
   },
   ru: {
     // Navigation
@@ -305,6 +323,24 @@ const translations: Record<Language, Record<string, string>> = {
     'general.noPostsMessage': 'Будьте первым, кто поделится чем-то с сообществом!',
     'general.loadError': 'Не удалось загрузить посты. Пожалуйста, повторите попытку позже.',
     'general.tryNow': 'Попробовать сейчас',
+    
+    // Profile
+    'profile.notFound': 'Пользователь не найден',
+    'profile.userNotExists': 'Этот пользователь не существует.',
+    'profile.editProfile': 'Редактировать профиль',
+    'profile.joinedDate': 'Присоединился {date}',
+    'profile.followers': 'подписчиков',
+    'profile.following': 'подписок',
+    'profile.posts': 'Посты',
+    'profile.likes': 'Лайки',
+    'profile.codeSnippets': 'Сниппеты кода',
+    'profile.noPosts': 'Пока нет постов',
+    'profile.noPostsOwn': 'Вы еще ничего не публиковали. Поделитесь своим первым постом!',
+    'profile.noPostsUser': 'Этот пользователь еще ничего не публиковал.',
+    'profile.noLikes': 'Пока нет лайков',
+    'profile.noLikesDesc': 'Посты, понравившиеся этому пользователю, появятся здесь.',
+    'profile.noSnippets': 'Нет сниппетов кода',
+    'profile.noSnippetsDesc': 'Сниппеты кода этого пользователя появятся здесь.',
     
     // Job Applications & Analytics
     'description': 'Описание',
