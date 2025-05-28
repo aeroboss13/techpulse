@@ -41,7 +41,7 @@ export default function MobileNavigation() {
   
   const getItemPath = (item: typeof navItems[0]) => {
     if (item.requiresAuth && !isAuthenticated) {
-      return "/api/login";
+      return "/login";
     }
     return item.path;
   };
