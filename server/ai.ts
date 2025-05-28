@@ -3,7 +3,7 @@ import { User, Post } from "@shared/schema";
 
 // Initialize Google Gemini AI
 const genAI = new GoogleGenerativeAI("AIzaSyDgQ0QqG8slJcrgcuqRLb3RAu-iUrwrDXM");
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
 // AI assistant powered by Google Gemini
 export async function generateAiSuggestion(prompt: string): Promise<string> {
