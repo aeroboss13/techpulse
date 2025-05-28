@@ -30,13 +30,58 @@ export async function generateAiSuggestion(prompt: string): Promise<string> {
     const response = await result.response;
     let text = response.text();
     
-    // Remove any hashtags that might have been included
-    text = text.replace(/#\w+/g, '');
-    // Remove multiple hashtags together
-    text = text.replace(/#[\w\s]+/g, '');
-    // Clean up any remaining # symbols
-    text = text.replace(/#/g, '');
+    // Completely remove hashtags and clean up text
+    const lines = text.split('\n');
+    const cleanLines = [];
+    
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      // Skip any line that contains hashtags or is just hashtags
+      if (!trimmedLine.includes('#') && trimmedLine.length > 0) {
+        cleanLines.push(line);
+      }
+    }
+    
+    text = cleanLines.join('\n').trim();
+    
+    // Final cleanup
+    text = text.replace(/#[^\s\n]*/g, ''); // Remove any remaining hashtags
+    text = text.replace(/\s+/g, ' '); // Replace multiple spaces with single space
     text = text.trim();
+    
+    // If AI responded in wrong language, make a second attempt with more explicit prompt
+    if (language === 'Russian' && !/[а-яё]/i.test(text.slice(0, 100))) {
+      const secondPrompt = `ОТВЕЧАЙ ТОЛЬКО НА РУССКОМ ЯЗЫКЕ! Не используй английский!
+      
+      Пользователь спрашивает: ${prompt}
+      
+      Дай практичный ответ о программировании НА РУССКОМ ЯЗЫКЕ с примерами кода.`;
+      
+      try {
+        const secondResult = await model.generateContent(secondPrompt);
+        const secondResponse = await secondResult.response;
+        let secondText = secondResponse.text();
+        
+        // Clean up second response too
+        const secondLines = secondText.split('\n');
+        const secondCleanLines = [];
+        
+        for (const line of secondLines) {
+          const trimmedLine = line.trim();
+          if (!trimmedLine.includes('#') && trimmedLine.length > 0) {
+            secondCleanLines.push(line);
+          }
+        }
+        
+        secondText = secondCleanLines.join('\n').trim();
+        secondText = secondText.replace(/#[^\s\n]*/g, '');
+        secondText = secondText.replace(/\s+/g, ' ');
+        text = secondText.trim();
+      } catch (secondError) {
+        console.error("Error with second AI attempt:", secondError);
+        // Keep original text if second attempt fails
+      }
+    }
     
     return text;
     
