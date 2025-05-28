@@ -100,11 +100,15 @@ export default function Profile() {
                   </Button>
                 ) : (
                   <Button 
-                    variant="default" 
+                    variant={isFollowing ? "outline" : "default"} 
                     size="sm"
-                    onClick={() => console.log('Подписаться на пользователя')}
+                    onClick={handleFollowToggle}
+                    disabled={followMutation.isPending}
                   >
-                    Подписаться
+                    {followMutation.isPending 
+                      ? (isFollowing ? 'Отписываюсь...' : 'Подписываюсь...')
+                      : (isFollowing ? 'Отписаться' : 'Подписаться')
+                    }
                   </Button>
                 )}
               </div>
