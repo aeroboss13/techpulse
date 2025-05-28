@@ -80,7 +80,12 @@ export default function Profile() {
               
               <div className="flex-1 space-y-4">
                 <div>
-                  <h1 className="text-3xl font-bold">{profileUser?.firstName || profileUser?.email?.split('@')[0] || 'Пользователь'}</h1>
+                  <h1 className="text-3xl font-bold">
+                    {profileUser?.firstName && profileUser?.lastName 
+                      ? `${profileUser.firstName} ${profileUser.lastName}`
+                      : profileUser?.firstName || profileUser?.username || profileUser?.email?.split('@')[0] || 'Пользователь'
+                    }
+                  </h1>
                   <p className="text-muted-foreground">@{profileUser?.username || profileUser?.email?.split('@')[0] || 'user'}</p>
                 </div>
                 
@@ -106,7 +111,16 @@ export default function Profile() {
                   )}
                   <div className="flex items-center gap-1">
                     <CalendarDays className="h-4 w-4" />
-                    {t('profile.joinedDate', { date: new Date(profileUser.createdAt).toLocaleDateString() })}
+                    <span>
+                      Присоединился {profileUser?.createdAt 
+                        ? new Date(profileUser.createdAt).toLocaleDateString('ru-RU', { 
+                            year: 'numeric', 
+                            month: 'long',
+                            day: 'numeric'
+                          }) 
+                        : 'недавно'
+                      }
+                    </span>
                   </div>
                 </div>
                 
