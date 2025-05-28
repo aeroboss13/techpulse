@@ -207,7 +207,18 @@ export default function PostCard({ post }: PostCardProps) {
                   }
                 })
               ) : (
-                <p>{post.content}</p>
+                <p>
+                  {post.content.split(/(\s+)/).map((word, index) => {
+                    if (word.startsWith('#') && word.length > 1) {
+                      return (
+                        <span key={index} className="text-blue-500 hover:text-blue-600 cursor-pointer font-medium">
+                          {word}
+                        </span>
+                      );
+                    }
+                    return word;
+                  })}
+                </p>
               )}
             </div>
             
