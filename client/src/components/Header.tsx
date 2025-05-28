@@ -16,6 +16,7 @@ import {
   Home, Search, Bell, Moon, Sun, User, LogOut, Settings, Code, Globe
 } from "lucide-react";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import NotificationDropdown from "./NotificationDropdown";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -71,40 +72,7 @@ export default function Header() {
             {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
           </Button>
           
-          {isAuthenticated && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full relative">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <div className="flex items-start space-x-2">
-                    <span className="flex-shrink-0 mt-0.5">
-                      <User className="h-4 w-4" />
-                    </span>
-                    <div>
-                      <p className="text-sm">{language === 'ru' ? "Сара Джонсон упомянула вас" : "Sarah Johnson mentioned you"}</p>
-                      <p className="text-xs text-gray-500">{language === 'ru' ? "2 часа назад" : "2 hours ago"}</p>
-                    </div>
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <div className="flex items-start space-x-2">
-                    <span className="flex-shrink-0 mt-0.5">
-                      <Code className="h-4 w-4" />
-                    </span>
-                    <div>
-                      <p className="text-sm">{language === 'ru' ? "Дэвид Миллер прокомментировал ваш пост" : "David Miller commented on your post"}</p>
-                      <p className="text-xs text-gray-500">{language === 'ru' ? "1 день назад" : "1 day ago"}</p>
-                    </div>
-                  </div>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+          {isAuthenticated && <NotificationDropdown />}
           
           {isAuthenticated ? (
             <DropdownMenu>
