@@ -14,7 +14,6 @@ import {
   type CodeSnippet,
   type TrendingTopic
 } from "@shared/schema";
-import { v4 as uuidv4 } from "uuid";
 import * as bcrypt from 'bcryptjs';
 
 // Interface for storage operations
@@ -277,9 +276,14 @@ export class MemStorage implements IStorage {
   async getUserFollowersCount(userId: string): Promise<number> {
     console.log(`[FOLLOWERS COUNT] Counting followers for user ${userId}`);
     let count = 0;
-    for (const follow of this.follows.values()) {
+    const followsArray = [...this.follows.values()];
+    console.log(`[FOLLOWERS COUNT] Total follows in system: ${followsArray.length}`);
+    
+    for (const follow of followsArray) {
+      console.log(`[FOLLOWERS COUNT] Checking follow: ${follow.followerId} -> ${follow.followingId}`);
       if (follow.followingId === userId) {
         count++;
+        console.log(`[FOLLOWERS COUNT] Found follower: ${follow.followerId}`);
       }
     }
     console.log(`[FOLLOWERS COUNT] User ${userId} has ${count} followers`);
@@ -289,7 +293,9 @@ export class MemStorage implements IStorage {
   async getUserFollowingCount(userId: string): Promise<number> {
     console.log(`[FOLLOWING COUNT] Counting following for user ${userId}`);
     let count = 0;
-    for (const follow of this.follows.values()) {
+    const followsArray = [...this.follows.values()];
+    
+    for (const follow of followsArray) {
       if (follow.followerId === userId) {
         count++;
       }
