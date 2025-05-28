@@ -460,9 +460,7 @@ export default function AIAssistant() {
 {t('ai.title')}
             </CardTitle>
             <CardDescription>
-              {language === 'en' 
-                ? 'Your AI assistant for coding help and content analysis'
-                : 'Ваш ИИ-ассистент для помощи с кодом и анализа контента'}
+              {t('ai.description')}
             </CardDescription>
           </CardHeader>
         </Card>

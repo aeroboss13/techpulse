@@ -26,6 +26,7 @@ const translations: Record<Language, Record<string, string>> = {
     
     // AI Assistant
     'ai.title': 'AI Assistant',
+    'ai.description': 'Your AI assistant for coding help and content analysis',
     'ai.askQuestion': 'Ask a Question',
     'ai.contentAnalysis': 'Content Analysis',
     'ai.debugCode': 'Debug My Code',
@@ -173,6 +174,7 @@ const translations: Record<Language, Record<string, string>> = {
     
     // AI Assistant
     'ai.title': 'ИИ-Ассистент',
+    'ai.description': 'Ваш ИИ-помощник для программирования и анализа контента',
     'ai.askQuestion': 'Задать вопрос',
     'ai.contentAnalysis': 'Анализ контента',
     'ai.debugCode': 'Отладка кода',
