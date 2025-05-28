@@ -204,7 +204,13 @@ export class MemStorage implements IStorage {
 
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const user = this.users.get(id);
+    // Исправляем пользователей без поля telegram
+    if (user && user.telegram === undefined) {
+      user.telegram = null;
+      this.users.set(id, user);
+    }
+    return user;
   }
   
   async getUserByEmail(email: string): Promise<User | undefined> {
