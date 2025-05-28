@@ -1,18 +1,20 @@
 import { User, Post } from "@shared/schema";
-import OpenAI from "openai";
+import { Ollama } from 'ollama';
 
-// Initialize OpenAI client
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Initialize Ollama client
+const ollama = new Ollama({
+  host: 'http://localhost:11434'
+});
 
-// Function to generate AI suggestions using OpenAI API
+// Function to generate AI suggestions using Ollama
 export async function generateAiSuggestion(prompt: string): Promise<string> {
   try {
-    // Call OpenAI API
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+    // Call Ollama API
+    const response = await ollama.chat({
+      model: 'llama3.1:8b',
       messages: [
         {
-          role: "system",
+          role: 'system',
           content: `You are an AI assistant for a social media platform for developers called DevStream. 
           You help developers with technical questions, generate code examples, and provide suggestions to improve their posts.
           Your responses should be concise, technical, and in the style of a professional developer.
@@ -20,15 +22,17 @@ export async function generateAiSuggestion(prompt: string): Promise<string> {
           When providing code, make sure it's well-formatted and correct.
           Limit your responses to 250 words maximum.`
         },
-        { role: "user", content: prompt }
+        { role: 'user', content: prompt }
       ],
-      temperature: 0.7,
-      max_tokens: 500,
+      options: {
+        temperature: 0.7,
+        num_predict: 500,
+      }
     });
 
-    return response.choices[0].message.content || "Sorry, I couldn't generate a response. Please try again.";
+    return response.message?.content || "Sorry, I couldn't generate a response. Please try again.";
   } catch (error) {
-    console.error("Error calling OpenAI API:", error);
+    console.error("Error calling Ollama API:", error);
     
     // Fallback response for API errors
     if (prompt.includes("bug") || prompt.includes("error")) {
@@ -51,8 +55,8 @@ export async function analyzePost(postContent: string): Promise<{
   readability: 'easy' | 'medium' | 'complex';
 }> {
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+    const response = await ollama.chat({
+      model: 'llama3.1:8b',
       messages: [
         {
           role: "system",
@@ -71,11 +75,13 @@ export async function analyzePost(postContent: string): Promise<{
         },
         { role: "user", content: postContent }
       ],
-      response_format: { type: "json_object" },
-      temperature: 0.5,
+      format: 'json',
+      options: {
+        temperature: 0.5,
+      }
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = JSON.parse(response.message?.content || "{}");
     
     return {
       suggestions: result.suggestions || [],
@@ -84,7 +90,7 @@ export async function analyzePost(postContent: string): Promise<{
       readability: result.readability || 'medium'
     };
   } catch (error) {
-    console.error("Error analyzing post with OpenAI:", error);
+    console.error("Error analyzing post with Ollama:", error);
     
     // Fallback response
     return {
