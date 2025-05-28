@@ -499,17 +499,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const targetUserId = req.params.id;
       const { followed } = req.body;
 
+      console.log(`Follow request: userId=${userId}, targetUserId=${targetUserId}, followed=${followed}`);
+
       if (userId === targetUserId) {
         return res.status(400).json({ message: "Cannot follow yourself" });
       }
 
       if (followed) {
         await storage.followUser(userId, targetUserId);
+        console.log(`User ${userId} followed user ${targetUserId}`);
       } else {
         await storage.unfollowUser(userId, targetUserId);
+        console.log(`User ${userId} unfollowed user ${targetUserId}`);
       }
 
-      res.json({ success: true });
+      // Проверяем статус после операции
+      const isFollowing = await storage.isUserFollowedBy(userId, targetUserId);
+      console.log(`Follow status after operation: ${isFollowing}`);
+
+      res.json({ success: true, isFollowing });
     } catch (error) {
       console.error("Error following/unfollowing user:", error);
       res.status(500).json({ message: "Failed to follow/unfollow user" });
