@@ -443,10 +443,10 @@ export default function AIAssistant() {
 
   const getReadabilityLabel = (readability: 'easy' | 'medium' | 'complex') => {
     switch (readability) {
-      case 'easy': return { label: language === 'en' ? 'Easy to read' : 'Легко читается', color: 'text-green-500' };
-      case 'medium': return { label: language === 'en' ? 'Moderately complex' : 'Средней сложности', color: 'text-yellow-500' };
-      case 'complex': return { label: language === 'en' ? 'Complex' : 'Сложный', color: 'text-red-500' };
-      default: return { label: language === 'en' ? 'Unknown' : 'Неизвестно', color: 'text-gray-500' };
+      case 'easy': return { label: t('ai.easyRead'), color: 'text-green-500' };
+      case 'medium': return { label: t('ai.moderateComplex'), color: 'text-yellow-500' };
+      case 'complex': return { label: t('ai.complex'), color: 'text-red-500' };
+      default: return { label: t('ai.unknown'), color: 'text-gray-500' };
     }
   };
 
@@ -471,11 +471,11 @@ export default function AIAssistant() {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="code" className="flex items-center">
               <Code className="h-4 w-4 mr-2" />
-              {language === 'en' ? 'Code Assistant' : 'Помощник по коду'}
+              {t('ai.askQuestion')}
             </TabsTrigger>
             <TabsTrigger value="content" className="flex items-center">
               <LineChart className="h-4 w-4 mr-2" />
-              {language === 'en' ? 'Content Analysis' : 'Анализ контента'}
+              {t('ai.contentAnalysis')}
             </TabsTrigger>
           </TabsList>
 
@@ -486,18 +486,20 @@ export default function AIAssistant() {
                   <CardHeader className="p-4">
                     <CardTitle className="text-base flex items-center">
                       {prompt.icon}
-                      <span className="ml-2">{language === 'en' ? prompt.title : 
-                        prompt.title === 'Debug My Code' ? 'Отладка кода' :
-                        prompt.title === 'Explain a Concept' ? 'Объяснение концепций' :
-                        prompt.title === 'Generate Code' ? 'Генерация кода' :
-                        'Оптимизация решений'}</span>
+                      <span className="ml-2">{
+                        prompt.title === 'Debug My Code' ? t('ai.debugCode') :
+                        prompt.title === 'Explain a Concept' ? t('ai.explainConcept') :
+                        prompt.title === 'Generate Code' ? t('ai.generateCode') :
+                        t('ai.optimizeSolution')
+                      }</span>
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      {language === 'en' ? prompt.description :
-                        prompt.description === 'Help me find issues in my code' ? 'Помощь в поиске проблем в коде' :
-                        prompt.description === 'Get explanations for technical topics' ? 'Получите объяснения технических тем' :
-                        prompt.description === 'Get code for a specific task' ? 'Получите код для конкретной задачи' :
-                        'Сделайте ваш код более эффективным'}
+{
+                        prompt.description === 'Help me find issues in my code' ? t('ai.debugDescription') :
+                        prompt.description === 'Get explanations for technical topics' ? t('ai.explainDescription') :
+                        prompt.description === 'Get code for a specific task' ? t('ai.generateDescription') :
+                        t('ai.optimizeDescription')
+                      }
                     </CardDescription>
                   </CardHeader>
                 </Card>
