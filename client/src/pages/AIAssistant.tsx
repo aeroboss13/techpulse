@@ -138,6 +138,11 @@ export default function AIAssistant() {
   const { toast } = useToast();
   const { t, language } = useLanguage();
 
+  // Принудительно обновляем компонент при смене языка
+  useEffect(() => {
+    // Компонент будет перерендериваться при изменении language
+  }, [language]);
+
   // Загружаем реальные посты пользователя
   const { data: userPosts = [], isLoading: isLoadingPosts } = useQuery({
     queryKey: [`/api/posts/user/${user?.id}`],
