@@ -12,42 +12,63 @@ export async function generateAiSuggestion(prompt: string): Promise<string> {
     const hasRussian = /[а-яё]/i.test(prompt);
     const language = hasRussian ? 'Russian' : 'English';
     
-    const systemPrompt = `You are a helpful programming assistant for a social platform for IT professionals. 
+    let systemPrompt = '';
     
-    CRITICAL RULES - MUST FOLLOW:
-    - Write your ENTIRE response in ${language} language only
-    - NEVER include hashtags (#) anywhere in your response
-    - NEVER mix languages - use only ${language}
-    - Be practical and actionable
-    - Include code examples when relevant
-    - Be encouraging and supportive
-    - Keep responses concise but informative
-    - Focus on best practices and modern approaches
-    
-    User question: ${prompt}`;
+    if (language === 'Russian') {
+      systemPrompt = `Ты - помощник по программированию. 
+
+СТРОГИЕ ПРАВИЛА:
+- Отвечай ТОЛЬКО на русском языке
+- ЗАПРЕЩЕНО использовать хештеги (#)
+- ЗАПРЕЩЕНО смешивать языки
+- Будь практичным и конкретным
+
+Вопрос: ${prompt}
+
+Ответь на русском языке без хештегов.`;
+    } else {
+      systemPrompt = `You are a programming assistant.
+
+STRICT RULES:
+- Answer ONLY in English
+- NO hashtags (#) allowed
+- NO language mixing
+- Be practical and specific
+
+Question: ${prompt}
+
+Answer in English without hashtags.`;
+    }
 
     const result = await model.generateContent(systemPrompt);
     const response = await result.response;
     let text = response.text();
     
-    // Completely remove hashtags and clean up text
+    // ULTRA AGGRESSIVE hashtag removal - multiple passes
+    
+    // 1. Remove entire lines that contain hashtags
     const lines = text.split('\n');
-    const cleanLines = [];
+    const cleanLines = lines.filter(line => !line.includes('#'));
+    text = cleanLines.join('\n');
     
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-      // Skip any line that contains hashtags or is just hashtags
-      if (!trimmedLine.includes('#') && trimmedLine.length > 0) {
-        cleanLines.push(line);
-      }
-    }
+    // 2. Remove any hashtags that might be inline
+    text = text.replace(/#\w+/g, '');
+    text = text.replace(/#[\u0400-\u04FF]+/g, ''); // Cyrillic
+    text = text.replace(/#[a-zA-Z]+/g, ''); // Latin
     
-    text = cleanLines.join('\n').trim();
+    // 3. Remove any remaining # symbols
+    text = text.replace(/#/g, '');
     
-    // Final cleanup
-    text = text.replace(/#[^\s\n]*/g, ''); // Remove any remaining hashtags
-    text = text.replace(/\s+/g, ' '); // Replace multiple spaces with single space
+    // 4. Clean up extra whitespace
+    text = text.replace(/\s+/g, ' ');
+    text = text.replace(/\n\s*\n/g, '\n');
     text = text.trim();
+    
+    // 5. Final check - if any hashtags still remain, cut off everything after the first one
+    const hashtagIndex = text.indexOf('#');
+    if (hashtagIndex !== -1) {
+      text = text.substring(0, hashtagIndex).trim();
+    }
     
     // If AI responded in wrong language, make a second attempt with more explicit prompt
     if (language === 'Russian' && !/[а-яё]/i.test(text.slice(0, 100))) {
