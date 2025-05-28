@@ -51,13 +51,9 @@ export default function Profile() {
   const followMutation = useMutation({
     mutationFn: async (followed: boolean) => {
       console.log('Отправка запроса подписки:', followed);
-      const response = await apiRequest(`/api/users/${userId}/follow`, {
-        method: 'POST',
-        body: JSON.stringify({ followed }),
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const response = await apiRequest('POST', `/api/users/${userId}/follow`, { followed });
       console.log('Ответ сервера:', response);
-      return response;
+      return await response.json();
     },
     onSuccess: (data) => {
       console.log('Успешная подписка, обновляем кэш');

@@ -532,6 +532,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Checking follow status: userId=${userId}, targetUserId=${targetUserId}`);
       
+      if (!userId) {
+        console.log('No userId in session');
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      if (!targetUserId) {
+        console.log('No targetUserId provided');
+        return res.status(400).json({ message: "Target user ID required" });
+      }
+      
       const isFollowing = await storage.isUserFollowedBy(userId, targetUserId);
       console.log(`Follow status result: ${isFollowing}`);
       
