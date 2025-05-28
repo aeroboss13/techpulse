@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,6 +23,12 @@ interface SuggestedUser {
 
 export default function RightSidebar() {
   const { t, language } = useLanguage();
+  const [location, setLocation] = useLocation();
+
+  const handleHashtagClick = (hashtag: string) => {
+    console.log('[HASHTAG CLICK] Navigating to hashtag:', hashtag);
+    setLocation(`/explore?topic=${encodeURIComponent(hashtag)}`);
+  };
   const { data: trendingTopics } = useQuery<TrendingTopic[]>({
     queryKey: ["/api/trending-topics"],
     queryFn: async () => {
@@ -67,17 +73,18 @@ export default function RightSidebar() {
             <ul className="space-y-3">
               {displayTopics.map(topic => (
                 <li key={topic.id}>
-                  <Link href={`/explore?topic=${encodeURIComponent(topic.name)}`}>
-                    <a className="block hover:bg-gray-50 dark:hover:bg-gray-800 -mx-2 px-2 py-2 rounded-lg">
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {language === 'ru' ? 'Популярно в' : 'Trending in'} {topic.category}
-                      </div>
-                      <div className="font-medium">{topic.name}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Intl.NumberFormat('en-US').format(topic.postCount)} {language === 'ru' ? 'постов' : 'posts'}
-                      </div>
-                    </a>
-                  </Link>
+                  <button 
+                    onClick={() => handleHashtagClick(topic.name)}
+                    className="block w-full text-left hover:bg-gray-50 dark:hover:bg-gray-800 -mx-2 px-2 py-2 rounded-lg cursor-pointer transition-colors"
+                  >
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {language === 'ru' ? 'Популярно в' : 'Trending in'} {topic.category}
+                    </div>
+                    <div className="font-medium">{topic.name}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {new Intl.NumberFormat('en-US').format(topic.postCount)} {language === 'ru' ? 'постов' : 'posts'}
+                    </div>
+                  </button>
                 </li>
               ))}
             </ul>
