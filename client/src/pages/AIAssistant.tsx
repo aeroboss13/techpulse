@@ -15,6 +15,7 @@ import {
   MessageSquare, User, Hash
 } from 'lucide-react';
 import CodeSnippet from '@/components/CodeSnippet';
+import { useQuery } from '@tanstack/react-query';
 
 interface Message {
   id: string;
@@ -161,6 +162,76 @@ export default function AIAssistant() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { t, language } = useLanguage();
+
+  // Загружаем реальные посты пользователя
+  const { data: userPosts = [], isLoading: isLoadingPosts } = useQuery({
+    queryKey: ['/api/posts/user', user?.id],
+    enabled: !!user?.id,
+  });
+
+  // Преобразуем посты пользователя в формат для анализа
+  const postsForAnalysis: PostAnalysis[] = userPosts.map((post: any) => ({
+    id: post.id,
+    content: post.content,
+    engagement: (post.likes || 0) + (post.comments || 0),
+    suggestions: generateSuggestions(post),
+    topics: extractTopics(post.content),
+    sentiment: analyzeSentiment(post.content),
+    readability: analyzeReadability(post.content)
+  }));
+
+  // Функции для анализа постов
+  function generateSuggestions(post: any): string[] {
+    const suggestions = [];
+    if (post.content.length < 50) {
+      suggestions.push(language === 'en' ? 'Consider adding more details to make your post more engaging' : 'Добавьте больше деталей для повышения вовлеченности');
+    }
+    if (!post.content.includes('#')) {
+      suggestions.push(language === 'en' ? 'Add relevant hashtags to increase visibility' : 'Добавьте релевантные хештеги для увеличения видимости');
+    }
+    if (post.codeSnippet) {
+      suggestions.push(language === 'en' ? 'Great code example! Consider explaining how it works' : 'Отличный пример кода! Объясните, как он работает');
+    }
+    if (suggestions.length === 0) {
+      suggestions.push(language === 'en' ? 'Great post! Consider sharing more technical insights' : 'Отличный пост! Поделитесь большим количеством технических деталей');
+    }
+    return suggestions;
+  }
+
+  function extractTopics(content: string): Array<{name: string, relevance: number}> {
+    const techKeywords = ['React', 'JavaScript', 'TypeScript', 'Node.js', 'Python', 'Java', 'CSS', 'HTML', 'Vue', 'Angular', 'API', 'Database', 'Docker', 'Git'];
+    const topics = [];
+    const lowerContent = content.toLowerCase();
+    
+    for (const keyword of techKeywords) {
+      if (lowerContent.includes(keyword.toLowerCase())) {
+        const relevance = (content.match(new RegExp(keyword, 'gi')) || []).length * 0.3;
+        topics.push({ name: keyword, relevance: Math.min(relevance, 1) });
+      }
+    }
+    
+    return topics.slice(0, 3);
+  }
+
+  function analyzeSentiment(content: string): 'positive' | 'neutral' | 'negative' {
+    const positiveWords = ['great', 'awesome', 'excellent', 'love', 'amazing', 'perfect', 'отлично', 'прекрасно', 'замечательно'];
+    const negativeWords = ['terrible', 'awful', 'hate', 'horrible', 'worst', 'ужасно', 'плохо', 'кошмар'];
+    
+    const lowerContent = content.toLowerCase();
+    const positiveCount = positiveWords.filter(word => lowerContent.includes(word)).length;
+    const negativeCount = negativeWords.filter(word => lowerContent.includes(word)).length;
+    
+    if (positiveCount > negativeCount) return 'positive';
+    if (negativeCount > positiveCount) return 'negative';
+    return 'neutral';
+  }
+
+  function analyzeReadability(content: string): 'easy' | 'medium' | 'complex' {
+    const words = content.split(' ').length;
+    if (words < 20) return 'easy';
+    if (words < 50) return 'medium';
+    return 'complex';
+  }
 
   useEffect(() => {
     document.title = "DevStream - AI Assistant";
