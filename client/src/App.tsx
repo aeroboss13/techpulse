@@ -20,7 +20,7 @@ import { LanguageProvider } from "@/components/LanguageProvider";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, isLoading } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   
   React.useEffect(() => {
     // При изменении состояния аутентификации, перенаправляем
