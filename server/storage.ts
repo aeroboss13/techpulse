@@ -988,6 +988,52 @@ export class MemStorage implements IStorage {
     return Array.from(this.jobOffers.values())
       .some(offer => offer.offeredByUserId === userId && offer.resumeId === resumeId && offer.jobId === jobId);
   }
+
+  // Notification operations
+  async createNotification(notificationData: InsertNotification): Promise<Notification> {
+    const notification: Notification = {
+      id: uuidv4(),
+      ...notificationData,
+      isRead: false,
+      createdAt: new Date(),
+    };
+    
+    this.notifications.set(notification.id, notification);
+    return notification;
+  }
+
+  async getUserNotifications(userId: string): Promise<Notification[]> {
+    return Array.from(this.notifications.values())
+      .filter(notification => notification.userId === userId)
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime())
+      .map(notification => ({
+        ...notification,
+        fromUser: this.users.get(notification.fromUserId)
+      }));
+  }
+
+  async markNotificationAsRead(id: string): Promise<void> {
+    const notification = this.notifications.get(id);
+    if (notification) {
+      notification.isRead = true;
+      this.notifications.set(id, notification);
+    }
+  }
+
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    for (const [id, notification] of this.notifications.entries()) {
+      if (notification.userId === userId && !notification.isRead) {
+        notification.isRead = true;
+        this.notifications.set(id, notification);
+      }
+    }
+  }
+
+  async getUnreadNotificationsCount(userId: string): Promise<number> {
+    return Array.from(this.notifications.values())
+      .filter(notification => notification.userId === userId && !notification.isRead)
+      .length;
+  }
 }
 
 export const storage = new MemStorage();
