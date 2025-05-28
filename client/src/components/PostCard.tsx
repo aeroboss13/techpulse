@@ -140,17 +140,23 @@ export default function PostCard({ post }: PostCardProps) {
       
       <div className="p-4">
         <div className="flex items-start space-x-3">
-          <Avatar className="w-10 h-10">
-            <AvatarImage src={post.user.profileImageUrl} alt={post.user.displayName} />
-            <AvatarFallback>{post.user.displayName[0]}</AvatarFallback>
-          </Avatar>
+          <Link href={`/profile/${post.user.id}`}>
+            <Avatar className="w-10 h-10 cursor-pointer hover:opacity-80 transition-opacity">
+              <AvatarImage src={post.user.profileImageUrl} alt={post.user.displayName} />
+              <AvatarFallback>{post.user.displayName[0]}</AvatarFallback>
+            </Avatar>
+          </Link>
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-1">
-              <h3 className="font-medium text-gray-900 dark:text-white truncate">
-                {post.user.displayName}
-              </h3>
-              <span className="text-gray-500 dark:text-gray-400">@{post.user.username}</span>
+              <Link href={`/profile/${post.user.id}`}>
+                <h3 className="font-medium text-gray-900 dark:text-white truncate hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors">
+                  {post.user.displayName}
+                </h3>
+              </Link>
+              <Link href={`/profile/${post.user.id}`}>
+                <span className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors">@{post.user.username}</span>
+              </Link>
               <span className="text-gray-500 dark:text-gray-400">·</span>
               <span className="text-gray-500 dark:text-gray-400">
                 {(() => {
