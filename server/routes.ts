@@ -429,6 +429,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get posts by hashtag
+  app.get('/api/posts/hashtag/:hashtag', async (req: any, res) => {
+    try {
+      const hashtag = req.params.hashtag;
+      console.log('[HASHTAG] Searching posts for hashtag:', hashtag);
+      
+      const posts = await storage.searchPosts(hashtag);
+      const enhancedPosts = await Promise.all(posts.map(async (post) => {
+        const user = await storage.getUser(post.userId);
+        const isLiked = req.session && req.session.userId 
+          ? await storage.isPostLikedByUser(post.id, req.session.userId) 
+          : false;
+        const isBookmarked = req.session && req.session.userId 
+          ? await storage.isPostBookmarkedByUser(post.id, req.session.userId) 
+          : false;
+        
+        return {
+          ...post,
+          isLiked,
+          isBookmarked,
+          user: {
+            id: user?.id,
+            username: user?.username || user?.email?.split('@')[0] || 'user',
+            displayName: user?.firstName || user?.email?.split('@')[0] || 'User',
+            profileImageUrl: user?.profileImageUrl
+          }
+        };
+      }));
+      
+      console.log('[HASHTAG] Found posts:', enhancedPosts.length);
+      res.json(enhancedPosts);
+    } catch (error) {
+      console.error("Error fetching posts by hashtag:", error);
+      res.status(500).json({ message: "Failed to fetch posts by hashtag" });
+    }
+  });
+
   // Get user's bookmarked posts
   app.get('/api/user/bookmarked-posts', isAuthenticated, async (req: any, res) => {
     try {

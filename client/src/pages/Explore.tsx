@@ -1,18 +1,31 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import MainLayout from "@/components/MainLayout";
 import PostCard from "@/components/PostCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 
 export default function Explore() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTab, setSelectedTab] = useState("trending");
+  const [selectedHashtag, setSelectedHashtag] = useState<string | null>(null);
+  const [location, setLocation] = useLocation();
   const { t, language } = useLanguage();
+
+  // Обработка параметра topic из URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const topic = urlParams.get('topic');
+    if (topic) {
+      setSelectedHashtag(topic);
+      setSelectedTab("hashtag");
+    }
+  }, [location]);
   
   useEffect(() => {
     document.title = "DevStream - Explore";
