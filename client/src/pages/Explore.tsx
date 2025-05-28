@@ -21,11 +21,16 @@ export default function Explore() {
   useEffect(() => {
     const urlParams = new URLSearchParams(location.split('?')[1] || '');
     const topic = urlParams.get('topic');
+    console.log('[HASHTAG FILTER] Current location:', location);
+    console.log('[HASHTAG FILTER] Topic from URL:', topic);
+    
     if (topic) {
+      console.log('[HASHTAG FILTER] Setting hashtag filter:', topic);
       setSelectedHashtag(topic);
       setSelectedTab("hashtag");
     } else if (selectedHashtag && selectedTab === "hashtag") {
       // Если нет параметра topic, но хэштег выбран - сбрасываем
+      console.log('[HASHTAG FILTER] Clearing hashtag filter');
       setSelectedHashtag(null);
       setSelectedTab("trending");
     }
