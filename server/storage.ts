@@ -8,11 +8,14 @@ import {
   follows,
   codeSnippets,
   trendingTopics,
+  notifications,
   type User,
   type UpsertUser,
   type Post,
   type CodeSnippet,
-  type TrendingTopic
+  type TrendingTopic,
+  type Notification,
+  type InsertNotification,
 } from "@shared/schema";
 import * as bcrypt from 'bcryptjs';
 
@@ -98,6 +101,13 @@ export interface IStorage {
   getJobOffersByResume(resumeId: string): Promise<any[]>;
   updateJobOfferStatus(id: string, status: string): Promise<any>;
   hasUserOfferedJobToResume(userId: string, resumeId: string, jobId: string): Promise<boolean>;
+  
+  // Notification operations
+  createNotification(notification: InsertNotification): Promise<Notification>;
+  getUserNotifications(userId: string): Promise<Notification[]>;
+  markNotificationAsRead(id: string): Promise<void>;
+  markAllNotificationsAsRead(userId: string): Promise<void>;
+  getUnreadNotificationsCount(userId: string): Promise<number>;
 }
 
 export class MemStorage implements IStorage {
@@ -113,6 +123,7 @@ export class MemStorage implements IStorage {
   private resumes: Map<string, any>;
   private jobApplications: Map<string, any>;
   private jobOffers: Map<string, any>;
+  private notifications: Map<string, Notification>;
 
   constructor() {
     this.users = new Map();
@@ -127,6 +138,7 @@ export class MemStorage implements IStorage {
     this.resumes = new Map();
     this.jobApplications = new Map();
     this.jobOffers = new Map();
+    this.notifications = new Map();
     
     this.initializeSampleData();
   }
