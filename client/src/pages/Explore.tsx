@@ -105,6 +105,7 @@ export default function Explore() {
   };
 
   const clearHashtagFilter = () => {
+    console.log('[HASHTAG CLEAR] Clearing filter');
     setSelectedHashtag(null);
     setSelectedTab("trending");
     // Очищаем URL от параметра topic
@@ -190,6 +191,13 @@ export default function Explore() {
             <TabsTrigger value="search" className="flex-1">{language === 'ru' ? 'Результаты поиска' : 'Search Results'}</TabsTrigger>
           )}
         </TabsList>
+        
+        {/* Показать информацию о текущем состоянии для отладки */}
+        {selectedHashtag && (
+          <div className="mt-4 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm">
+            <strong>Отладка:</strong> Выбранный хэштег: {selectedHashtag}, Активная вкладка: {selectedTab}
+          </div>
+        )}
         
         <TabsContent value="trending" className="space-y-6 mt-6">
           {isTrendingLoading ? (
