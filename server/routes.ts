@@ -632,7 +632,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         location,
         website,
         github,
-        twitter
+        twitter,
+        telegram
       } = req.body;
       
       const user = await storage.getUser(userId);
@@ -659,6 +660,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         website: website !== undefined ? website : user.website,
         github: github !== undefined ? github : user.github,
         twitter: twitter !== undefined ? twitter : user.twitter,
+        telegram: telegram !== undefined ? telegram : user.telegram,
         updatedAt: new Date()
       });
       
