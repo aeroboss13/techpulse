@@ -123,10 +123,24 @@ export default function CreatePostCard() {
     setIsAiLoading(true);
     
     try {
+      // Создаем специальный промпт для анализа поста
+      const analysisPrompt = `Проанализируй этот пост для IT-платформы и дай конкретные рекомендации для улучшения охвата и вовлеченности:
+
+"${content}"
+
+Дай рекомендации по:
+1. Структуре и формате текста
+2. Добавлению хештегов для увеличения видимости
+3. Улучшению привлекательности для аудитории разработчиков
+4. Техническому содержанию
+5. Призывам к действию
+
+Ответь кратко и практично.`;
+
       const response = await fetch("/api/ai/suggest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: content }),
+        body: JSON.stringify({ prompt: analysisPrompt }),
       });
       
       if (!response.ok) throw new Error("Failed to get AI suggestion");
