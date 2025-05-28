@@ -133,6 +133,7 @@ export default function AIAssistant() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPost, setSelectedPost] = useState<PostAnalysis | null>(null);
+  const [forceUpdate, setForceUpdate] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -140,7 +141,7 @@ export default function AIAssistant() {
 
   // Принудительно обновляем компонент при смене языка
   useEffect(() => {
-    // Компонент будет перерендериваться при изменении language
+    setForceUpdate(prev => prev + 1);
   }, [language]);
 
   // Загружаем реальные посты пользователя
@@ -456,7 +457,7 @@ export default function AIAssistant() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Bot className="mr-2 h-6 w-6 text-primary" />
-              AI Assistant
+{t('ai.title')}
             </CardTitle>
             <CardDescription>
               {language === 'en' 

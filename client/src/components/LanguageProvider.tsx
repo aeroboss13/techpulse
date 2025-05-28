@@ -24,6 +24,23 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.aiAssistant': 'AI Assistant',
     'nav.search': 'Search DevStream...',
     
+    // AI Assistant
+    'ai.title': 'AI Assistant',
+    'ai.askQuestion': 'Ask a Question',
+    'ai.contentAnalysis': 'Content Analysis',
+    'ai.debugCode': 'Debug My Code',
+    'ai.explainConcept': 'Explain a Concept', 
+    'ai.generateCode': 'Generate Code',
+    'ai.optimizeSolution': 'Optimize Solution',
+    'ai.debugDescription': 'Help me find issues in my code',
+    'ai.explainDescription': 'Get explanations for technical topics',
+    'ai.generateDescription': 'Get code for a specific task',
+    'ai.optimizeDescription': 'Make your code more efficient',
+    'ai.easyRead': 'Easy to read',
+    'ai.moderateComplex': 'Moderately complex',
+    'ai.complex': 'Complex',
+    'ai.unknown': 'Unknown',
+    
     // Auth
     'auth.email': 'Email',
     'auth.password': 'Password',
@@ -153,6 +170,23 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.login': 'Войти',
     'nav.aiAssistant': 'ИИ-Ассистент',
     'nav.search': 'Поиск в DevStream...',
+    
+    // AI Assistant
+    'ai.title': 'ИИ-Ассистент',
+    'ai.askQuestion': 'Задать вопрос',
+    'ai.contentAnalysis': 'Анализ контента',
+    'ai.debugCode': 'Отладка кода',
+    'ai.explainConcept': 'Объяснение концепций',
+    'ai.generateCode': 'Генерация кода',
+    'ai.optimizeSolution': 'Оптимизация решений',
+    'ai.debugDescription': 'Помощь в поиске проблем в коде',
+    'ai.explainDescription': 'Получите объяснения технических тем',
+    'ai.generateDescription': 'Получите код для конкретной задачи',
+    'ai.optimizeDescription': 'Сделайте ваш код более эффективным',
+    'ai.easyRead': 'Легко читается',
+    'ai.moderateComplex': 'Средней сложности',
+    'ai.complex': 'Сложный',
+    'ai.unknown': 'Неизвестно',
     
     // Auth
     'auth.email': 'Эл. почта',
