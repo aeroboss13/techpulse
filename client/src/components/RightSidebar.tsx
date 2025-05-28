@@ -26,9 +26,11 @@ export default function RightSidebar() {
   const [location, setLocation] = useLocation();
 
   const handleHashtagClick = (hashtag: string) => {
-    console.log('[HASHTAG CLICK] Navigating to hashtag:', hashtag);
-    // Сохраняем хэштег в localStorage для передачи на страницу Explore
-    localStorage.setItem('selectedHashtag', hashtag);
+    console.log('[HASHTAG CLICK] Clicking hashtag:', hashtag);
+    // Отправляем глобальное событие
+    const event = new CustomEvent('filterByHashtag', { detail: hashtag });
+    window.dispatchEvent(event);
+    // Переходим на страницу Explore
     setLocation('/explore');
   };
   const { data: trendingTopics } = useQuery<TrendingTopic[]>({

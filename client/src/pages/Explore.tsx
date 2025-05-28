@@ -17,6 +17,21 @@ export default function Explore() {
   const [location, setLocation] = useLocation();
   const { t, language } = useLanguage();
 
+  // Глобальный обработчик для хэштегов
+  useEffect(() => {
+    const handleHashtagFilter = (event: CustomEvent) => {
+      const hashtag = event.detail;
+      console.log('[GLOBAL HASHTAG] Received hashtag:', hashtag);
+      setSelectedHashtag(hashtag);
+      setSelectedTab("hashtag");
+    };
+
+    window.addEventListener('filterByHashtag', handleHashtagFilter as EventListener);
+    return () => {
+      window.removeEventListener('filterByHashtag', handleHashtagFilter as EventListener);
+    };
+  }, []);
+
   // Обработка хэштега из localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
