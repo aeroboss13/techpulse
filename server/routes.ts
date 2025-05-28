@@ -609,6 +609,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         website: user.website || null,
         github: user.github || null,
         twitter: user.twitter || null,
+        telegram: user.telegram || null,
         language: user.language || 'en',
         joinedAt: user.createdAt,
         postsCount,
