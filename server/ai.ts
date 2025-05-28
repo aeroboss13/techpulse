@@ -58,8 +58,23 @@ Answer in English without hashtags.`;
     const response = await result.response;
     let text = response.text();
     
-    // COMPLETE hashtag removal
-    text = removeHashtagsCompletely(text);
+    // COMPLETE hashtag removal - multiple methods to ensure all hashtags are removed
+    // Method 1: Cut at first hashtag
+    let hashtagIndex = text.indexOf('#');
+    if (hashtagIndex !== -1) {
+      text = text.substring(0, hashtagIndex);
+    }
+    
+    // Method 2: Remove any remaining hashtags with regex
+    text = text.replace(/#\w+/g, '');
+    
+    // Method 3: Remove lines that might contain hashtags
+    text = text.split('\n')
+      .filter(line => !line.includes('#'))
+      .join('\n');
+    
+    // Final cleanup
+    text = text.trim();
     
     // If AI responded in wrong language, make a second attempt with more explicit prompt
     if (language === 'Russian' && !/[а-яё]/i.test(text.slice(0, 100))) {
