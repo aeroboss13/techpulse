@@ -54,6 +54,7 @@ export interface IStorage {
   bookmarkPost(postId: string, userId: string): Promise<void>;
   unbookmarkPost(postId: string, userId: string): Promise<void>;
   isPostBookmarkedByUser(postId: string, userId: string): Promise<boolean>;
+  getUserBookmarkedPosts(userId: string): Promise<Post[]>;
   
   // Follow operations
   followUser(followerId: string, followingId: string): Promise<void>;
@@ -471,6 +472,17 @@ export class MemStorage implements IStorage {
   async isPostBookmarkedByUser(postId: string, userId: string): Promise<boolean> {
     return Array.from(this.bookmarks.values())
       .some(bookmark => bookmark.postId === postId && bookmark.userId === userId);
+  }
+
+  async getUserBookmarkedPosts(userId: string): Promise<Post[]> {
+    const userBookmarks = Array.from(this.bookmarks.values())
+      .filter(bookmark => bookmark.userId === userId);
+    
+    const bookmarkedPosts = userBookmarks
+      .map(bookmark => this.posts.get(bookmark.postId))
+      .filter(post => post !== undefined) as Post[];
+    
+    return bookmarkedPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   // Follow operations

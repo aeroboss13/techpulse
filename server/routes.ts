@@ -434,15 +434,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.session.userId;
       // Get all posts that this user has bookmarked
-      const allPosts = await storage.getAllPosts();
-      const bookmarkedPosts = [];
-      
-      for (const post of allPosts) {
-        const isBookmarked = await storage.isPostBookmarkedByUser(post.id, userId);
-        if (isBookmarked) {
-          bookmarkedPosts.push(post);
-        }
-      }
+      const bookmarkedPosts = await storage.getUserBookmarkedPosts(userId);
+      console.log('Bookmarked posts for user:', userId, 'found:', bookmarkedPosts.length);
       
       const enhancedPosts = await Promise.all(bookmarkedPosts.map(async (post) => {
         const user = await storage.getUser(post.userId);
