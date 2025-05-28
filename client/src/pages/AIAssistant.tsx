@@ -140,7 +140,7 @@ export default function AIAssistant() {
 
   // Загружаем реальные посты пользователя
   const { data: userPosts = [], isLoading: isLoadingPosts } = useQuery({
-    queryKey: ['/api/posts/user', user?.id],
+    queryKey: [`/api/posts/user/${user?.id}`],
     enabled: !!user?.id,
   });
 

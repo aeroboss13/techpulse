@@ -43,6 +43,8 @@ export default function CreatePostCard() {
     },
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      // Инвалидируем кэш постов пользователя для Content Analysis
+      queryClient.invalidateQueries({ queryKey: [`/api/posts/user/${user?.id}`] });
       setContent("");
       setCodeSnippet("");
       toast({
