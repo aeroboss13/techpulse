@@ -240,6 +240,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User profile routes  
+  app.get('/api/users/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Remove sensitive information
+      const { passwordHash, ...publicUser } = user;
+      res.json(publicUser);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  app.get('/api/users/:userId/stats', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const [followersCount, followingCount, postsCount] = await Promise.all([
+        storage.getUserFollowersCount(userId),
+        storage.getUserFollowingCount(userId),
+        storage.getUserPostsCount(userId)
+      ]);
+
+      res.json({
+        followersCount,
+        followingCount,
+        postsCount
+      });
+    } catch (error) {
+      console.error("Error fetching user stats:", error);
+      res.status(500).json({ message: "Failed to fetch user stats" });
+    }
+  });
+
   // Get posts by user ID
   app.get('/api/posts/user/:userId', isAuthenticated, async (req: any, res) => {
     try {
