@@ -57,9 +57,11 @@ export default function Home() {
         </div>
       )}
 
-      {posts && posts.map((post: any) => (
-        <PostCard key={post.id} post={post} />
-      ))}
+      <div className="space-y-6">
+        {posts && posts.map((post: any) => (
+          <PostCard key={post.id} post={post} />
+        ))}
+      </div>
     </MainLayout>
   );
 }

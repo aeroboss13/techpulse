@@ -125,8 +125,8 @@ export default function PostCard({ post }: PostCardProps) {
   
   return (
     <article 
-      className={`bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden ${
-        post.isAiRecommended ? "border border-blue-200 dark:border-blue-900" : ""
+      className={`bg-white dark:bg-slate-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-200 ${
+        post.isAiRecommended ? "border-blue-200 dark:border-blue-900 shadow-blue-100 dark:shadow-blue-900/20" : ""
       }`}
     >
       {post.isAiRecommended && (
