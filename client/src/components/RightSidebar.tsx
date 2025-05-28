@@ -84,38 +84,7 @@ export default function RightSidebar() {
           </CardContent>
         </Card>
         
-        {/* Who to Follow */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>{language === 'ru' ? 'Кого читать' : 'Who to Follow'}</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <ul className="space-y-4">
-              {displayUsers.map(user => (
-                <li key={user.id} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Avatar>
-                      <AvatarImage src={user.profileImageUrl} alt={user.displayName} />
-                      <AvatarFallback>{user.displayName[0]}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium">{user.displayName}</div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        @{user.username}
-                      </div>
-                    </div>
-                  </div>
-                  <Button variant="outline" className="text-primary hover:bg-blue-50 dark:hover:bg-blue-900/30 px-3 py-1 h-auto" size="sm">
-                    {language === 'ru' ? 'Подписаться' : 'Follow'}
-                  </Button>
-                </li>
-              ))}
-            </ul>
-            <Button variant="link" className="mt-4 p-0 h-auto" asChild>
-              <Link href="/explore">{language === 'ru' ? 'Показать больше' : 'Show more'}</Link>
-            </Button>
-          </CardContent>
-        </Card>
+
         
         {/* AI Feature */}
         <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-sm p-4 text-white">

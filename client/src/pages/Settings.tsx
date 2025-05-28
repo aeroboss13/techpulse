@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/components/LanguageProvider';
 import { useTheme } from '@/components/ThemeProvider';
@@ -9,8 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { Settings as SettingsIcon, User, Bell, Shield, Palette, Globe } from 'lucide-react';
+import { Settings as SettingsIcon, User, Bell, Shield, Palette, Globe, Camera, Upload } from 'lucide-react';
 import MainLayout from '@/components/MainLayout';
 
 export default function Settings() {
@@ -18,10 +19,12 @@ export default function Settings() {
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
   const [publicProfile, setPublicProfile] = useState(true);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   
   const handleLanguageChange = (newLanguage: 'en' | 'ru') => {
     setLanguage(newLanguage);
@@ -37,6 +40,35 @@ export default function Settings() {
       title: language === 'ru' ? "Тема изменена" : "Theme changed",
       description: language === 'ru' ? "Тема интерфейса обновлена" : "Interface theme updated",
     });
+  };
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: language === 'ru' ? "Файл слишком большой" : "File too large",
+          description: language === 'ru' ? "Максимальный размер файла - 5MB" : "Maximum file size is 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setAvatarPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+      
+      toast({
+        title: language === 'ru' ? "Аватар загружен" : "Avatar uploaded",
+        description: language === 'ru' ? "Не забудьте сохранить изменения" : "Don't forget to save changes",
+      });
+    }
   };
 
   return (
@@ -62,6 +94,59 @@ export default function Settings() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Avatar Upload Section */}
+              <div className="flex items-center space-x-6">
+                <div className="relative">
+                  <Avatar className="h-24 w-24">
+                    <AvatarImage 
+                      src={avatarPreview || user?.profileImageUrl || ''} 
+                      alt={user?.displayName || 'User'} 
+                    />
+                    <AvatarFallback className="text-lg">
+                      {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-white dark:bg-gray-800 border-2"
+                    onClick={handleAvatarClick}
+                  >
+                    <Camera className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex-1">
+                  <Label className="text-sm font-medium">
+                    {language === 'ru' ? 'Фото профиля' : 'Profile Picture'}
+                  </Label>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {language === 'ru' 
+                      ? 'JPG, PNG или GIF. Максимум 5MB.' 
+                      : 'JPG, PNG or GIF. Max 5MB.'
+                    }
+                  </p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-2"
+                    onClick={handleAvatarClick}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {language === 'ru' ? 'Загрузить фото' : 'Upload Photo'}
+                  </Button>
+                </div>
+              </div>
+              
+              <Separator />
+              
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">{language === 'ru' ? 'Имя' : 'First Name'}</Label>
