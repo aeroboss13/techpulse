@@ -13,6 +13,7 @@ import AIAssistant from "@/pages/AIAssistant";
 import Login from "@/pages/Login";
 import Bookmarks from "@/pages/Bookmarks";
 import Work from "@/pages/Work";
+import Settings from "@/pages/Settings";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { useAuth, AuthProvider } from "@/hooks/useAuth";
 import { LanguageProvider } from "@/components/LanguageProvider";
@@ -58,6 +59,7 @@ function Router() {
       <Route path="/ai-assistant" component={() => <ProtectedRoute component={AIAssistant} />} />
       <Route path="/bookmarks" component={() => <ProtectedRoute component={Bookmarks} />} />
       <Route path="/profile/:userId" component={Profile} />
+      <Route path="/settings" component={() => <ProtectedRoute component={Settings} />} />
       <Route path="/login" component={Login} />
       <Route component={NotFound} />
     </Switch>
