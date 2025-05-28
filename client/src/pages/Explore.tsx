@@ -61,6 +61,18 @@ export default function Explore() {
     },
     enabled: false,
   });
+
+  // Query for hashtag posts
+  const { data: hashtagPosts, isLoading: isHashtagLoading } = useQuery({
+    queryKey: ["/api/posts/hashtag", selectedHashtag],
+    queryFn: async () => {
+      if (!selectedHashtag) return [];
+      const res = await fetch(`/api/posts/hashtag/${encodeURIComponent(selectedHashtag)}`);
+      if (!res.ok) throw new Error("Failed to fetch hashtag posts");
+      return res.json();
+    },
+    enabled: !!selectedHashtag && selectedTab === "hashtag",
+  });
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,6 +80,13 @@ export default function Explore() {
       setSelectedTab("search");
       searchRefetch();
     }
+  };
+
+  const clearHashtagFilter = () => {
+    setSelectedHashtag(null);
+    setSelectedTab("trending");
+    // Очищаем URL от параметра topic
+    window.history.replaceState({}, "", window.location.pathname);
   };
   
   const renderPostSkeleton = () => (
@@ -129,6 +148,22 @@ export default function Explore() {
         <TabsList className="w-full">
           <TabsTrigger value="trending" className="flex-1">{t('general.trending')}</TabsTrigger>
           <TabsTrigger value="latest" className="flex-1">{language === 'ru' ? 'Сохраненное' : 'Bookmarked'}</TabsTrigger>
+          {selectedHashtag && (
+            <TabsTrigger value="hashtag" className="flex-1">
+              {selectedHashtag}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  clearHashtagFilter();
+                }}
+                className="ml-2 h-5 w-5 p-0 hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </TabsTrigger>
+          )}
           {searchTerm && (
             <TabsTrigger value="search" className="flex-1">{language === 'ru' ? 'Результаты поиска' : 'Search Results'}</TabsTrigger>
           )}
@@ -175,6 +210,43 @@ export default function Explore() {
             ))
           )}
         </TabsContent>
+
+        {selectedHashtag && (
+          <TabsContent value="hashtag" className="space-y-6 mt-6">
+            {isHashtagLoading ? (
+              <>
+                {renderPostSkeleton()}
+                {renderPostSkeleton()}
+                {renderPostSkeleton()}
+              </>
+            ) : hashtagPosts?.length === 0 ? (
+              <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center">
+                <h3 className="text-xl font-medium mb-2">
+                  {language === 'ru' ? 'Нет постов с этим хэштегом' : 'No posts with this hashtag'}
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400">
+                  {language === 'ru' 
+                    ? 'Пока никто не опубликовал посты с хэштегом ' + selectedHashtag
+                    : 'No one has posted with the hashtag ' + selectedHashtag + ' yet'}
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">
+                    {language === 'ru' ? 'Посты с хэштегом' : 'Posts with hashtag'} {selectedHashtag}
+                  </h3>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {hashtagPosts?.length} {language === 'ru' ? 'постов' : 'posts'}
+                  </span>
+                </div>
+                {hashtagPosts?.map((post: any) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+              </>
+            )}
+          </TabsContent>
+        )}
         
         {searchTerm && (
           <TabsContent value="search" className="space-y-6 mt-6">
