@@ -19,11 +19,15 @@ export default function Explore() {
 
   // Обработка параметра topic из URL
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(location.split('?')[1] || '');
     const topic = urlParams.get('topic');
     if (topic) {
       setSelectedHashtag(topic);
       setSelectedTab("hashtag");
+    } else if (selectedHashtag && selectedTab === "hashtag") {
+      // Если нет параметра topic, но хэштег выбран - сбрасываем
+      setSelectedHashtag(null);
+      setSelectedTab("trending");
     }
   }, [location]);
   
@@ -86,7 +90,7 @@ export default function Explore() {
     setSelectedHashtag(null);
     setSelectedTab("trending");
     // Очищаем URL от параметра topic
-    window.history.replaceState({}, "", window.location.pathname);
+    setLocation("/explore");
   };
   
   const renderPostSkeleton = () => (
