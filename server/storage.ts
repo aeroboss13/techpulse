@@ -447,12 +447,16 @@ export class MemStorage implements IStorage {
       .find(follow => follow.followerId === followerId && follow.followingId === followingId);
     
     if (!existingFollow) {
+      console.log(`Creating follow: ${followerId} -> ${followingId}`);
       this.follows.set(followId, {
         id: followId,
         followerId,
         followingId,
         createdAt: new Date()
       });
+      console.log(`Follow created, total follows: ${this.follows.size}`);
+    } else {
+      console.log(`Follow already exists: ${followerId} -> ${followingId}`);
     }
   }
 
