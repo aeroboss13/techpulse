@@ -686,10 +686,27 @@ export class MemStorage implements IStorage {
       }
     });
     
-    // Если нет постов с тегами, используем пример хэштегов
+    // Если нет постов с тегами, возвращаем пустой массив или создаем базовые хэштеги
     if (hashtagStats.size === 0) {
-      return Array.from(this.trendingTopics.values())
-        .sort((a, b) => b.postCount - a.postCount);
+      // Создаем базовые популярные хэштеги для IT
+      const defaultHashtags = [
+        { name: '#JavaScript', category: 'Web Dev', count: 15 },
+        { name: '#React', category: 'Web Dev', count: 12 },
+        { name: '#AI', category: 'AI', count: 10 },
+        { name: '#Python', category: 'Programming', count: 9 },
+        { name: '#Cloud', category: 'Cloud', count: 8 },
+        { name: '#Security', category: 'Security', count: 7 },
+        { name: '#Mobile', category: 'Mobile', count: 6 }
+      ];
+      
+      return defaultHashtags.map((tag, index) => ({
+        id: `default-${index}`,
+        name: tag.name,
+        category: tag.category,
+        postCount: tag.count,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }));
     }
     
     // Преобразуем статистику в массив трендовых тем
