@@ -55,6 +55,8 @@ export default function EditProfileDialog({
     e.preventDefault();
     setIsSubmitting(true);
     
+    console.log('Отправляем данные профиля:', formData);
+    
     try {
       const response = await fetch('/api/profile/update', {
         method: 'POST',
