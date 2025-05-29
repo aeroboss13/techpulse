@@ -2,20 +2,18 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import session from "express-session";
-import connectPg from "connect-pg-simple";
+import MemoryStore from "memorystore";
 import { initializeDefaultUser } from "./auth";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Настройка сессий
-const PgStore = connectPg(session);
+// Настройка сессий с MemoryStore
+const MemStore = MemoryStore(session);
 app.use(session({
-  store: new PgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: true,
-    tableName: 'sessions'
+  store: new MemStore({
+    checkPeriod: 86400000 // Очистка каждые 24 часа
   }),
   secret: process.env.SESSION_SECRET || 'dev-session-secret',
   resave: false,
@@ -23,7 +21,7 @@ app.use(session({
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // false для разработки
     sameSite: 'lax'
   }
 }));
