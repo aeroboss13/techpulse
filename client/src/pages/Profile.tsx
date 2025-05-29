@@ -13,6 +13,7 @@ import { useLanguage } from '@/components/LanguageProvider';
 import { useAuth } from '@/hooks/useAuth';
 import { CalendarDays, MapPin, Users, MessageSquare, Heart, Code, Briefcase, Github } from 'lucide-react';
 import { SiTelegram, SiX } from 'react-icons/si';
+import CodeSnippet from '@/components/CodeSnippet';
 import { apiRequest } from '@/lib/queryClient';
 
 export default function Profile() {
@@ -42,7 +43,7 @@ export default function Profile() {
 
   const { data: userSnippets, isLoading: snippetsLoading } = useQuery({
     queryKey: currentUser?.id === userId ? [`/api/snippets/my`] : [`/api/snippets/user/${userId}`],
-    enabled: !!userId,
+    enabled: !!userId && !!currentUser,
   });
 
   // Проверяем статус подписки при загрузке
@@ -327,9 +328,12 @@ export default function Profile() {
                   {snippet.description && (
                     <p className="text-sm text-muted-foreground mb-3">{snippet.description}</p>
                   )}
-                  <div className="bg-secondary/50 rounded p-3 font-mono text-sm overflow-x-auto">
-                    <code>{snippet.code}</code>
-                  </div>
+                  <CodeSnippet 
+                    code={snippet.code} 
+                    language={snippet.language} 
+                    showLineNumbers={true}
+                    maxHeight="300px"
+                  />
                   <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
                     <span>{new Date(snippet.createdAt).toLocaleDateString('ru-RU')}</span>
                     <span>{snippet.isPublic ? 'Публичный' : 'Приватный'}</span>
