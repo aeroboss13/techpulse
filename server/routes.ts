@@ -634,6 +634,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add comment to post
+  app.post('/api/posts/:id/comments', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const postId = req.params.id;
+      const { content } = req.body;
+
+      if (!content || !content.trim()) {
+        return res.status(400).json({ message: "Comment content is required" });
+      }
+
+      const comment = await storage.addComment(postId, userId, content.trim());
+      res.json(comment);
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      res.status(500).json({ message: "Failed to add comment" });
+    }
+  });
+
+  // Get comments for a post
+  app.get('/api/posts/:id/comments', async (req: any, res) => {
+    try {
+      const postId = req.params.id;
+      const comments = await storage.getPostComments(postId);
+      res.json(comments);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+      res.status(500).json({ message: "Failed to fetch comments" });
+    }
+  });
+
   app.post('/api/posts/:id/bookmark', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.session.userId;

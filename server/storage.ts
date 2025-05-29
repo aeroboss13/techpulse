@@ -50,6 +50,10 @@ export interface IStorage {
   unlikePost(postId: string, userId: string): Promise<void>;
   isPostLikedByUser(postId: string, userId: string): Promise<boolean>;
   
+  // Comment operations
+  addComment(postId: string, userId: string, content: string): Promise<any>;
+  getPostComments(postId: string): Promise<any[]>;
+  
   // Bookmark operations
   bookmarkPost(postId: string, userId: string): Promise<void>;
   unbookmarkPost(postId: string, userId: string): Promise<void>;
@@ -448,6 +452,51 @@ export class MemStorage implements IStorage {
   async isPostLikedByUser(postId: string, userId: string): Promise<boolean> {
     return Array.from(this.likes.values())
       .some(like => like.postId === postId && like.userId === userId);
+  }
+
+  // Comment operations
+  async addComment(postId: string, userId: string, content: string): Promise<any> {
+    const commentId = uuidv4();
+    const comment = {
+      id: commentId,
+      postId,
+      userId,
+      content,
+      createdAt: new Date()
+    };
+    
+    this.comments.set(commentId, comment);
+    
+    // Update post comments count
+    const post = this.posts.get(postId);
+    if (post) {
+      post.comments = (post.comments || 0) + 1;
+      this.posts.set(postId, post);
+    }
+    
+    return comment;
+  }
+
+  async getPostComments(postId: string): Promise<any[]> {
+    const postComments = Array.from(this.comments.values())
+      .filter(comment => comment.postId === postId)
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    
+    // Добавляем информацию о пользователе к каждому комментарию
+    const commentsWithUsers = await Promise.all(postComments.map(async (comment) => {
+      const user = this.users.get(comment.userId);
+      return {
+        ...comment,
+        user: user ? {
+          id: user.id,
+          username: user.username,
+          displayName: user.displayName,
+          profileImageUrl: user.profileImageUrl
+        } : null
+      };
+    }));
+    
+    return commentsWithUsers;
   }
 
   // Bookmark operations
