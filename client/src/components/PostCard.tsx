@@ -161,18 +161,43 @@ export default function PostCard({ post }: PostCardProps) {
               <span className="text-gray-500 dark:text-gray-400">
                 {(() => {
                   const distance = formatDistanceToNow(new Date(post.createdAt));
-                  // Format: "less than a minute", "1 minute", "2 minutes", "about 1 hour", "1 day", etc.
                   if (language === 'ru') {
+                    // Обработка русских дат
                     if (distance.includes('less than a minute')) return 'меньше минуты назад';
-                    if (distance.includes('minute ago')) return distance.replace('minute ago', t('general.minuteAgo'));
-                    if (distance.includes('minutes')) return distance.replace('minutes', t('general.minutesAgo'));
+                    if (distance.includes('1 minute')) return '1 минуту назад';
+                    if (distance.includes('minutes')) {
+                      const match = distance.match(/(\d+) minutes/);
+                      if (match) {
+                        const num = parseInt(match[1]);
+                        if (num === 1) return '1 минуту назад';
+                        if (num >= 2 && num <= 4) return `${num} минуты назад`;
+                        return `${num} минут назад`;
+                      }
+                    }
                     if (distance.includes('about 1 hour')) return 'около 1 часа назад';
-                    if (distance.includes('hours')) return distance.replace('hours', t('general.hoursAgo'));
-                    if (distance.includes('day ago')) return distance.replace('day ago', t('general.dayAgo'));
-                    if (distance.includes('days')) return distance.replace('days', t('general.daysAgo'));
-                    return distance + ' ' + t('general.timeAgo');
+                    if (distance.includes('1 hour')) return '1 час назад';
+                    if (distance.includes('hours')) {
+                      const match = distance.match(/(\d+) hours/);
+                      if (match) {
+                        const num = parseInt(match[1]);
+                        if (num === 1) return '1 час назад';
+                        if (num >= 2 && num <= 4) return `${num} часа назад`;
+                        return `${num} часов назад`;
+                      }
+                    }
+                    if (distance.includes('1 day')) return '1 день назад';
+                    if (distance.includes('days')) {
+                      const match = distance.match(/(\d+) days/);
+                      if (match) {
+                        const num = parseInt(match[1]);
+                        if (num === 1) return '1 день назад';
+                        if (num >= 2 && num <= 4) return `${num} дня назад`;
+                        return `${num} дней назад`;
+                      }
+                    }
+                    return distance + ' назад';
                   }
-                  return distance + ' ' + t('general.timeAgo');
+                  return distance + ' ago';
                 })()}
               </span>
             </div>
@@ -244,12 +269,13 @@ export default function PostCard({ post }: PostCardProps) {
             <div className="mt-4 space-y-3">
               {/* Action buttons */}
               <div className="flex space-x-5">
-                <Link href={`/post/${post.id}`}>
-                  <a className="flex items-center space-x-1 text-gray-500 hover:text-primary">
-                    <MessageSquare className="h-5 w-5" />
-                    <span>{post.comments}</span>
-                  </a>
-                </Link>
+                <button 
+                  className="flex items-center space-x-1 text-gray-500 hover:text-primary"
+                  onClick={() => window.location.href = `/post/${post.id}`}
+                >
+                  <MessageSquare className="h-5 w-5" />
+                  <span>{post.comments}</span>
+                </button>
                 
                 <button 
                   className={`flex items-center space-x-1 ${
