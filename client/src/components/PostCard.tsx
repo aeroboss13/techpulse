@@ -304,7 +304,7 @@ export default function PostCard({ post }: PostCardProps) {
                         key={tag} 
                         variant="outline"
                         className={`
-                          text-xs px-2 py-1 rounded-full shrink-0 max-w-20 truncate cursor-pointer hover:opacity-80
+                          text-xs px-2 py-1 rounded-full shrink-0 cursor-pointer hover:opacity-80 whitespace-nowrap
                           ${color === 'blue' && 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'} 
                           ${color === 'yellow' && 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'} 
                           ${color === 'green' && 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'} 
