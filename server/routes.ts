@@ -914,6 +914,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate new avatar
+  app.post('/api/profile/generate-avatar', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session.userId;
+      const { gender } = req.body;
+      
+      // Generate a new avatar URL based on gender
+      const avatarSeed = `${userId}-${Date.now()}`;
+      const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${avatarSeed}&gender=${gender}`;
+      
+      // Update user's profile image
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      await storage.upsertUser({
+        ...user,
+        profileImageUrl: avatarUrl,
+        updatedAt: new Date()
+      });
+      
+      res.json({ 
+        success: true, 
+        profileImageUrl: avatarUrl 
+      });
+    } catch (error) {
+      console.error('Error generating avatar:', error);
+      res.status(500).json({ message: 'Failed to generate avatar' });
+    }
+  });
+
   // Code Snippets
   app.get('/api/snippets/my', isAuthenticated, async (req: any, res) => {
     try {
