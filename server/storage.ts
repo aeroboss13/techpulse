@@ -1082,6 +1082,62 @@ export class MemStorage implements IStorage {
       .filter(notification => notification.userId === userId && !notification.isRead)
       .length;
   }
+
+  // Search operations
+  async searchUsers(searchTerm: string): Promise<User[]> {
+    const term = searchTerm.toLowerCase();
+    return Array.from(this.users.values())
+      .filter(user => 
+        user.username?.toLowerCase().includes(term) ||
+        user.firstName?.toLowerCase().includes(term) ||
+        user.lastName?.toLowerCase().includes(term) ||
+        user.email?.toLowerCase().includes(term) ||
+        user.bio?.toLowerCase().includes(term)
+      )
+      .map(({ passwordHash, ...user }) => user); // Исключаем пароль из результатов
+  }
+
+  async searchJobs(searchTerm: string): Promise<any[]> {
+    const term = searchTerm.toLowerCase();
+    return Array.from(this.jobs.values())
+      .filter(job => 
+        job.title?.toLowerCase().includes(term) ||
+        job.company?.toLowerCase().includes(term) ||
+        job.description?.toLowerCase().includes(term) ||
+        job.requirements?.toLowerCase().includes(term) ||
+        job.location?.toLowerCase().includes(term) ||
+        job.type?.toLowerCase().includes(term)
+      );
+  }
+
+  async searchResumes(searchTerm: string): Promise<any[]> {
+    const term = searchTerm.toLowerCase();
+    return Array.from(this.resumes.values())
+      .filter(resume => 
+        resume.title?.toLowerCase().includes(term) ||
+        resume.summary?.toLowerCase().includes(term) ||
+        resume.skills?.some((skill: string) => skill.toLowerCase().includes(term)) ||
+        resume.experience?.some((exp: any) => 
+          exp.position?.toLowerCase().includes(term) ||
+          exp.company?.toLowerCase().includes(term) ||
+          exp.description?.toLowerCase().includes(term)
+        ) ||
+        resume.education?.some((edu: any) => 
+          edu.degree?.toLowerCase().includes(term) ||
+          edu.institution?.toLowerCase().includes(term) ||
+          edu.field?.toLowerCase().includes(term)
+        )
+      )
+      .filter(resume => resume.isPublic); // Показываем только публичные резюме
+  }
+
+  async searchHashtags(searchTerm: string): Promise<TrendingTopic[]> {
+    const term = searchTerm.toLowerCase();
+    const trendingTopics = await this.getTrendingTopics();
+    return trendingTopics.filter(hashtag => 
+      hashtag.name.toLowerCase().includes(term)
+    );
+  }
 }
 
 export const storage = new MemStorage();
