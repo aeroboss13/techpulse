@@ -432,7 +432,6 @@ const translations: Record<Language, Record<string, string>> = {
     'profile.notFound': 'Пользователь не найден',
     'profile.userNotExists': 'Этот пользователь не существует.',
     'profile.editProfile': 'Редактировать профиль',
-    'profile.joinedDate': 'Присоединился {date}',
     'profile.followersRu': 'подписчиков',
     'profile.followingRu': 'подписок',
     'profile.postsRu': 'Посты',

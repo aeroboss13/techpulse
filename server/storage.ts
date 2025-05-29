@@ -423,7 +423,7 @@ export class MemStorage implements IStorage {
       // Update post likes count
       const post = this.posts.get(postId);
       if (post) {
-        post.likes += 1;
+        post.likes = (post.likes || 0) + 1;
         this.posts.set(postId, post);
       }
     }
@@ -438,8 +438,8 @@ export class MemStorage implements IStorage {
       
       // Update post likes count
       const post = this.posts.get(postId);
-      if (post && post.likes > 0) {
-        post.likes -= 1;
+      if (post && (post.likes || 0) > 0) {
+        post.likes = (post.likes || 0) - 1;
         this.posts.set(postId, post);
       }
     }
