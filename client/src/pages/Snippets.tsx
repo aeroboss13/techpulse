@@ -42,6 +42,7 @@ interface Snippet {
 }
 
 export default function Snippets() {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
