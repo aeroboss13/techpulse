@@ -16,7 +16,7 @@ interface JobDetailDialogProps {
 }
 
 export default function JobDetailDialog({ job, open, onOpenChange }: JobDetailDialogProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user, isAuthenticated } = useAuth();
   const [showApplyDialog, setShowApplyDialog] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
