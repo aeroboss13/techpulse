@@ -440,7 +440,7 @@ export default function Snippets() {
                     className="rounded border-gray-300"
                   />
                   <label htmlFor="isPublic" className="text-sm font-medium">
-                    Make this snippet public
+                    {t('snippets.makePublic')}
                   </label>
                 </div>
               </div>
@@ -454,10 +454,10 @@ export default function Snippets() {
                     setIsCreateDialogOpen(false);
                   }}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button type="submit">
-                  {editingSnippet ? "Update" : "Create"} Snippet
+                  {editingSnippet ? t('snippets.update') : t('snippets.create')} {t('snippets.snippet')}
                 </Button>
               </div>
             </form>
@@ -467,8 +467,8 @@ export default function Snippets() {
       
       <Tabs defaultValue="my-snippets">
         <TabsList className="w-full">
-          <TabsTrigger value="my-snippets" className="flex-1">My Snippets</TabsTrigger>
-          <TabsTrigger value="public-snippets" className="flex-1">Public Snippets</TabsTrigger>
+          <TabsTrigger value="my-snippets" className="flex-1">{t('snippets.mySnippets')}</TabsTrigger>
+          <TabsTrigger value="public-snippets" className="flex-1">{t('snippets.publicSnippets')}</TabsTrigger>
         </TabsList>
         
         <TabsContent value="my-snippets" className="space-y-6 mt-6">
