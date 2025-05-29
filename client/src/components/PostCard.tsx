@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { Heart, MessageSquare, Bookmark, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
@@ -41,6 +42,8 @@ export default function PostCard({ post }: PostCardProps) {
   const [liked, setLiked] = useState(post.isLiked);
   const [likesCount, setLikesCount] = useState(post.likes);
   const [bookmarked, setBookmarked] = useState(post.isBookmarked);
+  const [showComments, setShowComments] = useState(false);
+  const [commentText, setCommentText] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t, language } = useLanguage();
@@ -271,10 +274,10 @@ export default function PostCard({ post }: PostCardProps) {
               <div className="flex space-x-5">
                 <button 
                   className="flex items-center space-x-1 text-gray-500 hover:text-primary"
-                  onClick={() => window.location.href = `/post/${post.id}`}
+                  onClick={() => setShowComments(!showComments)}
                 >
                   <MessageSquare className="h-5 w-5" />
-                  <span>{post.comments}</span>
+                  <span>{post.comments || 0}</span>
                 </button>
                 
                 <button 
