@@ -35,6 +35,11 @@ export default function Profile() {
     queryKey: [`/api/users/${userId}/stats`],
   });
 
+  const { data: likedPosts, isLoading: likedPostsLoading } = useQuery({
+    queryKey: [`/api/user/liked-posts`],
+    enabled: !!currentUser && currentUser.id === userId, // Загружаем только для собственного профиля
+  });
+
   // Проверяем статус подписки при загрузке
   const { data: followStatus } = useQuery({
     queryKey: [`/api/users/${userId}/follow-status`],
@@ -275,11 +280,29 @@ export default function Profile() {
           </TabsContent>
           
           <TabsContent value="likes" className="space-y-4">
-            <div className="text-center py-12">
-              <Heart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">{t('profile.noLikes')}</h3>
-              <p className="text-muted-foreground">{t('profile.noLikesDesc')}</p>
-            </div>
+            {currentUser?.id === userId ? (
+              likedPostsLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                </div>
+              ) : likedPosts?.length > 0 ? (
+                likedPosts.map((post: any) => (
+                  <PostCard key={post.id} post={post} />
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <Heart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">{t('profile.noLikes')}</h3>
+                  <p className="text-muted-foreground">{t('profile.noLikesDesc')}</p>
+                </div>
+              )
+            ) : (
+              <div className="text-center py-12">
+                <Heart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Приватная информация</h3>
+                <p className="text-muted-foreground">Понравившиеся посты доступны только владельцу профиля</p>
+              </div>
+            )}
           </TabsContent>
           
           <TabsContent value="snippets" className="space-y-4">
