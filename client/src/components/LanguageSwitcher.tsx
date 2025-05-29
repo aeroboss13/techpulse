@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export function LanguageSwitcher() {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const { toast } = useToast();
 
   const handleLanguageChange = async (newLanguage: 'en' | 'ru') => {
@@ -21,8 +21,8 @@ export function LanguageSwitcher() {
     
     // Показываем уведомление
     toast({
-      title: newLanguage === 'en' ? 'Language updated' : 'Язык обновлен',
-      description: newLanguage === 'en' ? 'Your language preference has been saved' : 'Ваши настройки языка были сохранены',
+      title: t('toast.success'),
+      description: t('toast.languageChanged'),
     });
     
     // Принудительно перезагружаем страницу для обновления всех компонентов

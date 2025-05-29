@@ -59,8 +59,8 @@ export default function PostCard({ post }: PostCardProps) {
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: "Failed to like post. Please try again.",
+        title: t('toast.error'),
+        description: t('toast.postCreateError'),
         variant: "destructive",
       });
     }

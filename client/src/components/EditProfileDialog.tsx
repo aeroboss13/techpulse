@@ -76,7 +76,7 @@ export default function EditProfileDialog({
       const data = await response.json();
       
       toast({
-        title: t('profile.avatarGenerated'),
+        title: t('toast.success'),
         description: t('profile.avatarGeneratedMessage'),
       });
       
