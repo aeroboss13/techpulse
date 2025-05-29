@@ -65,6 +65,10 @@ export default function PostCard({ post }: PostCardProps) {
         setLikesCount(prev => prev + 1);
       }
       setLiked(!liked);
+      // Обновляем кэш постов
+      queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/posts/trending'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/posts/latest'] });
     },
     onError: (error) => {
       toast({
@@ -435,23 +439,21 @@ export default function PostCard({ post }: PostCardProps) {
                   </div>
                 ) : (comments as any[]).length > 0 ? (
                   (comments as any[]).map((comment: any) => (
-                    <div key={comment.id} className="flex space-x-3">
-                      <Avatar className="w-7 h-7">
+                    <div key={comment.id} className="flex space-x-2">
+                      <Avatar className="w-6 h-6 mt-1">
                         <AvatarImage src={comment.user?.profileImageUrl || "/api/placeholder/32/32"} alt={comment.user?.displayName} />
-                        <AvatarFallback>{comment.user?.displayName?.[0] || 'U'}</AvatarFallback>
+                        <AvatarFallback className="text-xs">{comment.user?.displayName?.[0] || 'U'}</AvatarFallback>
                       </Avatar>
-                      <div className="flex-1">
-                        <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2">
-                          <div className="flex items-center space-x-1 mb-1">
-                            <span className="font-medium text-sm text-gray-900 dark:text-white">
-                              {comment.user?.displayName || comment.user?.username || 'Пользователь'}
-                            </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              {formatDistanceToNow(new Date(comment.createdAt))} {language === 'ru' ? 'назад' : 'ago'}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">{comment.content}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-baseline space-x-2">
+                          <span className="font-medium text-sm text-gray-900 dark:text-white truncate">
+                            {comment.user?.displayName || comment.user?.username || 'Пользователь'}
+                          </span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
+                            {formatDistanceToNow(new Date(comment.createdAt))} {language === 'ru' ? 'назад' : 'ago'}
+                          </span>
                         </div>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 break-words">{comment.content}</p>
                       </div>
                     </div>
                   ))
