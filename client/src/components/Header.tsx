@@ -38,38 +38,38 @@ export default function Header() {
   };
   
   return (
-    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
-      <div className="container mx-auto px-6 flex items-center justify-between h-14">
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-background via-background to-background/95 backdrop-blur-xl border-b border-border/30">
+      <div className="container mx-auto px-6 flex items-center justify-between h-16">
         <div className="flex items-center">
           <Link href="/" className="flex items-center group">
-            <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Code className="h-4 w-4 text-background" />
+            <div className="w-10 h-10 bg-gradient-to-br from-primary via-primary/80 to-primary/60 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-lg shadow-primary/25">
+              <Code className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="ml-3 font-semibold text-lg tracking-tight">DevStream</span>
+            <span className="ml-4 font-bold text-xl tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">DevStream</span>
           </Link>
         </div>
         
-        <div className="relative flex-1 max-w-sm mx-8">
+        <div className="relative flex-1 max-w-md mx-8">
           <form onSubmit={handleSearch}>
-            <div className="relative">
+            <div className="relative group">
               <Input
                 type="text"
-                className="pl-9 pr-4 py-2 h-9 rounded-lg border-0 bg-muted/40 hover:bg-muted/60 focus:bg-background focus:ring-1 focus:ring-border transition-all duration-200 w-full text-sm"
-                placeholder={language === 'ru' ? "Поиск..." : "Search..."}
+                className="pl-11 pr-4 py-3 h-11 rounded-2xl border-0 bg-muted/30 hover:bg-muted/50 focus:bg-card focus:ring-2 focus:ring-primary/20 focus:shadow-lg focus:shadow-primary/10 transition-all duration-300 w-full text-sm placeholder:text-muted-foreground/60"
+                placeholder={language === 'ru' ? "Поиск пользователей, постов, работ..." : "Search users, posts, jobs..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-muted-foreground" />
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-muted-foreground/70 group-focus-within:text-primary/60 transition-colors" />
               </div>
             </div>
           </form>
         </div>
         
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-3">
           <LanguageSwitcher />
           
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="w-8 h-8 rounded-lg hover:bg-muted/60">
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="w-10 h-10 rounded-2xl hover:bg-muted/50 hover:scale-105 transition-all duration-300">
             {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
           </Button>
           
@@ -78,10 +78,10 @@ export default function Header() {
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center space-x-2 h-8 px-2 hover:bg-muted/60 rounded-lg">
-                  <Avatar className="w-6 h-6">
+                <Button variant="ghost" className="flex items-center space-x-3 h-10 px-3 hover:bg-muted/50 rounded-2xl group hover:scale-105 transition-all duration-300">
+                  <Avatar className="w-7 h-7 ring-2 ring-transparent group-hover:ring-primary/20 transition-all">
                     <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} />
-                    <AvatarFallback className="text-xs">{user?.firstName?.[0] || user?.email?.[0] || "U"}</AvatarFallback>
+                    <AvatarFallback className="text-xs bg-gradient-to-br from-primary/10 to-primary/5">{user?.firstName?.[0] || user?.email?.[0] || "U"}</AvatarFallback>
                   </Avatar>
                   <span className="hidden md:inline-block text-sm font-medium">{user?.firstName || user?.email?.split('@')[0] || "User"}</span>
                 </Button>

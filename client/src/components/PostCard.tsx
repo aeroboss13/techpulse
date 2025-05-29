@@ -165,22 +165,22 @@ export default function PostCard({ post }: PostCardProps) {
   
   return (
     <article 
-      className={`bg-card rounded-lg border border-border/60 overflow-hidden hover:border-border transition-all duration-200 ${
-        post.isAiRecommended ? "border-blue-200 dark:border-blue-800" : ""
+      className={`bg-card/50 backdrop-blur-sm rounded-3xl border border-border/30 overflow-hidden hover:border-border/60 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group ${
+        post.isAiRecommended ? "ring-1 ring-primary/20 bg-gradient-to-br from-card to-primary/5" : ""
       }`}
     >
       {post.isAiRecommended && (
-        <div className="bg-muted/40 px-4 py-2 flex items-center text-sm border-b border-border/40">
-          <div className="w-4 h-4 bg-blue-500 rounded-full mr-2 flex items-center justify-center">
-            <span className="text-xs text-white font-bold">AI</span>
+        <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-6 py-3 flex items-center text-sm border-b border-border/20">
+          <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/70 rounded-full mr-3 flex items-center justify-center shadow-lg shadow-primary/30">
+            <span className="text-xs text-primary-foreground font-bold">AI</span>
           </div>
-          <span className="text-muted-foreground text-xs">
+          <span className="text-muted-foreground text-sm">
             {post.aiRecommendationReason || "Recommended by AI based on your interests"}
           </span>
         </div>
       )}
       
-      <div className="p-4">
+      <div className="p-6">
         <div className="flex items-start space-x-3">
           <Link href={`/profile/${post.user.id}`}>
             <Avatar className="w-8 h-8 cursor-pointer hover:scale-105 transition-transform">
