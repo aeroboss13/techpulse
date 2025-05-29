@@ -181,26 +181,26 @@ export default function PostCard({ post }: PostCardProps) {
       )}
       
       <div className="p-6">
-        <div className="flex items-start space-x-3">
+        <div className="flex items-start space-x-4">
           <Link href={`/profile/${post.user.id}`}>
-            <Avatar className="w-8 h-8 cursor-pointer hover:scale-105 transition-transform">
+            <Avatar className="w-12 h-12 cursor-pointer hover:scale-110 transition-all duration-300 ring-2 ring-transparent hover:ring-primary/20 shadow-lg">
               <AvatarImage src={post.user.profileImageUrl} alt={post.user.displayName} />
-              <AvatarFallback className="text-xs">{post.user.displayName[0]}</AvatarFallback>
+              <AvatarFallback className="text-sm bg-gradient-to-br from-primary/10 to-primary/5 text-primary font-medium">{post.user.displayName[0]}</AvatarFallback>
             </Avatar>
           </Link>
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-2 text-sm">
               <Link href={`/profile/${post.user.id}`}>
-                <span className="font-medium text-foreground hover:text-foreground/80 cursor-pointer transition-colors">
+                <span className="font-semibold text-foreground hover:text-primary cursor-pointer transition-colors">
                   {post.user.displayName}
                 </span>
               </Link>
               <Link href={`/profile/${post.user.id}`}>
-                <span className="text-muted-foreground hover:text-foreground/60 cursor-pointer transition-colors">@{post.user.username}</span>
+                <span className="text-muted-foreground hover:text-primary/70 cursor-pointer transition-colors">@{post.user.username}</span>
               </Link>
-              <span className="text-muted-foreground">·</span>
-              <span className="text-muted-foreground text-xs">
+              <span className="text-muted-foreground/50">·</span>
+              <span className="text-muted-foreground/70 text-xs">
                 {(() => {
                   const distance = formatDistanceToNow(new Date(post.createdAt));
                   if (language === 'ru') {
@@ -244,7 +244,7 @@ export default function PostCard({ post }: PostCardProps) {
               </span>
             </div>
             
-            <div className="mt-2 text-foreground/90 leading-relaxed">
+            <div className="mt-4 text-foreground leading-relaxed text-[15px]">
               {post.content.includes('```') ? (
                 post.content.split(/(```(\w*)\n[\s\S]*?\n```)/g).map((part, i) => {
                   if (i % 3 === 0) {
@@ -308,41 +308,53 @@ export default function PostCard({ post }: PostCardProps) {
               />
             )}
             
-            <div className="mt-4 space-y-3">
+            <div className="mt-6 space-y-4">
               {/* Action buttons */}
-              <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-8">
                 <button 
-                  className="flex items-center space-x-1.5 text-muted-foreground hover:text-foreground transition-colors group"
+                  className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-all duration-300 group hover:scale-105"
                   onClick={() => setShowComments(!showComments)}
                 >
-                  <MessageSquare className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                  <span className="text-sm">{post.comments || 0}</span>
+                  <div className="p-2 rounded-xl hover:bg-primary/10 transition-all duration-300">
+                    <MessageSquare className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                  </div>
+                  <span className="text-sm font-medium">{post.comments || 0}</span>
                 </button>
                 
                 <button 
-                  className={`flex items-center space-x-1.5 transition-colors group ${
+                  className={`flex items-center space-x-2 transition-all duration-300 group hover:scale-105 ${
                     liked ? "text-red-500" : "text-muted-foreground hover:text-red-500"
                   }`}
                   onClick={handleLike}
                 >
-                  <Heart className={`h-4 w-4 group-hover:scale-110 transition-transform ${liked ? "fill-current" : ""}`} />
-                  <span className="text-sm">{likesCount}</span>
+                  <div className={`p-2 rounded-xl transition-all duration-300 ${
+                    liked ? "bg-red-50 dark:bg-red-950" : "hover:bg-red-50 dark:hover:bg-red-950"
+                  }`}>
+                    <Heart className={`h-4 w-4 group-hover:scale-110 transition-transform ${liked ? "fill-current" : ""}`} />
+                  </div>
+                  <span className="text-sm font-medium">{likesCount}</span>
                 </button>
                 
                 <button 
-                  className={`flex items-center space-x-1.5 transition-colors group ${
+                  className={`flex items-center space-x-2 transition-all duration-300 group hover:scale-105 ${
                     bookmarked ? "text-blue-500" : "text-muted-foreground hover:text-blue-500"
                   }`}
                   onClick={handleBookmark}
                 >
-                  <Bookmark className={`h-4 w-4 group-hover:scale-110 transition-transform ${bookmarked ? "fill-current" : ""}`} />
+                  <div className={`p-2 rounded-xl transition-all duration-300 ${
+                    bookmarked ? "bg-blue-50 dark:bg-blue-950" : "hover:bg-blue-50 dark:hover:bg-blue-950"
+                  }`}>
+                    <Bookmark className={`h-4 w-4 group-hover:scale-110 transition-transform ${bookmarked ? "fill-current" : ""}`} />
+                  </div>
                 </button>
                 
                 <button 
-                  className="flex items-center space-x-1.5 text-muted-foreground hover:text-foreground transition-colors group"
+                  className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-all duration-300 group hover:scale-105"
                   onClick={handleShare}
                 >
-                  <Share2 className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                  <div className="p-2 rounded-xl hover:bg-primary/10 transition-all duration-300">
+                    <Share2 className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                  </div>
                 </button>
               </div>
               
