@@ -245,11 +245,12 @@ export default function Resumes() {
                     </div>
                   </div>
                   
-                  <div className="flex justify-between items-center pt-2">
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="pt-3">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                       {language === 'ru' ? 'Обновлено' : 'Updated'} {new Date(resume.createdAt).toLocaleDateString()}
                     </div>
-                    <div className="flex gap-2">
+                    
+                    <div className="flex flex-wrap gap-2">
                       <Button 
                         size="sm" 
                         variant="outline"
@@ -274,7 +275,7 @@ export default function Resumes() {
                             }}
                           >
                             <Edit className="h-4 w-4 mr-1" />
-                            {language === 'ru' ? 'Редактировать' : 'Edit'}
+                            {language === 'ru' ? 'Ред.' : 'Edit'}
                           </Button>
                           <Button 
                             size="sm" 
@@ -287,6 +288,7 @@ export default function Resumes() {
                           </Button>
                         </>
                       )}
+                      
                       {isAuthenticated && resume.telegramNick && (
                         <Button 
                           size="sm" 
