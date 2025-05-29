@@ -14,31 +14,54 @@ import { useToast } from '@/hooks/use-toast';
 
 interface CreateResumeDialogProps {
   children?: React.ReactNode;
+  editingResume?: any;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export default function CreateResumeDialog({ children }: CreateResumeDialogProps) {
+export default function CreateResumeDialog({ children, editingResume, open: externalOpen, onOpenChange }: CreateResumeDialogProps) {
   const { language } = useLanguage();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [skills, setSkills] = useState<string[]>([]);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const [skills, setSkills] = useState<string[]>(editingResume?.skills || []);
   const [newSkill, setNewSkill] = useState('');
 
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
+
   const [formData, setFormData] = useState({
-    title: '',
-    summary: '',
-    experience: '',
-    education: '',
-    contactEmail: '',
-    telegramNick: '',
-    location: '',
-    portfolioUrl: '',
-    isPublic: true,
+    title: editingResume?.title || '',
+    summary: editingResume?.summary || '',
+    experience: editingResume?.experience || '',
+    education: editingResume?.education || '',
+    contactEmail: editingResume?.contactEmail || '',
+    telegramNick: editingResume?.telegramNick || '',
+    location: editingResume?.location || '',
+    portfolioUrl: editingResume?.portfolioLink || '',
+    isPublic: editingResume?.isVisible !== false,
     experienceYears: 0
   });
 
   const createResumeMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('POST', '/api/resumes', { ...data, skills }),
+    mutationFn: async (data: any) => {
+      if (editingResume) {
+        // Редактирование существующего резюме
+        const response = await fetch(`/api/resumes/${editingResume.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ ...data, skills }),
+        });
+        if (!response.ok) throw new Error('Failed to update resume');
+        return response.json();
+      } else {
+        // Создание нового резюме
+        return apiRequest('POST', '/api/resumes', { ...data, skills });
+      }
+    },
     onSuccess: () => {
       // Принудительно обновляем кэш резюме
       queryClient.invalidateQueries({ queryKey: ['/api/resumes'] });
@@ -46,7 +69,9 @@ export default function CreateResumeDialog({ children }: CreateResumeDialogProps
       
       toast({
         title: language === 'ru' ? 'Успешно!' : 'Success!',
-        description: language === 'ru' ? 'Резюме создано' : 'Resume created successfully'
+        description: editingResume 
+          ? (language === 'ru' ? 'Резюме обновлено' : 'Resume updated successfully')
+          : (language === 'ru' ? 'Резюме создано' : 'Resume created successfully')
       });
       setOpen(false);
       resetForm();
@@ -106,7 +131,10 @@ export default function CreateResumeDialog({ children }: CreateResumeDialogProps
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {language === 'ru' ? 'Создать новое резюме' : 'Create New Resume'}
+            {editingResume 
+              ? (language === 'ru' ? 'Редактировать резюме' : 'Edit Resume')
+              : (language === 'ru' ? 'Создать новое резюме' : 'Create New Resume')
+            }
           </DialogTitle>
         </DialogHeader>
         

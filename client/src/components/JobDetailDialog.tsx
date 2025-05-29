@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Building, Calendar, DollarSign, Clock, Users, Eye, Send, BarChart3 } from "lucide-react";
+import { MapPin, Building, Calendar, DollarSign, Clock, Users, Eye, Send, BarChart3, Edit, Trash2 } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { useAuth } from "@/hooks/useAuth";
 import ApplyJobDialog from "./ApplyJobDialog";
+import EditJobDialog from "./EditJobDialog";
 
 interface JobDetailDialogProps {
   job: any;
@@ -20,6 +22,34 @@ export default function JobDetailDialog({ job, open, onOpenChange }: JobDetailDi
   const { user, isAuthenticated } = useAuth();
   const [showApplyDialog, setShowApplyDialog] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const queryClient = useQueryClient();
+
+  // Мутация для удаления вакансии
+  const deleteJobMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/jobs/${job.id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to delete job');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/jobs/search'] });
+      onOpenChange(false);
+    },
+    onError: (error) => {
+      console.error('Error deleting job:', error);
+    }
+  });
+
+  const handleDeleteJob = () => {
+    deleteJobMutation.mutate();
+    setShowDeleteConfirm(false);
+  };
 
   // Check if user has already applied to this job
   const { data: applicationStatus } = useQuery({
@@ -167,18 +197,37 @@ export default function JobDetailDialog({ job, open, onOpenChange }: JobDetailDi
             </span>
           </div>
 
-          {/* Apply Button or Analytics Button */}
+          {/* Apply Button or Owner Actions */}
           {isAuthenticated && (
             <div className="flex justify-end pt-4 border-t">
               {user?.id === job.postedBy ? (
-                <Button 
-                  onClick={() => setShowAnalytics(!showAnalytics)}
-                  className="flex items-center gap-2"
-                  variant="outline"
-                >
-                  <BarChart3 className="w-4 h-4" />
-                  {showAnalytics ? 'Скрыть аналитику' : 'Посмотреть аналитику'}
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => setShowAnalytics(!showAnalytics)}
+                    className="flex items-center gap-2"
+                    variant="outline"
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    {showAnalytics ? (language === 'ru' ? 'Скрыть аналитику' : 'Hide Analytics') : (language === 'ru' ? 'Аналитика' : 'Analytics')}
+                  </Button>
+                  <Button 
+                    onClick={() => setShowEditDialog(true)}
+                    className="flex items-center gap-2"
+                    variant="outline"
+                  >
+                    <Edit className="w-4 h-4" />
+                    {language === 'ru' ? 'Редактировать' : 'Edit'}
+                  </Button>
+                  <Button 
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="flex items-center gap-2"
+                    variant="outline"
+                    disabled={deleteJobMutation.isPending}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    {language === 'ru' ? 'Удалить' : 'Delete'}
+                  </Button>
+                </div>
               ) : applicationStatus?.hasApplied ? (
                 <Button disabled variant="outline">
                   Уже откликнулись
@@ -288,6 +337,51 @@ export default function JobDetailDialog({ job, open, onOpenChange }: JobDetailDi
         open={showApplyDialog}
         onOpenChange={setShowApplyDialog}
       />
+
+      {/* Edit Job Dialog */}
+      <EditJobDialog
+        job={job}
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {language === 'ru' ? 'Подтвердите удаление' : 'Confirm Deletion'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-gray-700 dark:text-gray-300">
+              {language === 'ru' 
+                ? 'Вы уверены, что хотите удалить эту вакансию? Это действие нельзя отменить.'
+                : 'Are you sure you want to delete this job? This action cannot be undone.'
+              }
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleteJobMutation.isPending}
+              >
+                {language === 'ru' ? 'Отмена' : 'Cancel'}
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={handleDeleteJob}
+                disabled={deleteJobMutation.isPending}
+              >
+                {deleteJobMutation.isPending 
+                  ? (language === 'ru' ? 'Удаление...' : 'Deleting...') 
+                  : (language === 'ru' ? 'Удалить' : 'Delete')
+                }
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }

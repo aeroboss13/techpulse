@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, User, Briefcase, Plus, Search, Link as LinkIcon, Github, Linkedin, Eye } from "lucide-react";
+import { MapPin, User, Briefcase, Plus, Search, Link as LinkIcon, Github, Linkedin, Eye, Edit, Trash2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import ResumeDetailDialog from "@/components/ResumeDetailDialog";
 import { useToast } from "@/hooks/use-toast";
@@ -45,7 +45,7 @@ interface Resume {
 }
 
 export default function Resumes() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { language } = useLanguage();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -53,6 +53,37 @@ export default function Resumes() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedResume, setSelectedResume] = useState<Resume | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [editingResume, setEditingResume] = useState<Resume | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [deleteConfirmResume, setDeleteConfirmResume] = useState<Resume | null>(null);
+
+  // Мутация для удаления резюме
+  const deleteResumeMutation = useMutation({
+    mutationFn: async (resumeId: string) => {
+      const response = await fetch(`/api/resumes/${resumeId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to delete resume');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/resumes'] });
+      setDeleteConfirmResume(null);
+      toast({
+        title: language === 'ru' ? 'Резюме удалено' : 'Resume deleted',
+        description: language === 'ru' ? 'Ваше резюме было успешно удалено' : 'Your resume has been successfully deleted'
+      });
+    },
+    onError: (error) => {
+      console.error('Error deleting resume:', error);
+      toast({
+        title: language === 'ru' ? 'Ошибка' : 'Error',
+        description: language === 'ru' ? 'Не удалось удалить резюме' : 'Failed to delete resume',
+        variant: 'destructive'
+      });
+    }
+  });
   
   const { data: resumes = [], isLoading } = useQuery({
     queryKey: ["/api/resumes"],
@@ -230,6 +261,32 @@ export default function Resumes() {
                         <Eye className="h-4 w-4 mr-1" />
                         {language === 'ru' ? 'Детали' : 'Details'}
                       </Button>
+                      
+                      {/* Owner actions */}
+                      {isAuthenticated && user?.id === resume.user?.id && (
+                        <>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setEditingResume(resume);
+                              setIsEditDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4 mr-1" />
+                            {language === 'ru' ? 'Редактировать' : 'Edit'}
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => setDeleteConfirmResume(resume)}
+                            disabled={deleteResumeMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            {language === 'ru' ? 'Удалить' : 'Delete'}
+                          </Button>
+                        </>
+                      )}
                       {isAuthenticated && resume.telegramNick && (
                         <Button 
                           size="sm" 
@@ -263,6 +320,53 @@ export default function Resumes() {
         open={isDetailDialogOpen}
         onOpenChange={setIsDetailDialogOpen}
       />
+
+      {/* Edit Resume Dialog */}
+      {editingResume && (
+        <CreateResumeDialog 
+          editingResume={editingResume}
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+        />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteConfirmResume} onOpenChange={() => setDeleteConfirmResume(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {language === 'ru' ? 'Подтвердите удаление' : 'Confirm Deletion'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-gray-700 dark:text-gray-300">
+              {language === 'ru' 
+                ? 'Вы уверены, что хотите удалить это резюме? Это действие нельзя отменить.'
+                : 'Are you sure you want to delete this resume? This action cannot be undone.'
+              }
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setDeleteConfirmResume(null)}
+                disabled={deleteResumeMutation.isPending}
+              >
+                {language === 'ru' ? 'Отмена' : 'Cancel'}
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={() => deleteConfirmResume && deleteResumeMutation.mutate(deleteConfirmResume.id)}
+                disabled={deleteResumeMutation.isPending}
+              >
+                {deleteResumeMutation.isPending 
+                  ? (language === 'ru' ? 'Удаление...' : 'Deleting...') 
+                  : (language === 'ru' ? 'Удалить' : 'Delete')
+                }
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
