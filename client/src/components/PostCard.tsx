@@ -73,14 +73,14 @@ export default function PostCard({ post }: PostCardProps) {
     onSuccess: () => {
       setBookmarked(!bookmarked);
       toast({
-        title: bookmarked ? "Removed from bookmarks" : "Added to bookmarks",
+        title: bookmarked ? t('toast.postUnbookmarked') : t('toast.postBookmarked'),
         duration: 2000,
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: "Failed to bookmark post. Please try again.",
+        title: t('toast.error'),
+        description: bookmarked ? t('toast.postUnbookmarked') : t('toast.postBookmarked'),
         variant: "destructive",
       });
     }

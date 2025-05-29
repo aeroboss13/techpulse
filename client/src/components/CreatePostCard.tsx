@@ -9,6 +9,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLanguage } from "@/components/LanguageProvider";
 import { 
   Dialog,
   DialogContent,
@@ -36,6 +37,7 @@ export default function CreatePostCard() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
   
   const createPostMutation = useMutation({
     mutationFn: (postData: any) => {
@@ -48,14 +50,14 @@ export default function CreatePostCard() {
       setContent("");
       setCodeSnippet("");
       toast({
-        title: "Success!",
-        description: "Your post has been published.",
+        title: t('toast.success'),
+        description: t('toast.postCreated'),
       });
     },
     onError: (error) => {
       toast({
-        title: "Failed to create post",
-        description: error.message || "Please try again later.",
+        title: t('toast.error'),
+        description: t('toast.postCreateError'),
         variant: "destructive",
       });
     },
