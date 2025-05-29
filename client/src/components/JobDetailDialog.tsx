@@ -199,29 +199,37 @@ export default function JobDetailDialog({ job, open, onOpenChange }: JobDetailDi
 
           {/* Apply Button or Owner Actions */}
           {isAuthenticated && (
-            <div className="flex justify-end pt-4 border-t">
+            <div className="flex flex-col sm:flex-row sm:justify-end pt-4 border-t gap-2">
               {user?.id === job.postedBy ? (
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Button 
                     onClick={() => setShowAnalytics(!showAnalytics)}
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2"
                     variant="outline"
+                    size="sm"
                   >
                     <BarChart3 className="w-4 h-4" />
-                    {showAnalytics ? (language === 'ru' ? 'Скрыть аналитику' : 'Hide Analytics') : (language === 'ru' ? 'Аналитика' : 'Analytics')}
+                    <span className="hidden sm:inline">
+                      {showAnalytics ? (language === 'ru' ? 'Скрыть аналитику' : 'Hide Analytics') : (language === 'ru' ? 'Аналитика' : 'Analytics')}
+                    </span>
+                    <span className="sm:hidden">
+                      {language === 'ru' ? 'Аналитика' : 'Analytics'}
+                    </span>
                   </Button>
                   <Button 
                     onClick={() => setShowEditDialog(true)}
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2"
                     variant="outline"
+                    size="sm"
                   >
                     <Edit className="w-4 h-4" />
                     {language === 'ru' ? 'Редактировать' : 'Edit'}
                   </Button>
                   <Button 
                     onClick={() => setShowDeleteConfirm(true)}
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2"
                     variant="outline"
+                    size="sm"
                     disabled={deleteJobMutation.isPending}
                   >
                     <Trash2 className="w-4 h-4" />

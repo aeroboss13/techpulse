@@ -175,41 +175,42 @@ export default function Jobs() {
         ) : (
           filteredJobs.map((job: Job) => (
             <Card key={job.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl mb-2">{job.title}</CardTitle>
-                    <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+              <CardHeader className="pb-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="text-lg sm:text-xl mb-2 line-clamp-2">{job.title}</CardTitle>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                       <div className="flex items-center gap-1">
-                        <Building className="h-4 w-4" />
-                        {job.company}
+                        <Building className="h-4 w-4 shrink-0" />
+                        <span className="truncate">{job.company}</span>
                       </div>
                       {job.location && (
                         <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {job.location}
+                          <MapPin className="h-4 w-4 shrink-0" />
+                          <span className="truncate">{job.location}</span>
                         </div>
                       )}
                       {job.salary && (
                         <div className="flex items-center gap-1">
-                          <DollarSign className="h-4 w-4" />
-                          {job.salary}
+                          <DollarSign className="h-4 w-4 shrink-0" />
+                          <span className="truncate">{job.salary}</span>
                         </div>
                       )}
                       <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        {new Date(job.createdAt).toLocaleDateString()}
+                        <Clock className="h-4 w-4 shrink-0" />
+                        <span className="whitespace-nowrap">{new Date(job.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleJobClick(job)}
+                      className="flex-shrink-0"
                     >
-                      <Eye className="h-4 w-4 mr-1" />
-                      {language === 'ru' ? 'Подробнее' : 'Details'}
+                      <Eye className="h-4 w-4 sm:mr-1" />
+                      <span className="hidden sm:inline">{language === 'ru' ? 'Подробнее' : 'Details'}</span>
                     </Button>
                   </div>
                 </div>

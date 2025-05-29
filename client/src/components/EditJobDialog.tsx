@@ -66,7 +66,7 @@ export default function EditJobDialog({ job, open, onOpenChange }: EditJobDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto">
         <DialogHeader>
           <DialogTitle>
             {language === 'ru' ? 'Редактировать вакансию' : 'Edit Job'}

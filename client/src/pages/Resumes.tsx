@@ -139,7 +139,7 @@ export default function Resumes() {
       </div>
 
       {/* Resumes List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {filteredResumes.length === 0 ? (
           <div className="col-span-full">
             <Card>
@@ -159,23 +159,23 @@ export default function Resumes() {
         ) : (
           filteredResumes.map((resume: Resume) => (
             <Card key={resume.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <Avatar>
+              <CardHeader className="pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <Avatar className="shrink-0">
                       <AvatarImage src={resume.user?.profileImageUrl} />
                       <AvatarFallback>
                         {resume.user?.firstName?.[0] || resume.user?.username?.[0] || 'U'}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <CardTitle className="text-lg">{resume.title}</CardTitle>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="min-w-0 flex-1">
+                      <CardTitle className="text-base sm:text-lg truncate">{resume.title}</CardTitle>
+                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">
                         {resume.user?.firstName} {resume.user?.lastName} (@{resume.user?.username})
                       </p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
                     {resume.isRemotePreferred && (
                       <Badge variant="secondary">{language === 'ru' ? 'Удаленно' : 'Remote'}</Badge>
                     )}
@@ -258,9 +258,10 @@ export default function Resumes() {
                           setSelectedResume(resume);
                           setIsDetailDialogOpen(true);
                         }}
+                        className="flex-shrink-0"
                       >
-                        <Eye className="h-4 w-4 mr-1" />
-                        {language === 'ru' ? 'Детали' : 'Details'}
+                        <Eye className="h-4 w-4 sm:mr-1" />
+                        <span className="hidden sm:inline">{language === 'ru' ? 'Детали' : 'Details'}</span>
                       </Button>
                       
                       {/* Owner actions */}
@@ -273,18 +274,20 @@ export default function Resumes() {
                               setEditingResume(resume);
                               setIsEditDialogOpen(true);
                             }}
+                            className="flex-shrink-0"
                           >
-                            <Edit className="h-4 w-4 mr-1" />
-                            {language === 'ru' ? 'Ред.' : 'Edit'}
+                            <Edit className="h-4 w-4 sm:mr-1" />
+                            <span className="hidden sm:inline">{language === 'ru' ? 'Ред.' : 'Edit'}</span>
                           </Button>
                           <Button 
                             size="sm" 
                             variant="outline"
                             onClick={() => setDeleteConfirmResume(resume)}
                             disabled={deleteResumeMutation.isPending}
+                            className="flex-shrink-0"
                           >
-                            <Trash2 className="h-4 w-4 mr-1" />
-                            {language === 'ru' ? 'Удалить' : 'Delete'}
+                            <Trash2 className="h-4 w-4 sm:mr-1" />
+                            <span className="hidden sm:inline">{language === 'ru' ? 'Удалить' : 'Delete'}</span>
                           </Button>
                         </>
                       )}
