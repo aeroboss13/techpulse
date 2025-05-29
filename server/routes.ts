@@ -989,6 +989,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/snippets/user/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const snippets = await storage.getUserCodeSnippets(userId);
+      // Возвращаем только публичные сниппеты для других пользователей
+      const publicSnippets = snippets.filter(snippet => snippet.isPublic);
+      res.json(publicSnippets);
+    } catch (error) {
+      console.error("Error fetching user snippets:", error);
+      res.status(500).json({ message: "Failed to fetch user snippets" });
+    }
+  });
+
   app.get('/api/snippets/public', async (req, res) => {
     try {
       const snippets = await storage.getPublicCodeSnippets();

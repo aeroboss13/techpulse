@@ -40,6 +40,11 @@ export default function Profile() {
     enabled: !!currentUser && currentUser.id === userId, // Загружаем только для собственного профиля
   });
 
+  const { data: userSnippets, isLoading: snippetsLoading } = useQuery({
+    queryKey: currentUser?.id === userId ? [`/api/snippets/my`] : [`/api/snippets/user/${userId}`],
+    enabled: !!userId,
+  });
+
   // Проверяем статус подписки при загрузке
   const { data: followStatus } = useQuery({
     queryKey: [`/api/users/${userId}/follow-status`],
@@ -306,11 +311,38 @@ export default function Profile() {
           </TabsContent>
           
           <TabsContent value="snippets" className="space-y-4">
-            <div className="text-center py-12">
-              <Code className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">{t('profile.noSnippets')}</h3>
-              <p className="text-muted-foreground">{t('profile.noSnippetsDesc')}</p>
-            </div>
+            {snippetsLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+              </div>
+            ) : userSnippets?.length > 0 ? (
+              userSnippets.map((snippet: any) => (
+                <div key={snippet.id} className="border rounded-lg p-4 bg-card">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-medium">{snippet.title}</h3>
+                    <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded">
+                      {snippet.language}
+                    </span>
+                  </div>
+                  {snippet.description && (
+                    <p className="text-sm text-muted-foreground mb-3">{snippet.description}</p>
+                  )}
+                  <div className="bg-secondary/50 rounded p-3 font-mono text-sm overflow-x-auto">
+                    <code>{snippet.code}</code>
+                  </div>
+                  <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
+                    <span>{new Date(snippet.createdAt).toLocaleDateString('ru-RU')}</span>
+                    <span>{snippet.isPublic ? 'Публичный' : 'Приватный'}</span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <Code className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">{t('profile.noSnippets')}</h3>
+                <p className="text-muted-foreground">{t('profile.noSnippetsDesc')}</p>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
