@@ -335,16 +335,16 @@ export default function Snippets() {
           <DialogTrigger asChild>
             <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
-              New Snippet
+{t('snippets.createNew')}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>
-                {editingSnippet ? "Edit Snippet" : "Create New Snippet"}
+                {editingSnippet ? t('snippets.editSnippet') : t('snippets.newSnippet')}
               </DialogTitle>
               <DialogDescription>
-                Save and organize your code snippets for easy access later.
+                {t('snippets.addNew')}
               </DialogDescription>
             </DialogHeader>
             
@@ -352,11 +352,11 @@ export default function Snippets() {
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
                   <label htmlFor="title" className="text-sm font-medium">
-                    Title
+                    {t('snippets.snippetTitle')}
                   </label>
                   <Input
                     id="title"
-                    placeholder="Enter a title for your snippet"
+                    placeholder={t('snippets.titlePlaceholder')}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
@@ -365,11 +365,11 @@ export default function Snippets() {
                 
                 <div className="grid gap-2">
                   <label htmlFor="description" className="text-sm font-medium">
-                    Description
+                    {t('snippets.description')}
                   </label>
                   <Textarea
                     id="description"
-                    placeholder="Add a brief description (optional)"
+                    placeholder={t('snippets.descriptionPlaceholder')}
                     rows={2}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -378,11 +378,11 @@ export default function Snippets() {
                 
                 <div className="grid gap-2">
                   <label htmlFor="language" className="text-sm font-medium">
-                    Language
+                    {t('snippets.language')}
                   </label>
                   <Select value={language} onValueChange={setLanguage}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Language" />
+                      <SelectValue placeholder={t('snippets.language')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="javascript">JavaScript</SelectItem>
@@ -406,11 +406,11 @@ export default function Snippets() {
                 
                 <div className="grid gap-2">
                   <label htmlFor="code" className="text-sm font-medium">
-                    Code
+                    {t('snippets.code')}
                   </label>
                   <Textarea
                     id="code"
-                    placeholder="Paste your code here"
+                    placeholder={t('snippets.codePlaceholder')}
                     className="font-mono"
                     rows={10}
                     value={code}
@@ -421,11 +421,11 @@ export default function Snippets() {
                 
                 <div className="grid gap-2">
                   <label htmlFor="tags" className="text-sm font-medium">
-                    Tags
+                    {t('snippets.tags')}
                   </label>
                   <Input
                     id="tags"
-                    placeholder="Enter tags separated by commas"
+                    placeholder={t('snippets.tagsPlaceholder')}
                     value={tags}
                     onChange={(e) => setTags(e.target.value)}
                   />
