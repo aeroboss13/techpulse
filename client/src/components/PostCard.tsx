@@ -241,7 +241,8 @@ export default function PostCard({ post }: PostCardProps) {
               />
             )}
             
-            <div className="mt-4 flex items-center justify-between">
+            <div className="mt-4 space-y-3">
+              {/* Action buttons */}
               <div className="flex space-x-5">
                 <Link href={`/post/${post.id}`}>
                   <a className="flex items-center space-x-1 text-gray-500 hover:text-primary">
@@ -277,12 +278,13 @@ export default function PostCard({ post }: PostCardProps) {
                 </button>
               </div>
               
+              {/* Hashtags - separate row */}
               {post.tags?.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {post.tags.map((tag, index) => {
+                <div className="flex flex-wrap gap-1 max-w-full overflow-hidden">
+                  {post.tags.slice(0, 6).map((tag, index) => {
                     const tagColors = {
                       "React": "blue",
-                      "Python": "yellow",
+                      "Python": "yellow", 
                       "DataScience": "green",
                       "ML": "red",
                       "Docker": "teal",
@@ -302,7 +304,7 @@ export default function PostCard({ post }: PostCardProps) {
                         key={tag} 
                         variant="outline"
                         className={`
-                          text-xs px-2 py-1 rounded-full 
+                          text-xs px-2 py-1 rounded-full shrink-0 max-w-20 truncate cursor-pointer hover:opacity-80
                           ${color === 'blue' && 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'} 
                           ${color === 'yellow' && 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'} 
                           ${color === 'green' && 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'} 
@@ -311,11 +313,20 @@ export default function PostCard({ post }: PostCardProps) {
                           ${color === 'purple' && 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200'} 
                           ${color === 'gray' && 'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200'}
                         `}
+                        onClick={() => {
+                          localStorage.setItem('selectedHashtag', tag);
+                          window.location.href = '/explore';
+                        }}
                       >
                         #{tag}
                       </Badge>
                     );
                   })}
+                  {post.tags.length > 6 && (
+                    <Badge variant="outline" className="text-xs px-2 py-1 rounded-full text-gray-500">
+                      +{post.tags.length - 6}
+                    </Badge>
+                  )}
                 </div>
               )}
             </div>

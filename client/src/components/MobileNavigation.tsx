@@ -41,7 +41,7 @@ export default function MobileNavigation() {
   
   
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-gray-800 z-10">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-gray-800 z-50">
       <div className="flex items-center justify-around h-16">
         {navItems.map((item) => {
           // Если требуется авторизация и пользователь не авторизован, скрываем элемент
