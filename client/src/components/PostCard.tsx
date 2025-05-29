@@ -8,7 +8,7 @@ import { Heart, MessageSquare, Bookmark, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import CodeSnippet from "./CodeSnippet";
 import { useLanguage } from "./LanguageProvider";
@@ -47,6 +47,12 @@ export default function PostCard({ post }: PostCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t, language } = useLanguage();
+
+  // Загружаем комментарии когда раздел комментариев открыт
+  const { data: comments = [], isLoading: commentsLoading } = useQuery({
+    queryKey: [`/api/posts/${post.id}/comments`],
+    enabled: showComments,
+  });
   
   const likePostMutation = useMutation({
     mutationFn: () => {
@@ -126,15 +132,31 @@ export default function PostCard({ post }: PostCardProps) {
     }
   };
 
+  const addCommentMutation = useMutation({
+    mutationFn: (content: string) => {
+      return apiRequest("POST", `/api/posts/${post.id}/comments`, { content });
+    },
+    onSuccess: () => {
+      toast({
+        title: language === 'ru' ? "Комментарий добавлен" : "Comment added",
+        duration: 2000,
+      });
+      setCommentText("");
+      // Перезагружаем комментарии
+      queryClient.invalidateQueries({ queryKey: [`/api/posts/${post.id}/comments`] });
+    },
+    onError: () => {
+      toast({
+        title: language === 'ru' ? "Ошибка при добавлении комментария" : "Error adding comment",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  });
+
   const handleAddComment = () => {
     if (!commentText.trim()) return;
-    
-    // В реальном приложении здесь был бы API вызов для добавления комментария
-    toast({
-      title: language === 'ru' ? "Комментарий добавлен" : "Comment added",
-      duration: 2000,
-    });
-    setCommentText("");
+    addCommentMutation.mutate(commentText.trim());
   };
   
   return (
@@ -405,11 +427,39 @@ export default function PostCard({ post }: PostCardProps) {
                 </div>
               )}
               
-              {/* Sample Comments */}
+              {/* Comments List */}
               <div className="space-y-3 pt-2">
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  {language === 'ru' ? "Комментарии появятся здесь" : "Comments will appear here"}
-                </div>
+                {commentsLoading ? (
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    {language === 'ru' ? "Загрузка комментариев..." : "Loading comments..."}
+                  </div>
+                ) : (comments as any[]).length > 0 ? (
+                  (comments as any[]).map((comment: any) => (
+                    <div key={comment.id} className="flex space-x-3">
+                      <Avatar className="w-7 h-7">
+                        <AvatarImage src={comment.user?.profileImageUrl || "/api/placeholder/32/32"} alt={comment.user?.displayName} />
+                        <AvatarFallback>{comment.user?.displayName?.[0] || 'U'}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2">
+                          <div className="flex items-center space-x-1 mb-1">
+                            <span className="font-medium text-sm text-gray-900 dark:text-white">
+                              {comment.user?.displayName || comment.user?.username || 'Пользователь'}
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {formatDistanceToNow(new Date(comment.createdAt))} {language === 'ru' ? 'назад' : 'ago'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{comment.content}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    {language === 'ru' ? "Пока нет комментариев" : "No comments yet"}
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -490,7 +490,7 @@ export class MemStorage implements IStorage {
         user: user ? {
           id: user.id,
           username: user.username,
-          displayName: user.displayName,
+          displayName: user.firstName || user.username || 'User',
           profileImageUrl: user.profileImageUrl
         } : null
       };
