@@ -15,6 +15,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Camera } from 'lucide-react';
 
 interface EditProfileDialogProps {
   open: boolean;
@@ -45,12 +47,53 @@ export default function EditProfileDialog({
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
+  const [selectedGender, setSelectedGender] = useState('male');
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
+  const generateAvatar = async () => {
+    setIsGeneratingAvatar(true);
+    
+    try {
+      const response = await fetch('/api/profile/generate-avatar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ gender: selectedGender }),
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to generate avatar');
+      }
+      
+      const data = await response.json();
+      
+      toast({
+        title: t('profile.avatarGenerated'),
+        description: t('profile.avatarGeneratedMessage'),
+      });
+      
+      // Trigger profile update to reflect new avatar
+      onProfileUpdate();
+    } catch (error) {
+      console.error('Error generating avatar:', error);
+      toast({
+        title: t('profile.avatarError'),
+        description: error instanceof Error ? error.message : 'An unknown error occurred',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGeneratingAvatar(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -108,10 +151,34 @@ export default function EditProfileDialog({
               <AvatarFallback>{user?.firstName?.[0] || user?.email?.[0] || 'U'}</AvatarFallback>
             </Avatar>
             
-            <div>
-              <p className="text-sm text-muted-foreground">
+            <div className="flex-1">
+              <p className="text-sm text-muted-foreground mb-3">
                 {t('profile.avatarDescription')}
               </p>
+              
+              <div className="flex items-center gap-2">
+                <Select value={selectedGender} onValueChange={setSelectedGender}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">{t('profile.male')}</SelectItem>
+                    <SelectItem value="female">{t('profile.female')}</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={generateAvatar}
+                  disabled={isGeneratingAvatar}
+                  className="flex items-center gap-1"
+                >
+                  <Camera className="w-4 h-4" />
+                  {isGeneratingAvatar ? t('profile.generating') : t('profile.changeAvatar')}
+                </Button>
+              </div>
             </div>
           </div>
           
