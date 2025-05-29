@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Profile from "@/pages/Profile";
 import Explore from "@/pages/Explore";
+import Search from "@/pages/Search";
 import Snippets from "@/pages/Snippets";
 import AIAssistant from "@/pages/AIAssistant";
 import Login from "@/pages/Login";
@@ -54,6 +55,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/explore" component={Explore} />
+      <Route path="/search" component={Search} />
       <Route path="/work" component={() => <ProtectedRoute component={Work} />} />
       <Route path="/snippets" component={() => <ProtectedRoute component={Snippets} />} />
       <Route path="/ai-assistant" component={() => <ProtectedRoute component={AIAssistant} />} />

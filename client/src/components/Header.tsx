@@ -31,8 +31,9 @@ export default function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      // Handle search functionality
-      console.log("Searching for:", searchTerm);
+      // Перенаправляем на страницу поиска с параметром
+      window.location.href = `/search?q=${encodeURIComponent(searchTerm)}`;
+      setSearchTerm(""); // Очищаем поле поиска
     }
   };
   

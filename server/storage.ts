@@ -109,6 +109,12 @@ export interface IStorage {
   markNotificationAsRead(id: string): Promise<void>;
   markAllNotificationsAsRead(userId: string): Promise<void>;
   getUnreadNotificationsCount(userId: string): Promise<number>;
+  
+  // Search operations
+  searchUsers(searchTerm: string): Promise<User[]>;
+  searchJobs(searchTerm: string): Promise<any[]>;
+  searchResumes(searchTerm: string): Promise<any[]>;
+  searchHashtags(searchTerm: string): Promise<TrendingTopic[]>;
 }
 
 export class MemStorage implements IStorage {
