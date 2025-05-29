@@ -245,6 +245,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Search API endpoints (must be before parameterized routes)
+  app.get('/api/users/search', async (req: any, res) => {
+    try {
+      const searchTerm = req.query.q as string;
+      if (!searchTerm) {
+        return res.json([]);
+      }
+      
+      const users = await storage.searchUsers(searchTerm);
+      res.json(users);
+    } catch (error) {
+      console.error("Error searching users:", error);
+      res.status(500).json({ message: "Failed to search users" });
+    }
+  });
+
+  app.get('/api/jobs/search', async (req: any, res) => {
+    try {
+      const searchTerm = req.query.q as string;
+      if (!searchTerm) {
+        return res.json([]);
+      }
+      
+      const jobs = await storage.searchJobs(searchTerm);
+      console.log('Returning jobs to client:', jobs.length);
+      res.json(jobs);
+    } catch (error) {
+      console.error("Error searching jobs:", error);
+      res.status(500).json({ message: "Failed to search jobs" });
+    }
+  });
+
+  app.get('/api/posts/search', async (req: any, res) => {
+    try {
+      const searchTerm = req.query.q as string;
+      if (!searchTerm) {
+        return res.json([]);
+      }
+      
+      const posts = await storage.searchPosts(searchTerm);
+      res.json(posts);
+    } catch (error) {
+      console.error("Error searching posts:", error);
+      res.status(500).json({ message: "Failed to search posts" });
+    }
+  });
+
+  app.get('/api/hashtags/search', async (req: any, res) => {
+    try {
+      const searchTerm = req.query.q as string;
+      if (!searchTerm) {
+        return res.json([]);
+      }
+      
+      const hashtags = await storage.searchHashtags(searchTerm);
+      res.json(hashtags);
+    } catch (error) {
+      console.error("Error searching hashtags:", error);
+      res.status(500).json({ message: "Failed to search hashtags" });
+    }
+  });
+
   // User profile routes  
   app.get('/api/users/:userId', async (req, res) => {
     try {
@@ -1191,6 +1253,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Resumes API
+  // Resume search endpoint
+  app.get('/api/resumes/search', async (req: any, res) => {
+    try {
+      const searchTerm = req.query.q as string;
+      if (!searchTerm) {
+        return res.json([]);
+      }
+      
+      const resumes = await storage.searchResumes(searchTerm);
+      res.json(resumes);
+    } catch (error) {
+      console.error("Error searching resumes:", error);
+      res.status(500).json({ message: "Failed to search resumes" });
+    }
+  });
+
   app.get('/api/resumes', async (req, res) => {
     try {
       // Отключаем кэширование
@@ -1488,66 +1566,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Search API endpoints
-  app.get('/api/users/search', async (req: any, res) => {
-    try {
-      const searchTerm = req.query.q as string;
-      if (!searchTerm) {
-        return res.json([]);
-      }
-      
-      const users = await storage.searchUsers(searchTerm);
-      res.json(users);
-    } catch (error) {
-      console.error("Error searching users:", error);
-      res.status(500).json({ message: "Failed to search users" });
-    }
-  });
 
-  app.get('/api/jobs/search', async (req: any, res) => {
-    try {
-      const searchTerm = req.query.q as string;
-      if (!searchTerm) {
-        return res.json([]);
-      }
-      
-      const jobs = await storage.searchJobs(searchTerm);
-      res.json(jobs);
-    } catch (error) {
-      console.error("Error searching jobs:", error);
-      res.status(500).json({ message: "Failed to search jobs" });
-    }
-  });
-
-  app.get('/api/resumes/search', async (req: any, res) => {
-    try {
-      const searchTerm = req.query.q as string;
-      if (!searchTerm) {
-        return res.json([]);
-      }
-      
-      const resumes = await storage.searchResumes(searchTerm);
-      res.json(resumes);
-    } catch (error) {
-      console.error("Error searching resumes:", error);
-      res.status(500).json({ message: "Failed to search resumes" });
-    }
-  });
-
-  app.get('/api/hashtags/search', async (req: any, res) => {
-    try {
-      const searchTerm = req.query.q as string;
-      if (!searchTerm) {
-        return res.json([]);
-      }
-      
-      const hashtags = await storage.searchHashtags(searchTerm);
-      res.json(hashtags);
-    } catch (error) {
-      console.error("Error searching hashtags:", error);
-      res.status(500).json({ message: "Failed to search hashtags" });
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;
