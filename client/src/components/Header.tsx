@@ -38,39 +38,39 @@ export default function Header() {
   };
   
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-gray-800">
-      <div className="container mx-auto px-4 flex items-center justify-between h-16">
-        <div className="flex items-center space-x-4">
-          <Link href="/" className="flex items-center">
-            <svg className="h-8 w-8 text-primary" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-            </svg>
-            <span className="ml-2 font-bold text-xl text-primary">DevStream</span>
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
+      <div className="container mx-auto px-6 flex items-center justify-between h-14">
+        <div className="flex items-center">
+          <Link href="/" className="flex items-center group">
+            <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Code className="h-4 w-4 text-background" />
+            </div>
+            <span className="ml-3 font-semibold text-lg tracking-tight">DevStream</span>
           </Link>
         </div>
         
-        <div className="relative flex-1 max-w-md mx-4">
+        <div className="relative flex-1 max-w-sm mx-8">
           <form onSubmit={handleSearch}>
             <div className="relative">
               <Input
                 type="text"
-                className="pl-10 pr-4 py-2 rounded-full border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary w-full"
-                placeholder={language === 'ru' ? "Поиск в DevStream" : "Search DevStream"}
+                className="pl-9 pr-4 py-2 h-9 rounded-lg border-0 bg-muted/40 hover:bg-muted/60 focus:bg-background focus:ring-1 focus:ring-border transition-all duration-200 w-full text-sm"
+                placeholder={language === 'ru' ? "Поиск..." : "Search..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-gray-400" />
+                <Search className="h-4 w-4 text-muted-foreground" />
               </div>
             </div>
           </form>
         </div>
         
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
           <LanguageSwitcher />
           
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-            {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="w-8 h-8 rounded-lg hover:bg-muted/60">
+            {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
           </Button>
           
           {isAuthenticated && <NotificationDropdown />}
@@ -78,12 +78,12 @@ export default function Header() {
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="rounded-full flex items-center space-x-2 focus:outline-none">
-                  <Avatar className="w-8 h-8 border-2 border-primary">
+                <Button variant="ghost" className="flex items-center space-x-2 h-8 px-2 hover:bg-muted/60 rounded-lg">
+                  <Avatar className="w-6 h-6">
                     <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} />
-                    <AvatarFallback>{user?.firstName?.[0] || user?.email?.[0] || "U"}</AvatarFallback>
+                    <AvatarFallback className="text-xs">{user?.firstName?.[0] || user?.email?.[0] || "U"}</AvatarFallback>
                   </Avatar>
-                  <span className="hidden md:inline-block font-medium">{user?.firstName || user?.email?.split('@')[0] || "User"}</span>
+                  <span className="hidden md:inline-block text-sm font-medium">{user?.firstName || user?.email?.split('@')[0] || "User"}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -118,7 +118,7 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button asChild>
+            <Button asChild className="h-8 px-4 rounded-lg text-sm font-medium">
               <Link href="/login">{language === 'ru' ? "Войти" : "Log in"}</Link>
             </Button>
           )}
