@@ -165,14 +165,16 @@ export default function PostCard({ post }: PostCardProps) {
   
   return (
     <article 
-      className={`bg-white dark:bg-slate-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-200 ${
-        post.isAiRecommended ? "border-blue-200 dark:border-blue-900 shadow-blue-100 dark:shadow-blue-900/20" : ""
+      className={`bg-card rounded-lg border border-border/60 overflow-hidden hover:border-border transition-all duration-200 ${
+        post.isAiRecommended ? "border-blue-200 dark:border-blue-800" : ""
       }`}
     >
       {post.isAiRecommended && (
-        <div className="bg-blue-50 dark:bg-blue-900/30 px-4 py-2 flex items-center text-sm">
-          <i className="fas fa-robot text-primary mr-2"></i>
-          <span className="text-gray-700 dark:text-gray-300">
+        <div className="bg-muted/40 px-4 py-2 flex items-center text-sm border-b border-border/40">
+          <div className="w-4 h-4 bg-blue-500 rounded-full mr-2 flex items-center justify-center">
+            <span className="text-xs text-white font-bold">AI</span>
+          </div>
+          <span className="text-muted-foreground text-xs">
             {post.aiRecommendationReason || "Recommended by AI based on your interests"}
           </span>
         </div>
@@ -181,24 +183,24 @@ export default function PostCard({ post }: PostCardProps) {
       <div className="p-4">
         <div className="flex items-start space-x-3">
           <Link href={`/profile/${post.user.id}`}>
-            <Avatar className="w-10 h-10 cursor-pointer hover:opacity-80 transition-opacity">
+            <Avatar className="w-8 h-8 cursor-pointer hover:scale-105 transition-transform">
               <AvatarImage src={post.user.profileImageUrl} alt={post.user.displayName} />
-              <AvatarFallback>{post.user.displayName[0]}</AvatarFallback>
+              <AvatarFallback className="text-xs">{post.user.displayName[0]}</AvatarFallback>
             </Avatar>
           </Link>
           
           <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-2 text-sm">
               <Link href={`/profile/${post.user.id}`}>
-                <h3 className="font-medium text-gray-900 dark:text-white truncate hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors">
+                <span className="font-medium text-foreground hover:text-foreground/80 cursor-pointer transition-colors">
                   {post.user.displayName}
-                </h3>
+                </span>
               </Link>
               <Link href={`/profile/${post.user.id}`}>
-                <span className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors">@{post.user.username}</span>
+                <span className="text-muted-foreground hover:text-foreground/60 cursor-pointer transition-colors">@{post.user.username}</span>
               </Link>
-              <span className="text-gray-500 dark:text-gray-400">·</span>
-              <span className="text-gray-500 dark:text-gray-400">
+              <span className="text-muted-foreground">·</span>
+              <span className="text-muted-foreground text-xs">
                 {(() => {
                   const distance = formatDistanceToNow(new Date(post.createdAt));
                   if (language === 'ru') {
@@ -242,7 +244,7 @@ export default function PostCard({ post }: PostCardProps) {
               </span>
             </div>
             
-            <div className="mt-1 text-gray-700 dark:text-gray-300">
+            <div className="mt-2 text-foreground/90 leading-relaxed">
               {post.content.includes('```') ? (
                 post.content.split(/(```(\w*)\n[\s\S]*?\n```)/g).map((part, i) => {
                   if (i % 3 === 0) {
@@ -308,46 +310,46 @@ export default function PostCard({ post }: PostCardProps) {
             
             <div className="mt-4 space-y-3">
               {/* Action buttons */}
-              <div className="flex space-x-5">
+              <div className="flex items-center space-x-6">
                 <button 
-                  className="flex items-center space-x-1 text-gray-500 hover:text-primary"
+                  className="flex items-center space-x-1.5 text-muted-foreground hover:text-foreground transition-colors group"
                   onClick={() => setShowComments(!showComments)}
                 >
-                  <MessageSquare className="h-5 w-5" />
-                  <span>{post.comments || 0}</span>
+                  <MessageSquare className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                  <span className="text-sm">{post.comments || 0}</span>
                 </button>
                 
                 <button 
-                  className={`flex items-center space-x-1 ${
-                    liked ? "text-red-500" : "text-gray-500 hover:text-red-500"
+                  className={`flex items-center space-x-1.5 transition-colors group ${
+                    liked ? "text-red-500" : "text-muted-foreground hover:text-red-500"
                   }`}
                   onClick={handleLike}
                 >
-                  <Heart className={`h-5 w-5 ${liked ? "fill-current" : ""}`} />
-                  <span>{likesCount}</span>
+                  <Heart className={`h-4 w-4 group-hover:scale-110 transition-transform ${liked ? "fill-current" : ""}`} />
+                  <span className="text-sm">{likesCount}</span>
                 </button>
                 
                 <button 
-                  className={`flex items-center space-x-1 ${
-                    bookmarked ? "text-blue-500" : "text-gray-500 hover:text-blue-500"
+                  className={`flex items-center space-x-1.5 transition-colors group ${
+                    bookmarked ? "text-blue-500" : "text-muted-foreground hover:text-blue-500"
                   }`}
                   onClick={handleBookmark}
                 >
-                  <Bookmark className={`h-5 w-5 ${bookmarked ? "fill-current" : ""}`} />
+                  <Bookmark className={`h-4 w-4 group-hover:scale-110 transition-transform ${bookmarked ? "fill-current" : ""}`} />
                 </button>
                 
                 <button 
-                  className="flex items-center space-x-1 text-gray-500 hover:text-primary"
+                  className="flex items-center space-x-1.5 text-muted-foreground hover:text-foreground transition-colors group"
                   onClick={handleShare}
                 >
-                  <Share2 className="h-5 w-5" />
+                  <Share2 className="h-4 w-4 group-hover:scale-110 transition-transform" />
                 </button>
               </div>
               
               {/* Hashtags - separate row */}
               {post.tags?.length > 0 && (
-                <div className="flex flex-wrap gap-1 max-w-full overflow-hidden">
-                  {post.tags.slice(0, 6).map((tag, index) => {
+                <div className="flex flex-wrap gap-1.5 max-w-full overflow-hidden">
+                  {post.tags.slice(0, 5).map((tag, index) => {
                     const tagColors = {
                       "React": "blue",
                       "Python": "yellow", 
