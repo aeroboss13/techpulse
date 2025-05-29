@@ -125,6 +125,17 @@ export default function PostCard({ post }: PostCardProps) {
       });
     }
   };
+
+  const handleAddComment = () => {
+    if (!commentText.trim()) return;
+    
+    // В реальном приложении здесь был бы API вызов для добавления комментария
+    toast({
+      title: language === 'ru' ? "Комментарий добавлен" : "Comment added",
+      duration: 2000,
+    });
+    setCommentText("");
+  };
   
   return (
     <article 
@@ -361,6 +372,48 @@ export default function PostCard({ post }: PostCardProps) {
             </div>
           </div>
         </div>
+        
+        {/* Comments Section */}
+        {showComments && (
+          <div className="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4">
+            <div className="space-y-3">
+              {/* Add Comment Input */}
+              {isAuthenticated && (
+                <div className="flex space-x-3">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src="/api/placeholder/32/32" alt="Your avatar" />
+                    <AvatarFallback>U</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 space-y-2">
+                    <Textarea
+                      placeholder={language === 'ru' ? "Написать комментарий..." : "Write a comment..."}
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      className="min-h-[60px] resize-none"
+                    />
+                    <div className="flex justify-end">
+                      <Button 
+                        size="sm" 
+                        onClick={handleAddComment}
+                        disabled={!commentText.trim()}
+                        className="px-4"
+                      >
+                        {language === 'ru' ? "Отправить" : "Post"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Sample Comments */}
+              <div className="space-y-3 pt-2">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  {language === 'ru' ? "Комментарии появятся здесь" : "Comments will appear here"}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </article>
   );
