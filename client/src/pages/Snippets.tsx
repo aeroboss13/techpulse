@@ -479,20 +479,20 @@ export default function Snippets() {
             </>
           ) : mySnippets?.length === 0 ? (
             <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center">
-              <h3 className="text-xl font-medium mb-2">No snippets yet</h3>
+              <h3 className="text-xl font-medium mb-2">{t('snippets.noSnippets')}</h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">
-                Create your first code snippet to save it for later use!
+                {t('snippets.noSnippetsDesc')}
               </p>
               <Button onClick={() => setIsCreateDialogOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Create Snippet
+                {t('snippets.createSnippet')}
               </Button>
             </div>
           ) : filteredMySnippets?.length === 0 ? (
             <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center">
-              <h3 className="text-xl font-medium mb-2">No matching snippets</h3>
+              <h3 className="text-xl font-medium mb-2">{t('snippets.noMatching')}</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                Try different search terms
+                {t('snippets.tryDifferentSearch')}
               </p>
             </div>
           ) : (
@@ -510,9 +510,9 @@ export default function Snippets() {
             </>
           ) : publicSnippets?.length === 0 ? (
             <div className="bg-white dark:bg-slate-900 p-8 rounded-xl text-center">
-              <h3 className="text-xl font-medium mb-2">No public snippets available</h3>
+              <h3 className="text-xl font-medium mb-2">{t('snippets.noPublicSnippets')}</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                Be the first to share a public snippet with the community!
+                {t('snippets.beFirstToShare')}
               </p>
             </div>
           ) : (
