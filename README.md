@@ -1,3 +1,4 @@
+
 # DevStream - Социальная платформа для IT-специалистов
 
 **DevStream** — это современная социальная платформа, специально созданная для IT-профессионалов. Платформа объединяет возможности социальных сетей с профессиональными инструментами для разработчиков, включая поиск работы, обмен кодом и ИИ-ассистента.
@@ -55,34 +56,144 @@
 
 ## 📋 Требования
 
-- **Node.js** 18.0.0 или выше
+- **Node.js** 20.0.0 или выше
 - **PostgreSQL** 14.0 или выше
 - **npm** или **yarn**
 
-## 🚀 Установка и запуск
+## 🏗 Архитектура проекта
 
-### 1. Клонирование репозитория
+```
+devstream/
+├── client/                    # Frontend приложение
+│   ├── src/
+│   │   ├── components/       # React компоненты
+│   │   │   ├── ui/          # UI компоненты (shadcn/ui)
+│   │   │   ├── ApplyJobDialog.tsx
+│   │   │   ├── CodeSnippet.tsx
+│   │   │   ├── CreateJobDialog.tsx
+│   │   │   ├── CreatePostCard.tsx
+│   │   │   ├── CreateResumeDialog.tsx
+│   │   │   ├── EditJobDialog.tsx
+│   │   │   ├── EditProfileDialog.tsx
+│   │   │   ├── Header.tsx
+│   │   │   ├── JobDetailDialog.tsx
+│   │   │   ├── LanguageProvider.tsx
+│   │   │   ├── LanguageSwitcher.tsx
+│   │   │   ├── MainLayout.tsx
+│   │   │   ├── MobileNavigation.tsx
+│   │   │   ├── NotificationDropdown.tsx
+│   │   │   ├── OfferJobDialog.tsx
+│   │   │   ├── PostCard.tsx
+│   │   │   ├── ResumeDetailDialog.tsx
+│   │   │   ├── RightSidebar.tsx
+│   │   │   ├── Sidebar.tsx
+│   │   │   └── ThemeProvider.tsx
+│   │   ├── pages/           # Страницы приложения
+│   │   │   ├── AIAssistant.tsx
+│   │   │   ├── Bookmarks.tsx
+│   │   │   ├── Explore.tsx
+│   │   │   ├── Home.tsx
+│   │   │   ├── Jobs.tsx
+│   │   │   ├── Login.tsx
+│   │   │   ├── Profile.tsx
+│   │   │   ├── Resumes.tsx
+│   │   │   ├── Search.tsx
+│   │   │   ├── Settings.tsx
+│   │   │   ├── Snippets.tsx
+│   │   │   ├── Work.tsx
+│   │   │   └── not-found.tsx
+│   │   ├── hooks/           # Кастомные хуки
+│   │   │   ├── use-mobile.tsx
+│   │   │   ├── use-toast.ts
+│   │   │   ├── useAuth.ts
+│   │   │   └── useLanguage.ts
+│   │   ├── lib/            # Утилиты
+│   │   │   ├── queryClient.ts
+│   │   │   └── utils.ts
+│   │   ├── App.tsx         # Главный компонент
+│   │   ├── main.tsx        # Точка входа
+│   │   └── index.css       # Глобальные стили
+│   └── index.html          # HTML шаблон
+├── server/                 # Backend приложение
+│   ├── index.ts           # Главный файл сервера
+│   ├── routes.ts          # API роуты
+│   ├── storage.ts         # Слой данных
+│   ├── auth.ts            # Аутентификация
+│   ├── ai.ts              # ИИ интеграция
+│   └── vite.ts            # Vite интеграция
+├── shared/                # Общие типы и схемы
+│   └── schema.ts          # Схемы базы данных
+├── .replit               # Конфигурация Replit
+├── package.json          # Зависимости проекта
+├── tsconfig.json         # Конфигурация TypeScript
+├── vite.config.ts        # Конфигурация Vite
+├── tailwind.config.ts    # Конфигурация Tailwind
+├── drizzle.config.ts     # Конфигурация Drizzle ORM
+├── postcss.config.js     # Конфигурация PostCSS
+└── components.json       # Конфигурация shadcn/ui
+```
+
+## 🚀 Быстрый запуск на Replit
+
+### Пошаговая инструкция
+
+1. **Установите зависимости**:
+```bash
+npm install
+```
+
+2. **Создайте файл переменных окружения**:
+Создайте файл `.env` в корне проекта с содержимым:
+```env
+# База данных (для разработки используем встроенную SQLite)
+DATABASE_URL=file:./dev.db
+
+# ИИ для функций
+GEMINI_API_KEY=ключ
+
+
+# Сессии
+SESSION_SECRET=dev-session-secret-key-for-development-only
+
+# Для разработки
+NODE_ENV=development
+PORT=5000
+```
+
+3. **Запустите проект**:
+Нажмите кнопку **Run** или выполните команду:
+```bash
+npm run dev
+```
+
+4. **Готово!** 
+Приложение будет доступно в веб-превью Replit на порту 5000.
+
+**Примечание**: В проекте уже настроены демо-данные, поэтому вы сразу увидите контент после запуска.
+
+---
+
+## 🚀 Установка и запуск (для других платформ)
+
+### Локальная разработка
+
+#### 1. Клонирование репозитория
 ```bash
 git clone https://github.com/your-username/devstream.git
 cd devstream
 ```
 
-### 2. Установка зависимостей
+#### 2. Установка зависимостей
 ```bash
 npm install
 ```
 
-### 3. Настройка переменных окружения
+#### 3. Настройка переменных окружения
 Создайте файл `.env` в корне проекта:
 
 ```env
 # База данных
 DATABASE_URL=postgresql://username:password@localhost:5432/devstream
-PGHOST=localhost
-PGPORT=5432
-PGUSER=your_username
-PGPASSWORD=your_password
-PGDATABASE=devstream
 
 # OpenAI для ИИ-функций
 OPENAI_API_KEY=your_openai_api_key
@@ -91,168 +202,207 @@ OPENAI_API_KEY=your_openai_api_key
 SESSION_SECRET=your_very_long_random_secret_key
 
 # Для продакшена (опционально)
-NODE_ENV=production
+NODE_ENV=development
 PORT=5000
 ```
 
-### 4. Настройка базы данных
+#### 4. Настройка базы данных PostgreSQL
 
-#### Создание базы данных:
-```sql
--- Подключитесь к PostgreSQL и выполните:
-CREATE DATABASE devstream;
-CREATE USER devstream_user WITH PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE devstream TO devstream_user;
-```
-
-#### Применение миграций:
 ```bash
+# Создание базы данных
+sudo -u postgres createdb devstream
+sudo -u postgres createuser devstream_user
+sudo -u postgres psql -c "ALTER USER devstream_user WITH PASSWORD 'your_password';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE devstream TO devstream_user;"
+
+# Применение схемы базы данных
 npm run db:push
 ```
 
-### 5. Запуск проекта
-
-#### Режим разработки:
+#### 5. Запуск проекта
 ```bash
 npm run dev
 ```
 
-#### Режим продакшена:
-```bash
-npm run build
-npm start
-```
-
 Приложение будет доступно по адресу: `http://localhost:5000`
 
-## 🔧 Скрипты
+## 🌐 Развертывание
 
+### На Replit (рекомендуется)
+
+Для развертывания на Replit:
+
+1. **Убедитесь, что проект работает в режиме разработки**
+2. **Настройте переменные окружения для продакшена** в файле `.env`:
+```env
+DATABASE_URL=file:./production.db
+GEMINI_API_KEY=your_production_gemini_api_key
+OPENAI_API_KEY=your_production_openai_api_key
+SESSION_SECRET=very_long_random_secret_for_production
+NODE_ENV=production
+PORT=5000
+```
+
+3. **Перейдите в раздел Deployments в Replit**
+4. **Нажмите Deploy** для публикации приложения
+
+Ваше приложение будет автоматически развернуто и доступно по публичному URL.
+
+---
+
+## 🖥️ Развертывание на Ubuntu сервере (альтернатива)
+
+### Предварительные требования
+- Ubuntu 20.04 LTS или выше
+- Пользователь с правами sudo
+- Доменное имя (опционально)
+
+### 1. Обновление системы
 ```bash
-# Разработка
-npm run dev          # Запуск в режиме разработки
-
-# Сборка
-npm run build        # Сборка для продакшена
-npm start            # Запуск продакшен версии
-
-# База данных
-npm run db:push      # Применение изменений схемы к БД
-npm run db:generate  # Генерация миграций
-
-# Типы
-npm run type-check   # Проверка типов TypeScript
-```
-
-## 🐳 Docker развертывание
-
-### Dockerfile
-```dockerfile
-FROM node:18-alpine
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci --only=production
-
-COPY . .
-RUN npm run build
-
-EXPOSE 5000
-
-CMD ["npm", "start"]
-```
-
-### docker-compose.yml
-```yaml
-version: '3.8'
-
-services:
-  app:
-    build: .
-    ports:
-      - "5000:5000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/devstream
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - SESSION_SECRET=${SESSION_SECRET}
-    depends_on:
-      - db
-
-  db:
-    image: postgres:14
-    environment:
-      - POSTGRES_DB=devstream
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-volumes:
-  postgres_data:
-```
-
-### Запуск с Docker:
-```bash
-docker-compose up -d
-```
-
-## 🔑 Получение API ключей
-
-### OpenAI API
-1. Зарегистрируйтесь на [OpenAI Platform](https://platform.openai.com)
-2. Перейдите в раздел API Keys
-3. Создайте новый ключ
-4. Добавьте его в переменную `OPENAI_API_KEY`
-
-## 🏗 Архитектура проекта
-
-```
-devstream/
-├── client/                 # Frontend приложение
-│   ├── src/
-│   │   ├── components/     # React компоненты
-│   │   ├── pages/         # Страницы приложения
-│   │   ├── hooks/         # Кастомные хуки
-│   │   └── lib/           # Утилиты
-├── server/                # Backend приложение
-│   ├── index.ts          # Главный файл сервера
-│   ├── routes.ts         # API роуты
-│   ├── storage.ts        # Слой данных
-│   └── auth.ts           # Аутентификация
-├── shared/               # Общие типы и схемы
-│   └── schema.ts         # Схемы базы данных
-└── package.json
-```
-
-## 🔐 Безопасность
-
-- Пароли хэшируются с помощью bcrypt
-- Сессии хранятся в базе данных
-- CSRF защита включена
-- Валидация данных на уровне API
-- Санитизация пользовательского ввода
-
-## 🌐 Продакшен развертывание
-
-### На VPS/выделенном сервере:
-
-1. **Подготовка сервера:**
-```bash
-# Ubuntu/Debian
 sudo apt update
-sudo apt install nodejs npm postgresql nginx
+sudo apt upgrade -y
+```
 
-# Настройка Nginx
+### 2. Установка Node.js 20
+```bash
+# Добавление NodeSource репозитория
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+
+# Установка Node.js
+sudo apt install -y nodejs
+
+# Проверка установки
+node --version
+npm --version
+```
+
+### 3. Установка PostgreSQL
+```bash
+# Установка PostgreSQL
+sudo apt install -y postgresql postgresql-contrib
+
+# Запуск и автозапуск PostgreSQL
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+# Настройка пользователя PostgreSQL
+sudo -u postgres psql
+```
+
+В PostgreSQL консоли выполните:
+```sql
+CREATE DATABASE devstream;
+CREATE USER devstream_user WITH PASSWORD 'secure_password_here';
+GRANT ALL PRIVILEGES ON DATABASE devstream TO devstream_user;
+\q
+```
+
+### 4. Установка Nginx
+```bash
+sudo apt install -y nginx
+
+# Запуск и автозапуск Nginx
+sudo systemctl start nginx
+sudo systemctl enable nginx
+```
+
+### 5. Настройка файрвола
+```bash
+sudo ufw allow OpenSSH
+sudo ufw allow 'Nginx Full'
+sudo ufw enable
+```
+
+### 6. Клонирование и настройка проекта
+```bash
+# Создание директории для проекта
+sudo mkdir -p /var/www/devstream
+sudo chown $USER:$USER /var/www/devstream
+
+# Клонирование репозитория
+cd /var/www/devstream
+git clone https://github.com/your-username/devstream.git .
+
+# Установка зависимостей
+npm install
+
+# Создание файла переменных окружения
+sudo nano .env
+```
+
+Содержимое `.env` файла:
+```env
+# База данных
+DATABASE_URL=postgresql://devstream_user:secure_password_here@localhost:5432/devstream
+
+# OpenAI для ИИ-функций
+OPENAI_API_KEY=your_openai_api_key
+
+# Сессии
+SESSION_SECRET=very_long_random_secret_key_at_least_32_characters
+
+# Продакшен настройки
+NODE_ENV=production
+PORT=5000
+```
+
+### 7. Применение схемы базы данных
+```bash
+npm run db:push
+```
+
+### 8. Сборка проекта
+```bash
+npm run build
+```
+
+### 9. Создание systemd сервиса
+```bash
+sudo nano /etc/systemd/system/devstream.service
+```
+
+Содержимое файла:
+```ini
+[Unit]
+Description=DevStream Application
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/devstream
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npm start
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+# Изменение владельца файлов
+sudo chown -R www-data:www-data /var/www/devstream
+
+# Запуск и автозапуск сервиса
+sudo systemctl daemon-reload
+sudo systemctl enable devstream
+sudo systemctl start devstream
+
+# Проверка статуса
+sudo systemctl status devstream
+```
+
+### 10. Настройка Nginx
+```bash
 sudo nano /etc/nginx/sites-available/devstream
 ```
 
-2. **Конфигурация Nginx:**
+Содержимое файла:
 ```nginx
 server {
     listen 80;
-    server_name your-domain.com;
+    server_name your-domain.com www.your-domain.com;  # Замените на ваш домен
 
     location / {
         proxy_pass http://localhost:5000;
@@ -268,36 +418,111 @@ server {
 }
 ```
 
-3. **SSL с Let's Encrypt:**
 ```bash
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d your-domain.com
+# Активация сайта
+sudo ln -s /etc/nginx/sites-available/devstream /etc/nginx/sites-enabled/
+
+# Проверка конфигурации
+sudo nginx -t
+
+# Перезапуск Nginx
+sudo systemctl restart nginx
 ```
 
-4. **Systemd сервис:**
+### 11. Установка SSL сертификата (Let's Encrypt)
 ```bash
-sudo nano /etc/systemd/system/devstream.service
+# Установка Certbot
+sudo apt install -y certbot python3-certbot-nginx
+
+# Получение SSL сертификата
+sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+
+# Автоматическое обновление сертификатов
+sudo crontab -e
 ```
 
-```ini
-[Unit]
-Description=DevStream App
-After=network.target
-
-[Service]
-Type=simple
-User=www-data
-WorkingDirectory=/var/www/devstream
-ExecStart=/usr/bin/npm start
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
+Добавьте в crontab:
+```
+0 12 * * * /usr/bin/certbot renew --quiet
 ```
 
+### 12. Оптимизация для продакшена
+
+#### Настройка лимитов файлов
 ```bash
-sudo systemctl enable devstream
+sudo nano /etc/security/limits.conf
+```
+
+Добавьте:
+```
+www-data soft nofile 65536
+www-data hard nofile 65536
+```
+
+#### Настройка swap (если нужно)
+```bash
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+### 13. Мониторинг и логи
+```bash
+# Просмотр логов приложения
+sudo journalctl -u devstream -f
+
+# Просмотр логов Nginx
+sudo tail -f /var/log/nginx/access.log
+sudo tail -f /var/log/nginx/error.log
+
+# Проверка использования ресурсов
+htop
+```
+
+## 🔧 Скрипты
+
+```bash
+# Разработка
+npm run dev          # Запуск в режиме разработки
+
+# Сборка
+npm run build        # Сборка для продакшена
+npm start            # Запуск продакшен версии
+
+# База данных
+npm run db:push      # Применение изменений схемы к БД
+
+# Типы
+npm run check        # Проверка типов TypeScript
+```
+
+## 🔄 Обновление приложения на сервере
+
+```bash
+cd /var/www/devstream
+
+# Остановка сервиса
+sudo systemctl stop devstream
+
+# Получение последних изменений
+git pull origin main
+
+# Установка новых зависимостей
+npm install
+
+# Сборка проекта
+npm run build
+
+# Применение изменений БД (если есть)
+npm run db:push
+
+# Запуск сервиса
 sudo systemctl start devstream
+
+# Проверка статуса
+sudo systemctl status devstream
 ```
 
 ## 📝 Переменные окружения
@@ -305,10 +530,34 @@ sudo systemctl start devstream
 | Переменная | Описание | Обязательная |
 |------------|----------|--------------|
 | `DATABASE_URL` | URL подключения к PostgreSQL | ✅ |
-| `OPENAI_API_KEY` | Ключ OpenAI API | ✅ |
-| `SESSION_SECRET` | Секретный ключ для сессий | ✅ |
+| `OPENAI_API_KEY` | Ключ OpenAI API для ИИ-функций | ✅ |
+| `SESSION_SECRET` | Секретный ключ для сессий (мин. 32 символа) | ✅ |
 | `PORT` | Порт сервера | ❌ (по умолчанию 5000) |
 | `NODE_ENV` | Окружение (development/production) | ❌ |
+
+## 🔑 Получение API ключей
+
+### OpenAI API
+1. Зарегистрируйтесь на [OpenAI Platform](https://platform.openai.com)
+2. Перейдите в раздел API Keys
+3. Создайте новый ключ
+4. Добавьте его в переменную `OPENAI_API_KEY`
+
+## 🔐 Безопасность
+
+- Пароли хэшируются с помощью bcrypt
+- Сессии хранятся в базе данных с использованием connect-pg-simple
+- CSRF защита включена
+- Валидация данных на уровне API с помощью Zod
+- Санитизация пользовательского ввода
+
+## 🎨 Возможности интерфейса
+
+- **Темная/светлая тема**: Автоматическое переключение
+- **Адаптивный дизайн**: Оптимизировано для всех устройств
+- **Мобильная навигация**: Удобное меню для смартфонов
+- **Бесконечная прокрутка**: Плавная загрузка контента
+- **Живые уведомления**: Мгновенные обновления активности
 
 ## 🤝 Вклад в проект
 
@@ -317,6 +566,69 @@ sudo systemctl start devstream
 3. Зафиксируйте изменения (`git commit -m 'Add amazing feature'`)
 4. Отправьте в ветку (`git push origin feature/amazing-feature`)
 5. Откройте Pull Request
+
+## 🐛 Решение проблем
+
+### Частые проблемы на Replit
+
+#### Ошибка "tsx: not found"
+```bash
+# Переустановите зависимости
+rm -rf node_modules package-lock.json
+npm install
+```
+
+#### Проблемы с переменными окружения
+Убедитесь, что файл `.env` создан в корне проекта и содержит все необходимые переменные.
+
+#### Проект не запускается после клонирования
+```bash
+# Последовательно выполните:
+npm install
+# Создайте .env файл с переменными выше
+npm run dev
+```
+
+#### Ошибки с базой данных
+Проект использует SQLite для разработки, база создается автоматически. Если возникают проблемы:
+```bash
+rm dev.db  # Удалить старую базу
+npm run dev  # Перезапустить - база создастся заново
+```
+
+---
+
+### Частые проблемы на других платформах
+
+#### Приложение не запускается
+```bash
+# Проверьте логи
+sudo journalctl -u devstream -n 50
+
+# Проверьте переменные окружения
+cat .env
+
+# Проверьте права доступа
+ls -la /var/www/devstream
+```
+
+#### Ошибки базы данных
+```bash
+# Проверьте подключение к PostgreSQL
+sudo -u postgres psql -c "SELECT version();"
+
+# Проверьте пользователя базы данных
+sudo -u postgres psql -c "\du"
+```
+
+#### Nginx ошибки
+```bash
+# Проверьте конфигурацию
+sudo nginx -t
+
+# Проверьте логи
+sudo tail -f /var/log/nginx/error.log
+```
 
 ## 📄 Лицензия
 
