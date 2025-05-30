@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { User, Post } from "@shared/schema";
 
 // Initialize Google Gemini AI
-const genAI = new GoogleGenerativeAI("AIzaSyDgQ0QqG8slJcrgcuqRLb3RAu-iUrwrDXM");
+const genAI = new GoogleGenerativeAI("твой ключ");
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
 // Helper function to completely remove hashtags
