@@ -29,7 +29,7 @@ export async function generateAiSuggestion(prompt: string): Promise<string> {
     let systemPrompt = '';
     
     if (language === 'Russian') {
-      systemPrompt = `Ты - помощник по программированию. 
+      systemPrompt = `Ты - помощник по аналитики постов в социальной сети для айтишников, а также можешь помогать в написании кода и его анализа. 
 
 СТРОГИЕ ПРАВИЛА:
 - Отвечай ТОЛЬКО на русском языке
